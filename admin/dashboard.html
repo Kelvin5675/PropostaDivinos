@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divinos Admin | Painel de Controle</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Quill Editor (Rich Text) -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/admin.css?v=10">
+</head>
+
+<body>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fas fa-layer-group"></i>
+            <h2>Divinos Admin</h2>
+        </div>
+
+        <nav class="nav-menu">
+            <a onclick="switchTab('dashboard')" class="nav-item active" id="nav-dashboard">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <div
+                style="padding: 1rem 1.2rem; font-size: 0.8rem; color: #8898aa; text-transform: uppercase; letter-spacing: 1px;">
+                Gestão</div>
+            <a onclick="switchTab('products')" class="nav-item" id="nav-products">
+                <i class="fas fa-box-open"></i> Produtos
+            </a>
+            <a onclick="switchTab('orders')" class="nav-item" id="nav-orders">
+                <i class="fas fa-shopping-cart"></i> Pedidos (Web)
+            </a>
+            <a onclick="switchTab('categories')" class="nav-item" id="nav-categories">
+                <i class="fas fa-tags"></i> Categorias
+            </a>
+
+            <div
+                style="padding: 1rem 1.2rem; font-size: 0.8rem; color: #8898aa; text-transform: uppercase; letter-spacing: 1px;">
+                Website</div>
+            <a onclick="switchTab('home-editor')" class="nav-item" id="nav-home-editor">
+                <i class="fas fa-home"></i> Página Inicial
+            </a>
+            <a onclick="switchTab('content-mgmt')" class="nav-item" id="nav-content-mgmt">
+                <i class="fas fa-edit"></i> Gestão de Conteúdo
+            </a>
+            <a onclick="switchTab('marketing')" class="nav-item" id="nav-marketing">
+                <i class="fas fa-bullhorn"></i> Marketing & SEO
+            </a>
+            <a onclick="switchTab('carousel-editor')" class="nav-item" id="nav-carousel-editor">
+                <i class="fas fa-images"></i> Carrossel Hero
+            </a>
+            <a onclick="switchTab('about-editor')" class="nav-item" id="nav-about-editor">
+                <i class="fas fa-info-circle"></i> Sobre Nós
+            </a>
+            <a onclick="switchTab('contact-editor')" class="nav-item" id="nav-contact-editor">
+                <i class="fas fa-address-book"></i> Contato
+            </a>
+            <a onclick="switchTab('settings')" class="nav-item" id="nav-settings">
+                <i class="fas fa-palette"></i> Personalização
+            </a>
+            <a onclick="switchTab('profile')" class="nav-item" id="nav-profile">
+                <i class="fas fa-user-shield"></i> Perfil e Segurança
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a onclick="logout()" class="logout-btn">
+                <i class="fas fa-sign-out-alt" style="margin-right: 10px;"></i> Sair do Sistema
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button class="menu-toggle" onclick="toggleSidebar()"
+                    style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary-color);">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="page-title">Visão Geral</h1>
+            </div>
+            <div class="user-profile">
+                <span>Olá, <strong id="admin-display-name">Carregando...</strong></span>
+                <div class="user-avatar" id="admin-profile-circle">
+                    <img id="admin-profile-img" src=""
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none;">
+                    <i id="admin-default-icon" class="fas fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- DASHBOARD (OVERVIEW) TAB -->
+        <section id="dashboard" class="section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-eye"></i></div>
+                    <div class="stat-info">
+                        <h3 id="views-count">0</h3>
+                        <p>Visitas Totais</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-box"></i></div>
+                    <div class="stat-info">
+                        <h3 id="products-count">...</h3>
+                        <p>Produtos Cadastrados</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-images"></i></div>
+                    <div class="stat-info">
+                        <h3 id="projects-count">48</h3>
+                        <p>Projetos Realizados</p>
+                    </div>
+                </div>
+                <!--<div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-envelope"></i></div>
+                    <div class="stat-info">
+                        <h3>12</h3>
+                        <p>Mensagens Novas</p>
+                    </div>
+                </div>-->
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Desempenho de Visitantes</h3>
+                </div>
+                <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+                    <canvas id="visitorsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Tabela Detalhada de Visitas -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 class="card-title">Detalhes dos Visitantes Recentes</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="fetchRecentVisits()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+                <div class="table-container" style="overflow-x: auto;">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>País</th>
+                                <th>Província/Região</th>
+                                <th>Dispositivo</th>
+                                <th>Dia e Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visits-table-body">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 2rem;">
+                                    <i class="fas fa-spinner fa-spin"></i> Carregando dados...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTENT MANAGEMENT TAB -->
+        <section id="content-mgmt" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gestão de Serviços (Seção Serviços)</h3>
+                </div>
+                <div style="padding: 1rem;">
+                    <button class="btn btn-primary" onclick="showServiceModal()"
+                        style="margin-bottom: 1rem; background-color: #2ecc71; border-color: #2ecc71;">
+                        <i class="fas fa-plus"></i> Novo Serviço
+                    </button>
+                    <div class="table-container" style="overflow-x: auto;">
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th>Ordem</th>
+                                    <th>Título (PT)</th>
+                                    <th>Ícone</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="services-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    <h3 class="card-title">Vídeos em Destaque (Seção Momentos)</h3>
+                </div>
+                <div style="padding: 1rem;">
+                    <button class="btn btn-primary" onclick="showMomentoModal()" style="margin-bottom: 1rem;">
+                        <i class="fas fa-plus"></i> Adicionar Vídeo
+                    </button>
+                    <div class="table-container" style="overflow-x: auto;">
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th>Ordem</th>
+                                    <th>URL / Caminho</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="momentos-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MARKETING & SEO TAB -->
+        <section id="marketing" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Configurações de Marketing & SEO</h3>
+                </div>
+                <form id="marketing-settings-form">
+                    <div style="margin-bottom: 2rem;">
+                        <h4
+                            style="margin-bottom: 1rem; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                            Tracking & Social Ads</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label><i class="fab fa-facebook" style="color: #1877f2;"></i> Facebook Pixel ID</label>
+                                <input type="text" name="marketing_fb_pixel_id" class="form-control"
+                                    placeholder="Apenas o ID numérico">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fab fa-google" style="color: #4285f4;"></i> Google Analytics ID</label>
+                                <input type="text" name="marketing_google_analytics_id" class="form-control"
+                                    placeholder="G-XXXXXXXXXX">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4
+                            style="margin-bottom: 1rem; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                            Otimização para Buscas (SEO)</h4>
+                        <div class="form-group">
+                            <label>Meta Título</label>
+                            <input type="text" name="seo_title" class="form-control"
+                                placeholder="Título que aparece no Google">
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Meta Descrição</label>
+                            <textarea name="seo_description" class="form-control" rows="3"
+                                placeholder="Breve resumo do seu site para o Google"></textarea>
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Palavras-chave (Separe por vírgula)</label>
+                            <input type="text" name="seo_keywords" class="form-control"
+                                placeholder="ex: gráfica, quadros, maputo, memórias">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; padding: 15px; font-weight: 600;">Salvar Alterações de Marketing</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- PRODUCTS TAB -->
+        <section id="products" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gerenciar Produtos</h3>
+                    <button class="btn btn-primary" onclick="showAddProductForm()"><i class="fas fa-plus"></i> Novo
+                        Produto</button>
+                </div>
+
+                <!-- Add/Edit Form (Initially Hidden) -->
+                <div id="product-form-container"
+                    style="display:none; background: #f8f9fa; padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e0e0e0;">
+                    <form id="product-form">
+                        <input type="hidden" id="prod-id">
+                        <input type="hidden" id="prod-gallery" value="[]"> <!--Array as JSON string -->
+
+                        <!-- Seção: Informações Básicas -->
+                        <div style="margin-bottom: 30px;">
+                            <h4
+                                style="color: #555; border-bottom: 2px solid #e63946; padding-bottom: 10px; margin-bottom: 20px;">
+                                <i class="fas fa-info-circle"></i> Informações Básicas
+                            </h4>
+                            <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Nome do Produto
+                                        *</label>
+                                    <input type="text" id="prod-title" class="form-control" required
+                                        style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Categoria
+                                        *</label>
+                                    <select id="prod-category" class="form-control"
+                                        style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                        <option value="">Selecione...</option>
+                                        <!-- Dynamic categories via JS -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Preço (MT)
+                                        *</label>
+                                    <input type="text" id="prod-price" class="form-control" placeholder="Ex: 5000"
+                                        style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">SKU
+                                        (Código)</label>
+                                    <input type="text" id="prod-sku" class="form-control"
+                                        placeholder="Auto-gerado se vazio"
+                                        style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção: Preços e Avaliações -->
+                        <div style="margin-bottom: 30px;">
+                            <h4
+                                style="color: #555; border-bottom: 2px solid #e63946; padding-bottom: 10px; margin-bottom: 20px;">
+                                <i class="fas fa-tags"></i> Preços, Descontos e Avaliações
+                            </h4>
+                            <div class="form-grid"
+                                style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Desconto
+                                        (%)</label>
+                                    <input type="number" id="prod-discount" class="form-control" min="0" max="100"
+                                        placeholder="0"
+                                        style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                    <small style="color: #888;">0-100</small>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Avaliação
+                                        Média</label>
+                                    <input type="number" id="prod-rating" class="form-control" min="0" max="5"
+                                        step="0.1" placeholder="0.0"
+                                        style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                    <small style="color: #888;">0.0 a 5.0</small>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Nº de
+                                        Avaliações</label>
+                                    <input type="number" id="prod-reviews" class="form-control" min="0" placeholder="0"
+                                        style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Seção: Badge e Variações -->
+                        <div style="margin-bottom: 30px;">
+                            <h4
+                                style="color: #555; border-bottom: 2px solid #e63946; padding-bottom: 10px; margin-bottom: 20px;">
+                                <i class="fas fa-certificate"></i> Badge e Variações
+                            </h4>
+                            <div class="form-grid" style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Badge</label>
+                                    <select id="prod-badge" class="form-control"
+                                        style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                        <option value="">Nenhum</option>
+                                        <option value="Sale">Sale</option>
+                                        <option value="New">New</option>
+                                        <option value="Hot">Hot</option>
+                                        <option value="Premium">Premium</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; display: block; margin-bottom: 8px;">Tags (separadas
+                                        por vírgula)</label>
+                                    <input type="text" id="prod-tags" class="form-control"
+                                        placeholder="Ex: Premium, Bestseller, Novo"
+                                        style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Tamanhos/Volumes
+                                    (separados por vírgula)</label>
+                                <input type="text" id="prod-sizes" class="form-control"
+                                    placeholder="Ex: Pequeno, Médio, Grande ou 30ml, 60ml, 100ml"
+                                    style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                            </div>
+                        </div>
+
+                        <!-- Seção: Imagens -->
+                        <div style="margin-bottom: 30px;">
+                            <h4
+                                style="color: #555; border-bottom: 2px solid #e63946; padding-bottom: 10px; margin-bottom: 20px;">
+                                <i class="fas fa-images"></i> Imagens
+                            </h4>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Imagem de Capa
+                                    (Principal) *</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="url" id="prod-image" class="form-control"
+                                        placeholder="URL da imagem..."
+                                        style="flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="document.getElementById('file-upload-main').click()"><i
+                                            class="fas fa-upload"></i></button>
+                                </div>
+                                <input type="file" id="file-upload-main" style="display: none;" accept="image/*"
+                                    onchange="handleFileUpload(this, 'prod-image', 'prod-preview')">
+                                <img id="prod-preview" class="img-preview" src=""
+                                    style="max-height: 100px; margin-top: 10px; display: none; border-radius: 6px;">
+                            </div>
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Galeria de Imagens
+                                    (Opcional)</label>
+                                <div id="gallery-container"
+                                    style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                                    <!-- Gallery items thumb via JS -->
+                                </div>
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="document.getElementById('file-upload-gallery').click()">
+                                    <i class="fas fa-images"></i> Adicionar Foto à Galeria
+                                </button>
+                                <input type="file" id="file-upload-gallery" style="display: none;" accept="image/*"
+                                    onchange="handleGalleryUpload(this)">
+                            </div>
+                        </div>
+
+                        <!-- Seção: Descrições -->
+                        <div style="margin-bottom: 30px;">
+                            <h4
+                                style="color: #555; border-bottom: 2px solid #e63946; padding-bottom: 10px; margin-bottom: 20px;">
+                                <i class="fas fa-align-left"></i> Descrições
+                            </h4>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Descrição Curta
+                                    *</label>
+                                <div id="short-description-editor" style="background: white; min-height: 150px;"></div>
+                                <textarea id="prod-desc" style="display: none;"></textarea>
+                            </div>
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Descrição Longa
+                                    (Detalhada)</label>
+                                <div id="long-description-editor" style="background: white; min-height: 200px;"></div>
+                                <textarea id="prod-long-desc" style="display: none;"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Checkbox Destaque -->
+                        <div class="form-group"
+                            style="margin-top: 20px; display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="prod-featured"
+                                style="width: 20px; height: 20px; cursor: pointer;">
+                            <label for="prod-featured" style="font-weight: 600; cursor: pointer;">Expor como Produto em
+                                Destaque na Página Inicial</label>
+                        </div>
+
+                        <!-- Botões -->
+                        <div style="display: flex; gap: 10px; margin-top: 25px;">
+                            <button type="submit" class="btn btn-success"
+                                style="padding: 12px 25px; font-weight: 600;"><i class="fas fa-save"></i> Salvar
+                                Produto</button>
+                            <button type="button" class="btn btn-danger" onclick="hideProductForm()"
+                                style="padding: 12px 25px;">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Preço</th>
+                                <th>Destaque</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table-body">
+                            <!-- JS fill -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- CATEGORIES TAB -->
+        <section id="categories" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gerenciar Categorias</h3>
+                    <button class="btn btn-primary" onclick="showAddCategoryForm()"><i class="fas fa-plus"></i> Nova
+                        Categoria</button>
+                </div>
+
+                <div id="category-form-container"
+                    style="display:none; background: #f8f9fa; padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e0e0e0;">
+                    <form id="category-form">
+                        <input type="hidden" id="cat-id">
+                        <div class="form-group">
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Nome da
+                                Categoria</label>
+                            <input type="text" id="cat-name" class="form-control" required
+                                style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;"
+                                placeholder="Ex: Brindes Corporativos">
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 25px;">
+                            <button type="submit" class="btn btn-success"
+                                style="padding: 10px 20px; font-weight: 600;"><i class="fas fa-save"></i>
+                                Salvar</button>
+                            <button type="button" class="btn btn-danger" onclick="hideCategoryForm()"
+                                style="padding: 10px 20px;">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Criada em</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categories-table-body">
+                            <!-- JS fill -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOME EDITOR TAB -->
+        <section id="home-editor" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Página Inicial - Hero Section</h3>
+                </div>
+                <form id="hero-form">
+                    <div class="form-group">
+                        <label>Título Principal</label>
+                        <input type="text" name="hero_title" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Subtítulo</label>
+                        <textarea name="hero_subtitle" class="form-control" rows="2"></textarea>
+                    </div>
+                    <!-- Future: Hero Background Image Upload -->
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </form>
+            </div>
+
+        </section>
+
+        <!-- CAROUSEL EDITOR TAB -->
+        <section id="carousel-editor" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gerenciar Carrossel Hero</h3>
+                    <button class="btn btn-primary" onclick="showAddCarouselForm()"><i class="fas fa-plus"></i> Novo
+                        Item</button>
+                </div>
+
+                <!-- Add/Edit Carousel Form -->
+                <div id="carousel-form-container"
+                    style="display:none; background: #f8f9fa; padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e0e0e0;">
+                    <form id="carousel-form">
+                        <input type="hidden" id="car-id">
+                        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Título
+                                    (Produto)</label>
+                                <input type="text" id="car-title" class="form-control" required
+                                    style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Subtítulo (Ex: Mais
+                                    Vendido)</label>
+                                <input type="text" id="car-subtitle" class="form-control"
+                                    style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Ordem de
+                                    Exibição</label>
+                                <input type="number" id="car-order" class="form-control" value="0"
+                                    style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Imagem do
+                                    Slide</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="url" id="car-image" class="form-control" placeholder="URL da imagem..."
+                                        style="flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="document.getElementById('file-upload-car').click()"><i
+                                            class="fas fa-upload"></i></button>
+                                </div>
+                                <input type="file" id="file-upload-car" style="display: none;" accept="image/*"
+                                    onchange="handleFileUpload(this, 'car-image', 'car-preview')">
+                                <img id="car-preview" class="img-preview" src=""
+                                    style="max-height: 100px; margin-top: 10px; display: none; border-radius: 6px;">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 25px;">
+                            <button type="submit" class="btn btn-success"
+                                style="padding: 12px 25px; font-weight: 600;"><i class="fas fa-save"></i> Salvar
+                                Item</button>
+                            <button type="button" class="btn btn-danger" onclick="hideCarouselForm()"
+                                style="padding: 12px 25px;">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Título</th>
+                                <th>Subtítulo</th>
+                                <th>Ordem</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="carousel-table-body">
+                            <!-- JS fill -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT EDITOR TAB -->
+        <section id="about-editor" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Sobre Nós - Conteúdo</h3>
+                </div>
+                <form id="about-form">
+                    <div class="form-group">
+                        <label>Fale sobre a empresa (Resumo)</label>
+                        <textarea name="about_text_main" class="form-control" rows="5"></textarea>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Projetos Realizados (Número)</label>
+                            <input type="number" name="stats_projects" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Anos de Experiência</label>
+                            <input type="number" name="stats_years" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>% de Satisfação</label>
+                            <input type="number" name="stats_satisfaction" class="form-control">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Salvar Informações</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- CONTACT EDITOR TAB -->
+        <section id="contact-editor" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Informações de Contato</h3>
+                </div>
+                <form id="contact-info-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Telefone 1</label>
+                            <input type="text" name="contact_phone" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone 2 (Opcional)</label>
+                            <input type="text" name="contact_phone_2" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Email de Contato</label>
+                            <input type="email" name="contact_email" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Endereço Físico</label>
+                            <input type="text" name="contact_address" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>WhatsApp (Número p/ Link)</label>
+                            <input type="text" name="whatsapp_number" class="form-control"
+                                placeholder="Ex: 258841234567">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Atualizar Contatos</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- GLOBAL SETTINGS (REVISED) -->
+        <section id="settings" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Identidade Visual & Marcas</h3>
+                </div>
+                <form id="visual-settings-form">
+                    <div style="margin-bottom: 2rem;">
+                        <h4
+                            style="margin-bottom: 1rem; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                            Cores de cada Canto</h4>
+                        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                            <div class="form-group">
+                                <label>Primária (Botões/Destaques)</label>
+                                <input type="color" name="color_primary" class="form-control" style="height: 45px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Secundária (Fundos Escuros)</label>
+                                <input type="color" name="color_secondary" class="form-control" style="height: 45px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Dourado (Detalhes Premium)</label>
+                                <input type="color" name="color_gold" class="form-control" style="height: 45px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Fundo Geral (Claro)</label>
+                                <input type="color" name="color_bg_light" class="form-control" style="height: 45px;">
+                            </div>
+                            <div class="form-group">
+                                <label>Fundo Footer/Admin</label>
+                                <input type="color" name="color_bg_dark" class="form-control" style="height: 45px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4
+                            style="margin-bottom: 1rem; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                            Favicons (Ícones do Navegador)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Favicon do Site</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" name="site_favicon" id="site_favicon" class="form-control"
+                                        placeholder="URL ou upload...">
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="document.getElementById('file-site-favicon').click()">
+                                        <i class="fas fa-upload"></i>
+                                    </button>
+                                </div>
+                                <input type="file" id="file-site-favicon" style="display: none;" accept="image/*"
+                                    onchange="handleFileUpload(this, 'site_favicon')">
+                            </div>
+                            <div class="form-group">
+                                <label>Favicon do Painel Admin</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="text" name="admin_favicon" id="admin_favicon" class="form-control"
+                                        placeholder="URL ou upload...">
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="document.getElementById('file-admin-favicon').click()">
+                                        <i class="fas fa-upload"></i>
+                                    </button>
+                                </div>
+                                <input type="file" id="file-admin-favicon" style="display: none;" accept="image/*"
+                                    onchange="handleFileUpload(this, 'admin_favicon')">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4
+                            style="margin-bottom: 1rem; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                            Tipografia (Tipos de Letra)</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Fonte para Títulos (Ex: Syne, Montserrat)</label>
+                                <input type="text" name="font_titles" class="form-control" placeholder="Ex: Syne">
+                            </div>
+                            <div class="form-group">
+                                <label>Fonte para Corpo de Texto (Ex: Poppins, Inter)</label>
+                                <input type="text" name="font_body" class="form-control" placeholder="Ex: Poppins">
+                            </div>
+                            <div class="form-group">
+                                <label>Fonte para Botões (Ex: Space Grotesk)</label>
+                                <input type="text" name="font_buttons" class="form-control"
+                                    placeholder="Ex: Space Grotesk">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4
+                            style="margin-bottom: 1rem; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                            Redes Sociais Detalhadas</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label><i class="fab fa-facebook" style="color: #1877f2;"></i> Link do Facebook</label>
+                                <input type="text" name="facebook_url" class="form-control"
+                                    placeholder="https://facebook.com/divinos">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fab fa-instagram" style="color: #e4405f;"></i> Link do
+                                    Instagram</label>
+                                <input type="text" name="instagram_url" class="form-control"
+                                    placeholder="https://instagram.com/divinos">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">Salvar
+                        Personalização Total</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- PROFILE & SECURITY TAB -->
+        <section id="profile" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Meu Perfil Admin</h3>
+                </div>
+                <form id="admin-profile-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nome de Exibição (Olá, ...)</label>
+                            <input type="text" name="admin_display_name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Foto de Perfil</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" name="admin_profile_pic" id="admin_profile_pic" class="form-control">
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="document.getElementById('file-profile-pic').click()">
+                                    <i class="fas fa-upload"></i>
+                                </button>
+                            </div>
+                            <input type="file" id="file-profile-pic" style="display: none;" accept="image/*"
+                                onchange="handleFileUpload(this, 'admin_profile_pic')">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Atualizar Perfil</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Alterar Senha</h3>
+                </div>
+                <form id="change-password-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nova Senha</label>
+                            <input type="password" id="new-password" class="form-control" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmar Nova Senha</label>
+                            <input type="password" id="confirm-password" class="form-control" required minlength="6">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"
+                        style="background-color: #f1c40f; border-color: #f1c40f;">Mudar Senha</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Segurança Extra (2FA)</h3>
+                </div>
+                <div style="padding: 1rem; background: #f8f9fa; border-radius: 12px; border: 1px solid #ddd;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h4 style="margin-bottom: 5px;">Google Authenticator</h4>
+                            <p style="font-size: 0.9rem; color: #666;">Camada extra de proteção ao entrar no sistema.
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span id="2fa-status" style="font-weight: 600; color: #e63946;">DESATIVADO</span>
+                            <button id="toggle-2fa-btn" class="btn btn-secondary">Ativar</button>
+                        </div>
+                    </div>
+
+                    <!-- Configuração Visual -->
+                    <div id="2fa-setup-area"
+                        style="display: none; border-top: 1px solid #ddd; padding-top: 20px; text-align: center;">
+                        <h4 style="margin-bottom: 15px;">Configurar Novo Dispositivo</h4>
+                        <ol
+                            style="text-align: left; display: inline-block; max-width: 400px; margin-bottom: 20px; font-size: 0.9rem; color: #444;">
+                            <li>Abra o app <b>Google Authenticator</b> no celular.</li>
+                            <li>Toque no botão <b>+</b> e escolha <b>Escanear código QR</b>.</li>
+                            <li>Aponte a câmera para o código abaixo ou digite a chave manual.</li>
+                        </ol>
+
+                        <div
+                            style="background: white; padding: 15px; display: inline-block; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                            <div id="2fa-qrcode" style="width: 180px; height: 180px;"></div>
+                        </div>
+
+                        <div style="margin-top: 10px;">
+                            <p style="font-size: 0.8rem; color: #777;">Chave Manual:</p>
+                            <code id="2fa-secret-text"
+                                style="display: block; background: #eee; padding: 10px; border-radius: 6px; font-weight: bold; font-family: monospace; letter-spacing: 2px;">XXXX XXXX XXXX XXXX</code>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="confirm2FASetup()">
+                                <i class="fas fa-check-circle"></i> Já escaneei / Salvar Configuração
+                            </button>
+                            <button class="btn btn-secondary" onclick="hide2FASetup()"
+                                style="margin-left: 10px; background: #eee; color: #666; border: none;">Cancelar</button>
+                        </div>
+                    </div>
+
+                    <button id="setup-2fa-new-btn" class="btn btn-secondary"
+                        style="width: 100%; margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">
+                        <i class="fas fa-sync-alt"></i> Gerar Novo Segredo (Resetar Dispositivo)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title" style="color: #e63946;">Zona de Perigo</h3>
+            </div>
+            <p>Ações irreversíveis.</p>
+            <div style="margin-top: 1rem;">
+                <button class="btn btn-danger" style="opacity: 0.5; cursor: not-allowed;" title="Em breve">Resetar
+                    Site para Padrão</button>
+            </div>
+        </div>
+        </section>
+
+        <!-- PLACEHOLDER FOR ORDERS (In future) -->
+        <section id="orders" class="section">
+            <div class="card">
+                <h2>Em Breve</h2>
+                <p>Gestão de pedidos recebidos pelo site.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Overlay Forms for Services & Momentos -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="service-modal-title" style="margin: 0;">Novo Serviço</h3>
+                <button type="button" onclick="hideServiceModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <form id="service-form">
+                <input type="hidden" name="id" id="service-id">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Título (PT)</label>
+                        <input type="text" name="title_pt" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Título (EN)</label>
+                        <input type="text" name="title_en" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Descrição (PT)</label>
+                    <textarea name="description_pt" class="form-control" rows="4" required
+                        placeholder="Use quebras de linha para listar itens"></textarea>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Descrição (EN)</label>
+                    <textarea name="description_en" class="form-control" rows="4"></textarea>
+                </div>
+                <div class="form-grid" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label>Ícone (FontAwesome)</label>
+                        <input type="text" name="icon" class="form-control" placeholder="fas fa-print">
+                    </div>
+                    <div class="form-group">
+                        <label>Ordem de Exibição</label>
+                        <input type="number" name="display_order" class="form-control" value="0">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar Serviço</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideServiceModal()"
+                        style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="momentoModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 id="momento-modal-title" style="margin: 0;">Adicionar Vídeo</h3>
+                <button type="button" onclick="hideMomentoModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">Utilize o botão de upload para carregar um
+                novo vídeo ou cole o caminho direto.</p>
+            <form id="momento-form">
+                <input type="hidden" name="id" id="momento-id">
+                <div class="form-group">
+                    <label>URL / Caminho do Vídeo</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" name="video_url" id="momento_video_url" class="form-control" required>
+                        <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('file-momento-video').click()">
+                            <i class="fas fa-upload"></i>
+                        </button>
+                    </div>
+                    <input type="file" id="file-momento-video" style="display: none;" accept="video/*"
+                        onchange="handleFileUpload(this, 'momento_video_url')">
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Ordem de Exibição</label>
+                    <input type="number" name="display_order" class="form-control" value="0">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar Vídeo</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideMomentoModal()"
+                        style="flex: 1;">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-msg">Salvo com sucesso!</span>
+    </div>
+
+    <!-- Additional Styles -->
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+    </style>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js?v=20"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="js/app.js?v=20"></script>
+</body>
+
+</html>

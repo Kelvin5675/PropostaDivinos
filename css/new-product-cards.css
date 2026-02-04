@@ -1,0 +1,214 @@
+/* =========================================
+   NEW PRODUCT CARD STYLES (Estilo Premium)
+   ========================================= */
+
+.product-card.new-style {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.product-card.new-style:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Image Wrapper */
+.product-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-bg-light);
+    height: 280px;
+}
+
+.product-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.product-card.new-style:hover .product-image-wrapper img {
+    transform: scale(1.1);
+}
+
+/* Discount Badge */
+.discount-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #00b207;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    z-index: 2;
+    text-transform: uppercase;
+}
+
+/* Product Badge (New, Sale, Hot) */
+.product-badge-card {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--primary-color);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    z-index: 2;
+    text-transform: uppercase;
+}
+
+/* Quick Actions (Ícones Flutuantes) */
+.product-quick-actions {
+    position: absolute;
+    top: 50%;
+    right: -60px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: right 0.3s ease;
+    z-index: 3;
+}
+
+.product-card.new-style:hover .product-quick-actions {
+    right: 12px;
+}
+
+.action-icon {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    color: var(--color-text-main);
+}
+
+.action-icon:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
+}
+
+.action-icon.wishlist:hover {
+    background: #ff4757;
+}
+
+.action-icon.add-cart:hover {
+    background: #00b207;
+}
+
+/* Product Card Info */
+.product-card-info {
+    padding: 1.25rem;
+}
+
+.product-name {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--color-text-main);
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    transition: color 0.3s;
+}
+
+.product-name:hover {
+    color: var(--primary-color);
+}
+
+/* Rating Compact */
+.product-rating-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.stars-compact {
+    color: #ffc107;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+}
+
+.rating-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+/* Product Price Compact */
+.product-price-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.product-price-compact .current-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.product-price-compact .old-price {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    text-decoration: line-through;
+}
+
+/* Responsividade dos Novos Cards */
+@media (max-width: 768px) {
+    .product-image-wrapper {
+        height: 220px;
+    }
+
+    .product-quick-actions {
+        right: 8px;
+        opacity: 1;
+    }
+
+    .action-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+
+    .product-name {
+        font-size: 0.95rem;
+    }
+
+    .product-price-compact .current-price {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-image-wrapper {
+        height: 180px;
+    }
+
+    .product-card-info {
+        padding: 1rem;
+    }
+
+    .discount-badge,
+    .product-badge-card {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+    }
+}
