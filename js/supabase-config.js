@@ -1,7 +1,13 @@
 
+// ============================================
 // CONFIGURAÇÃO DO SUPABASE
-// Substitua as strings vazias abaixo pelas suas chaves do Supabase
+// ============================================
+// SEGURANÇA: As chaves abaixo também estão guardadas no arquivo .env
+// na raiz do projeto. O arquivo .env NÃO deve ser enviado ao Git.
+// Consulte .env.example para ver o modelo das variáveis necessárias.
+//
 // Você encontra essas chaves no Dashboard do Supabase -> Settings -> API
+// ============================================
 
 const SUPABASE_URL = "https://eahrqlfdixqjwuygdkip.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhaHJxbGZkaXhxand1eWdka2lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2Nzg5OTgsImV4cCI6MjA4NTI1NDk5OH0.6_J6lN2BGluF8tcSIxX-BwN8sv69gN6oNhVqzoIsYxU";

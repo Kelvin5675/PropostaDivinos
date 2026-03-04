@@ -15,8 +15,145 @@
     <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF for Invoices -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/admin.css?v=10">
+    <style>
+        /* Novos estilos para os filtros de pedidos */
+        .order-filter-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #64748b;
+            background: transparent;
+        }
+
+        .order-filter-btn:hover {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .order-filter-btn.active {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-1px);
+        }
+
+        /* Cores vibrantes para os filtros ativos */
+        .order-filter-btn.active[data-status="all"] {
+            background: #334155;
+            color: white;
+        }
+
+        .order-filter-btn.active[data-status="pendente"] {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .order-filter-btn.active[data-status="confirmado"] {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        .order-filter-btn.active[data-status="concluido"] {
+            background: #10b981;
+            color: white;
+        }
+
+        .order-filter-btn.active[data-status="cancelado"] {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Estilo para seletores de período do gráfico */
+        .period-btn {
+            padding: 5px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #64748b;
+            background: transparent;
+        }
+
+        .period-btn.active {
+            background: white;
+            color: #4f46e5;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-box-admin input:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+
+        input:checked+.slider {
+            background-color: #2196F3;
+        }
+
+        input:focus+.slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+        .nav-item {
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
@@ -60,6 +197,12 @@
             </a>
             <a onclick="switchTab('carousel-editor')" class="nav-item" id="nav-carousel-editor">
                 <i class="fas fa-images"></i> Carrossel Hero
+            </a>
+            <a onclick="switchTab('trabalhos-editor')" class="nav-item" id="nav-trabalhos-editor">
+                <i class="fas fa-briefcase"></i> Nossos Trabalhos
+            </a>
+            <a onclick="switchTab('payments')" class="nav-item" id="nav-payments">
+                <i class="fas fa-credit-card"></i> Pagamentos Online
             </a>
             <a onclick="switchTab('about-editor')" class="nav-item" id="nav-about-editor">
                 <i class="fas fa-info-circle"></i> Sobre Nós
@@ -399,98 +542,211 @@
                             </div>
                         </div>
 
-                        <!-- Seção: Imagens -->
-                        <div style="margin-bottom: 30px;">
-                            <h4
-                                style="color: #555; border-bottom: 2px solid #e63946; padding-bottom: 10px; margin-bottom: 20px;">
-                                <i class="fas fa-images"></i> Imagens
-                            </h4>
-                            <div class="form-group">
-                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Imagem de Capa
-                                    (Principal) *</label>
-                                <div style="display: flex; gap: 10px;">
-                                    <input type="url" id="prod-image" class="form-control"
-                                        placeholder="URL da imagem..."
-                                        style="flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
-                                    <button type="button" class="btn btn-secondary"
-                                        onclick="document.getElementById('file-upload-main').click()"><i
-                                            class="fas fa-upload"></i></button>
-                                </div>
-                                <input type="file" id="file-upload-main" style="display: none;" accept="image/*"
-                                    onchange="handleFileUpload(this, 'prod-image', 'prod-preview')">
-                                <img id="prod-preview" class="img-preview" src=""
-                                    style="max-height: 100px; margin-top: 10px; display: none; border-radius: 6px;">
-                            </div>
-                            <div class="form-group" style="margin-top: 20px;">
-                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Galeria de Imagens
-                                    (Opcional)</label>
-                                <div id="gallery-container"
-                                    style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
-                                    <!-- Gallery items thumb via JS -->
-                                </div>
+                        <div class="form-group">
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Imagem de Capa
+                                (Principal) *</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="url" id="prod-image" class="form-control" placeholder="URL da imagem..."
+                                    style="flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
                                 <button type="button" class="btn btn-secondary"
-                                    onclick="document.getElementById('file-upload-gallery').click()">
-                                    <i class="fas fa-images"></i> Adicionar Foto à Galeria
-                                </button>
-                                <input type="file" id="file-upload-gallery" style="display: none;" accept="image/*"
-                                    onchange="handleGalleryUpload(this)">
+                                    onclick="document.getElementById('file-upload-main').click()"><i
+                                        class="fas fa-upload"></i></button>
                             </div>
+                            <input type="file" id="file-upload-main" style="display: none;" accept="image/*"
+                                onchange="handleFileUpload(this, 'prod-image', 'prod-preview')">
+                            <img id="prod-preview" class="img-preview" src=""
+                                style="max-height: 100px; margin-top: 10px; display: none; border-radius: 6px;">
                         </div>
-
-                        <!-- Seção: Descrições -->
-                        <div style="margin-bottom: 30px;">
-                            <h4
-                                style="color: #555; border-bottom: 2px solid #e63946; padding-bottom: 10px; margin-bottom: 20px;">
-                                <i class="fas fa-align-left"></i> Descrições
-                            </h4>
-                            <div class="form-group">
-                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Descrição Curta
-                                    *</label>
-                                <div id="short-description-editor" style="background: white; min-height: 150px;"></div>
-                                <textarea id="prod-desc" style="display: none;"></textarea>
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Galeria de Imagens
+                                (Opcional)</label>
+                            <div id="gallery-container"
+                                style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                                <!-- Gallery items thumb via JS -->
                             </div>
-                            <div class="form-group" style="margin-top: 20px;">
-                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Descrição Longa
-                                    (Detalhada)</label>
-                                <div id="long-description-editor" style="background: white; min-height: 200px;"></div>
-                                <textarea id="prod-long-desc" style="display: none;"></textarea>
-                            </div>
+                            <button type="button" class="btn btn-secondary"
+                                onclick="document.getElementById('file-upload-gallery').click()">
+                                <i class="fas fa-images"></i> Adicionar Foto à Galeria
+                            </button>
+                            <input type="file" id="file-upload-gallery" style="display: none;" accept="image/*"
+                                onchange="handleGalleryUpload(this)">
                         </div>
-
-                        <!-- Checkbox Destaque -->
-                        <div class="form-group"
-                            style="margin-top: 20px; display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="prod-featured"
-                                style="width: 20px; height: 20px; cursor: pointer;">
-                            <label for="prod-featured" style="font-weight: 600; cursor: pointer;">Expor como Produto em
-                                Destaque na Página Inicial</label>
-                        </div>
-
-                        <!-- Botões -->
-                        <div style="display: flex; gap: 10px; margin-top: 25px;">
-                            <button type="submit" class="btn btn-success"
-                                style="padding: 12px 25px; font-weight: 600;"><i class="fas fa-save"></i> Salvar
-                                Produto</button>
-                            <button type="button" class="btn btn-danger" onclick="hideProductForm()"
-                                style="padding: 12px 25px;">Cancelar</button>
-                        </div>
-                    </form>
                 </div>
 
-                <div class="table-container">
-                    <table>
+                <!-- Seção: Descrições -->
+                <div style="margin-bottom: 30px;">
+                    <h4
+                        style="color: #555; border-bottom: 2px solid #e63946; padding-bottom: 10px; margin-bottom: 20px;">
+                        <i class="fas fa-align-left"></i> Descrições
+                    </h4>
+                    <div class="form-group">
+                        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Descrição Curta
+                            *</label>
+                        <div id="short-description-editor" style="background: white; min-height: 150px;"></div>
+                        <textarea id="prod-desc" style="display: none;"></textarea>
+                    </div>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Descrição Longa
+                            (Detalhada)</label>
+                        <div id="long-description-editor" style="background: white; min-height: 200px;"></div>
+                        <textarea id="prod-long-desc" style="display: none;"></textarea>
+                    </div>
+                </div>
+
+                <!-- Checkbox Destaque -->
+                <div class="form-group" style="margin-top: 20px; display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="prod-featured" style="width: 20px; height: 20px; cursor: pointer;">
+                    <label for="prod-featured" style="font-weight: 600; cursor: pointer;">Expor como Produto em
+                        Destaque na Página Inicial</label>
+                </div>
+
+                <!-- Botões -->
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button type="submit" class="btn btn-success" style="padding: 12px 25px; font-weight: 600;"><i
+                            class="fas fa-save"></i> Salvar
+                        Produto</button>
+                    <button type="button" class="btn btn-danger" onclick="hideProductForm()"
+                        style="padding: 12px 25px;">Cancelar</button>
+                </div>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Imagem</th>
+                            <th>Nome</th>
+                            <th>Categoria</th>
+                            <th>Preço</th>
+                            <th>Destaque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body">
+                        <!-- JS fill -->
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </section>
+
+        <!-- ORDERS TAB -->
+        <section id="orders" class="section">
+            <div class="card">
+                <div class="card-header"
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #eee; padding: 1.5rem;">
+                    <h3 class="card-title" style="margin: 0;"><i class="fas fa-shopping-bag"></i> Pedidos do Website
+                    </h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <div class="search-box-admin" style="position: relative; min-width: 250px;">
+                            <i class="fas fa-search"
+                                style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #95a5a6;"></i>
+                            <input type="text" id="order-search-input" placeholder="Pesquisar por nº do pedido..."
+                                onkeyup="searchOrders()"
+                                style="width: 100%; padding: 8px 12px 8px 35px; border-radius: 8px; border: 1px solid #ddd; outline: none; transition: all 0.3s; font-size: 0.9rem;">
+                        </div>
+                        <div class="filter-group-admin"
+                            style="display: flex; gap: 5px; background: #f8f9fa; padding: 4px; border-radius: 10px; border: 1px solid #eee;">
+                            <button class="order-filter-btn active" data-status="all"
+                                onclick="filterOrders('all', this)">Todos</button>
+                            <button class="order-filter-btn btn-pendente" data-status="pendente"
+                                onclick="filterOrders('pendente', this)">Pendentes</button>
+                            <button class="order-filter-btn btn-confirmado" data-status="confirmado"
+                                onclick="filterOrders('confirmado', this)">Confirmados</button>
+                            <button class="order-filter-btn btn-concluido" data-status="concluido"
+                                onclick="filterOrders('concluido', this)">Concluídos</button>
+                            <button class="order-filter-btn btn-cancelado" data-status="cancelado"
+                                onclick="filterOrders('cancelado', this)">Cancelados</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding: 1.5rem;">
+                    <div class="stats-grid"
+                        style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 2rem;">
+                        <div
+                            style="background: linear-gradient(135deg, #6366f1, #4f46e5); padding: 20px; border-radius: 16px; color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <p style="margin: 0; font-size: 0.9rem; opacity: 0.9; font-weight: 500;">Total
+                                        Pedidos</p>
+                                    <h3 id="orders-total-count"
+                                        style="margin: 5px 0 0; font-size: 1.8rem; font-weight: 700;">0</h3>
+                                </div>
+                                <i class="fas fa-shopping-cart" style="font-size: 2rem; opacity: 0.2;"></i>
+                            </div>
+                        </div>
+                        <!-- Cor de Pendentes mais elegante (Amber Deep) -->
+                        <div
+                            style="background: linear-gradient(135deg, #f59e0b, #d97706); padding: 20px; border-radius: 16px; color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <p style="margin: 0; font-size: 0.9rem; opacity: 0.9; font-weight: 500;">Pendente
+                                    </p>
+                                    <h3 id="orders-pending-count"
+                                        style="margin: 5px 0 0; font-size: 1.8rem; font-weight: 700;">0</h3>
+                                </div>
+                                <i class="fas fa-clock" style="font-size: 2rem; opacity: 0.2;"></i>
+                            </div>
+                        </div>
+                        <!-- Cor de Receita mais elegante (Emerald Premium) -->
+                        <div
+                            style="background: linear-gradient(135deg, #10b981, #059669); padding: 20px; border-radius: 16px; color: white; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <p style="margin: 0; font-size: 0.9rem; opacity: 0.9; font-weight: 500;">Receita
+                                        Total</p>
+                                    <h3 id="orders-revenue"
+                                        style="margin: 5px 0 0; font-size: 1.8rem; font-weight: 700;">0 MT</h3>
+                                </div>
+                                <i class="fas fa-money-bill-wave" style="font-size: 2rem; opacity: 0.2;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico de Vendas -->
+                    <div
+                        style="background: white; border-radius: 16px; border: 1px solid #eee; padding: 20px; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h4 style="margin: 0; color: #2c3e50; font-weight: 600;"><i class="fas fa-chart-line"
+                                    style="color: #6366f1; margin-right: 8px;"></i> Desempenho de Vendas</h4>
+                            <div class="chart-period-selector"
+                                style="display: flex; gap: 5px; background: #f8f9fa; padding: 3px; border-radius: 8px;">
+                                <button class="period-btn active" data-period="daily"
+                                    onclick="changeChartPeriod('daily', this)">Diário</button>
+                                <button class="period-btn" data-period="weekly"
+                                    onclick="changeChartPeriod('weekly', this)">Semanal</button>
+                                <button class="period-btn" data-period="monthly"
+                                    onclick="changeChartPeriod('monthly', this)">Mensal</button>
+                            </div>
+                        </div>
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container" style="overflow-x: auto;">
+                    <table class="products-table">
                         <thead>
                             <tr>
-                                <th>Imagem</th>
-                                <th>Nome</th>
-                                <th>Categoria</th>
-                                <th>Preço</th>
-                                <th>Destaque</th>
+                                <th>Nº Pedido</th>
+                                <th>Data</th>
+                                <th>Itens</th>
+                                <th>Total</th>
+                                <th>Canal</th>
+                                <th>Status</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="products-table-body">
-                            <!-- JS fill -->
+                        <tbody id="orders-table-body">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 2rem;">
+                                    <i class="fas fa-spinner fa-spin"></i> Carregando pedidos...
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -540,6 +796,80 @@
                             <!-- JS fill -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOME EDITOR TAB -->
+        <section id="payments" class="section">
+            <div class="card" style="max-width: 800px;">
+                <div class="card-header">
+                    <h3 class="card-title">Configuração de Pagamentos Online</h3>
+                </div>
+                <div class="card-body">
+                    <p style="margin-bottom: 20px;">Habilite e configure pagamentos diretos no site. Quando ativado, os
+                        clientes verão a opção "Pagar Agora" além do WhatsApp.</p>
+
+                    <form id="payment-config-form">
+                        <div class="form-group"
+                            style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 5px solid #333; margin-bottom: 25px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h3 style="margin: 0 0 5px 0; font-size: 1.1rem;">Status do Checkout</h3>
+                                    <p style="margin: 0; color: #666; font-size: 0.9rem;">Ligue para aceitar pagamentos
+                                        no site.</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="payment-enabled-toggle">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Provedor de
+                                Pagamento</label>
+                            <select id="payment-provider" class="form-control"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                <option value="stripe">Stripe</option>
+                                <option value="mpesa">M-Pesa (Integração Futura)</option>
+                                <option value="generic">Genérico / Teste</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Chave Pública (Public
+                                API Key)</label>
+                            <input type="text" id="payment-public-key" class="form-control"
+                                placeholder="Ex: pk_test_..."
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Chave Secreta (Secret
+                                API Key)</label>
+                            <input type="password" id="payment-secret-key" class="form-control"
+                                placeholder="Ex: sk_test_..."
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                            <small style="color: #888;">Nota: Armazenada com segurança.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Moeda</label>
+                            <select id="payment-currency" class="form-control"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                                <option value="MZN">Metical (MZN)</option>
+                                <option value="USD">Dólar (USD)</option>
+                                <option value="EUR">Euro (EUR)</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-top: 25px;">
+                            <button type="submit" class="btn btn-primary" style="padding: 12px 25px; font-weight: 600;">
+                                <i class="fas fa-save"></i> Salvar Configurações
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </section>
@@ -638,6 +968,84 @@
                             </tr>
                         </thead>
                         <tbody id="carousel-table-body">
+                            <!-- JS fill -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOSSOS TRABALHOS EDITOR TAB -->
+        <section id="trabalhos-editor" class="section">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gerenciar Nossos Trabalhos</h3>
+                    <button class="btn btn-primary" onclick="showAddTrabalhoForm()"><i class="fas fa-plus"></i> Novo
+                        Trabalho</button>
+                </div>
+
+                <!-- Add/Edit Trabalho Form -->
+                <div id="trabalho-form-container"
+                    style="display:none; background: #f8f9fa; padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e0e0e0;">
+                    <form id="trabalho-form">
+                        <input type="hidden" id="trab-id">
+                        <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Título</label>
+                                <input type="text" id="trab-title" class="form-control" required
+                                    style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Descrição</label>
+                                <input type="text" id="trab-subtitle" class="form-control"
+                                    style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Ordem de
+                                    Exibição</label>
+                                <input type="number" id="trab-order" class="form-control" value="0"
+                                    style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Imagem do
+                                    Trabalho</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="url" id="trab-image" class="form-control"
+                                        placeholder="URL da imagem..."
+                                        style="flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
+                                    <button type="button" class="btn btn-secondary"
+                                        onclick="document.getElementById('file-upload-trab').click()"><i
+                                            class="fas fa-upload"></i></button>
+                                </div>
+                                <input type="file" id="file-upload-trab" style="display: none;" accept="image/*"
+                                    onchange="handleFileUpload(this, 'trab-image', 'trab-preview')">
+                                <img id="trab-preview" class="img-preview" src=""
+                                    style="max-height: 100px; margin-top: 10px; display: none; border-radius: 6px;">
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 25px;">
+                            <button type="submit" class="btn btn-success"
+                                style="padding: 12px 25px; font-weight: 600;"><i class="fas fa-save"></i> Salvar
+                                Trabalho</button>
+                            <button type="button" class="btn btn-danger" onclick="hideTrabalhoForm()"
+                                style="padding: 12px 25px;">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Título</th>
+                                <th>Descrição</th>
+                                <th>Ordem</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trabalhos-table-body">
                             <!-- JS fill -->
                         </tbody>
                     </table>

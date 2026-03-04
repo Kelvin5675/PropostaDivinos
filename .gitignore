@@ -1,0 +1,28 @@
+# ============================================
+# DIVINOS GRAFFIC - GITIGNORE
+# ============================================
+
+# --- Variáveis de Ambiente (SEGURANÇA) ---
+.env
+.env.local
+.env.production
+.env.*.local
+
+# --- Dependências ---
+node_modules/
+
+# --- Sistema ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Logs ---
+*.log
+npm-debug.log*

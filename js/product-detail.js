@@ -3,21 +3,24 @@
  * Carrega e renderiza dados de um produto específico
  */
 
-// Obter ID do produto via URL parameter
-const urlParams = new URLSearchParams(window.location.search);
-const productId = urlParams.get('id');
-
-let currentProduct = null;
-let selectedSize = null;
+let productId = null; // Global scope for access in functions
+let selectedSize = null; // Selected size for products with size options
+let currentProduct = null; // Current product being displayed
 
 // Inicializar quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', async () => {
+    // Obter ID do produto via hash (ex: product-detail.html#5)
+    // Using hash because 'npx serve' strips query parameters with clean URLs
+    productId = window.location.hash.substring(1); // Remove the # character
+
     if (!productId) {
-        alert('Produto não encontrado!');
-        window.location.href = 'products.html';
+        console.error('ID do produto não encontrado na URL.');
+        alert('Produto não especificado! Retornando para a lista.');
+        window.location.href = 'products.html'; // Relative path since we're in /pages/
         return;
     }
 
+    // Wait for Supabase to be ready if needed, though usually it's ready by now if loaded in head
     if (!window.supabaseClient) {
         console.error('Supabase client não disponível');
         return;
@@ -32,6 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function loadProductDetails() {
     try {
+        if (!productId) return;
+
         // Buscar produto pelo ID
         const { data: product, error } = await window.supabaseClient
             .from('products')
@@ -41,8 +46,8 @@ async function loadProductDetails() {
 
         if (error || !product) {
             console.error('Erro ao buscar produto:', error);
-            alert('Produto não encontrado!');
-            window.location.href = 'products.html';
+            alert('Produto não encontrado.');
+            window.location.href = '../products.html';
             return;
         }
 
@@ -95,7 +100,8 @@ function renderProductDetails(product) {
     }
 
     // Descrição curta
-    document.getElementById('product-short-desc').textContent = product.description || 'Sem descrição disponível.';
+    // Descrição curta (Renderizar HTML)
+    document.getElementById('product-short-desc').innerHTML = product.description || 'Sem descrição disponível.';
 
     // Galeria de imagens
     renderGallery(product);
@@ -127,13 +133,37 @@ function renderProductDetails(product) {
 
     // WhatsApp button
     const whatsappBtn = document.getElementById('btn-whatsapp');
-    whatsappBtn.onclick = () => {
-        const message = `Olá, gostaria de comprar: ${product.title}`;
-        window.open(`https://wa.me/258828800311?text=${encodeURIComponent(message)}`, '_blank');
-    };
+    if (whatsappBtn) {
+        whatsappBtn.onclick = (e) => {
+            e.preventDefault();
+            const message = `Olá, gostaria de comprar: ${product.title}`;
+            window.open(`https://wa.me/258828800311?text=${encodeURIComponent(message)}`, '_blank');
+        };
+    }
+
+    // Botão Pagar Agora (Feature Flag)
+    const buyNowBtn = document.getElementById('buy-now-btn');
+    if (buyNowBtn) {
+        // Verificar configuração global (carregada em data-loader.js)
+        const paymentSettings = window.siteSettings?.payment;
+        if (paymentSettings && paymentSettings.is_enabled) {
+            buyNowBtn.style.display = 'flex'; // Exibir se ativo
+            buyNowBtn.onclick = (e) => {
+                e.preventDefault();
+                // Redirecionar para Checkout com ID do produto
+                window.location.href = `../pages/checkout.html?product_id=${product.id}`;
+            };
+        } else {
+            buyNowBtn.style.display = 'none'; // Ocultar se inativo
+        }
+    }
 
     // Social share
     setupSocialShare(product);
+
+    // Carregar dados dinâmicos
+    checkFavoriteStatus(product.id);
+    loadProductReviews(product.id);
 }
 
 /**
@@ -159,61 +189,137 @@ function renderStars(elementId, rating) {
 }
 
 /**
- * Renderizar galeria de imagens
+ * Renderizar galeria de imagens como CAROUSEL
  */
+let galleryImages = [];
+let galleryIndex = 0;
+let galleryAutoplay = null;
+
 function renderGallery(product) {
     const mainImage = document.getElementById('main-product-image');
-    const thumbnailsContainer = document.getElementById('image-thumbnails');
+    const mainContainer = mainImage.parentElement;
+    const dotsContainer = document.getElementById('gallery-dots');
+    const prevBtn = document.getElementById('gallery-prev');
+    const nextBtn = document.getElementById('gallery-next');
 
     // Processar gallery
-    let images = [];
+    galleryImages = [];
     if (product.image_url) {
-        images.push(product.image_url);
+        galleryImages.push(product.image_url);
     }
 
     if (product.gallery) {
         if (Array.isArray(product.gallery)) {
-            images = images.concat(product.gallery);
+            galleryImages = galleryImages.concat(product.gallery);
         } else if (typeof product.gallery === 'string') {
             try {
                 const parsed = JSON.parse(product.gallery);
                 if (Array.isArray(parsed)) {
-                    images = images.concat(parsed);
+                    galleryImages = galleryImages.concat(parsed);
                 }
             } catch (e) {
-                // Se não for JSON, ignorar
+                console.warn('Erro ao parsear gallery:', e);
             }
         }
     }
 
     // Se não houver imagens, usar placeholder
-    if (images.length === 0) {
-        images.push('../images/placeholder.jpg');
+    if (galleryImages.length === 0) {
+        galleryImages = ['../images/placeholder.jpg'];
     }
 
-    // Definir imagem principal
-    mainImage.src = images[0];
-    mainImage.alt = product.title;
+    // Show loading on main image
+    mainContainer.classList.add('loading');
+    mainImage.style.opacity = '0';
 
-    // Renderizar thumbnails (se houver mais de 1 imagem)
-    if (images.length > 1) {
-        thumbnailsContainer.innerHTML = '';
-        images.forEach((img, index) => {
-            const thumb = document.createElement('img');
-            thumb.src = img;
-            thumb.alt = `${product.title} - Imagem ${index + 1}`;
-            thumb.className = index === 0 ? 'active' : '';
-            thumb.onclick = () => {
-                mainImage.src = img;
-                thumbnailsContainer.querySelectorAll('img').forEach(t => t.classList.remove('active'));
-                thumb.classList.add('active');
+    // Set initial image
+    galleryIndex = 0;
+    loadGalleryImage(galleryIndex);
+
+    // Render dots
+    dotsContainer.innerHTML = '';
+    if (galleryImages.length > 1) {
+        galleryImages.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'gallery-dot' + (i === 0 ? ' active' : '');
+            dot.onclick = () => {
+                galleryIndex = i;
+                loadGalleryImage(galleryIndex);
+                resetGalleryAutoplay();
             };
-            thumbnailsContainer.appendChild(thumb);
+            dotsContainer.appendChild(dot);
         });
+
+        // Show arrows
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+
+        // Arrow click handlers
+        prevBtn.onclick = () => {
+            galleryIndex = (galleryIndex - 1 + galleryImages.length) % galleryImages.length;
+            loadGalleryImage(galleryIndex);
+            resetGalleryAutoplay();
+        };
+        nextBtn.onclick = () => {
+            galleryIndex = (galleryIndex + 1) % galleryImages.length;
+            loadGalleryImage(galleryIndex);
+            resetGalleryAutoplay();
+        };
+
+        // Autoplay every 5 seconds
+        startGalleryAutoplay();
     } else {
-        // Se só tem 1 imagem, esconder thumbnails
-        thumbnailsContainer.style.display = 'none';
+        // Hide arrows and dots for single image
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
     }
+}
+
+function loadGalleryImage(index) {
+    const mainImage = document.getElementById('main-product-image');
+    const mainContainer = mainImage.parentElement;
+
+    mainContainer.classList.add('loading');
+    mainImage.style.opacity = '0';
+
+    const img = new Image();
+    img.onload = function () {
+        mainImage.src = this.src;
+        mainImage.style.opacity = '1';
+        mainContainer.classList.remove('loading');
+    };
+    img.onerror = function () {
+        mainImage.src = '../images/placeholder.jpg';
+        mainImage.style.opacity = '1';
+        mainContainer.classList.remove('loading');
+    };
+    img.src = galleryImages[index];
+
+    // Update dots
+    const dots = document.querySelectorAll('.gallery-dot');
+    dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+    });
+}
+
+function startGalleryAutoplay() {
+    stopGalleryAutoplay();
+    galleryAutoplay = setInterval(() => {
+        galleryIndex = (galleryIndex + 1) % galleryImages.length;
+        loadGalleryImage(galleryIndex);
+    }, 5000);
+}
+
+function stopGalleryAutoplay() {
+    if (galleryAutoplay) {
+        clearInterval(galleryAutoplay);
+        galleryAutoplay = null;
+    }
+}
+
+function resetGalleryAutoplay() {
+    stopGalleryAutoplay();
+    startGalleryAutoplay();
 }
 
 /**
@@ -281,13 +387,25 @@ function renderAdditionalInfo(product) {
 /**
  * Renderizar seção de avaliações
  */
+/**
+ * Renderizar seção de avaliações (Resumo inicial)
+ */
 function renderReviews(product) {
     const rating = product.rating || 0;
     const reviewCount = product.review_count || 0;
 
-    document.getElementById('avg-rating').textContent = rating.toFixed(1);
-    renderStars('avg-stars', rating);
-    document.getElementById('total-reviews').textContent = `(${reviewCount} ${reviewCount === 1 ? 'avaliação' : 'avaliações'})`;
+    // Atualiza o resumo no topo da página (se existir)
+    const avgRatingEl = document.getElementById('avg-rating'); // Verifica se este elemento ainda existe ou se foi o removido
+    if (avgRatingEl) avgRatingEl.textContent = rating.toFixed(1);
+
+    // Atualiza novos elementos da aba de reviews se já existirem (caso contrário loadProductReviews fará isso)
+    const displayRating = document.getElementById('avg-rating-display');
+    if (displayRating) displayRating.textContent = rating.toFixed(1);
+
+    const displayCount = document.getElementById('total-reviews-display');
+    if (displayCount) displayCount.textContent = `(${reviewCount} avaliações)`;
+
+    renderStars('avg-stars-display', rating);
 }
 
 /**
@@ -405,6 +523,15 @@ function initializeEventListeners() {
         qtyInput.value = current + 1;
     };
 
+    // Comprar via WhatsApp (Buy Now)
+    const btnWhatsapp = document.getElementById('btn-whatsapp');
+    if (btnWhatsapp) {
+        btnWhatsapp.onclick = (e) => {
+            e.preventDefault();
+            buyNowWhatsApp();
+        };
+    }
+
     // Adicionar ao carrinho
     document.getElementById('btn-add-cart').onclick = () => {
         if (!currentProduct) return;
@@ -426,8 +553,9 @@ function initializeEventListeners() {
     };
 
     // Wishlist
-    document.getElementById('btn-wishlist').onclick = () => {
-        alert('Funcionalidade de favoritos em breve!');
+    const wishlistBtn = document.getElementById('btn-wishlist');
+    wishlistBtn.onclick = () => {
+        toggleFavorite();
     };
 
     // Tabs
@@ -445,4 +573,409 @@ function initializeEventListeners() {
             document.getElementById(`tab-${targetTab}`).classList.add('active');
         };
     });
+
+    // Review Form Submit
+    const reviewForm = document.getElementById('review-form');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', submitReviewForm);
+    }
 }
+
+// ==========================================
+// CLIENT IDENTITY (UUID)
+// ==========================================
+function getOrCreateClientId() {
+    let clientId = localStorage.getItem('divinos_client_id');
+    if (!clientId) {
+        // Simple UUID generator
+        clientId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+        localStorage.setItem('divinos_client_id', clientId);
+    }
+    return clientId;
+}
+
+// ==========================================
+// FAVORITES SYSTEM
+// ==========================================
+async function checkFavoriteStatus(prodId) {
+    if (!prodId) return;
+    const clientId = getOrCreateClientId();
+    const btn = document.getElementById('btn-wishlist');
+
+    try {
+        const { data, error } = await window.supabaseClient
+            .from('product_favorites')
+            .select('id')
+            .eq('product_id', prodId)
+            .eq('client_id', clientId)
+            .maybeSingle();
+
+        if (data) {
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fas fa-heart"></i>'; // Solid heart
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="far fa-heart"></i>'; // Outline heart
+        }
+    } catch (e) {
+        console.error('Erro ao verificar favoritos:', e);
+    }
+}
+
+async function toggleFavorite() {
+    if (!currentProduct) return;
+    const clientId = getOrCreateClientId();
+    const btn = document.getElementById('btn-wishlist');
+    const isActive = btn.classList.contains('active');
+
+    // Optimistic UI update
+    btn.classList.toggle('active');
+    btn.innerHTML = isActive ? '<i class="far fa-heart"></i>' : '<i class="fas fa-heart"></i>';
+
+    try {
+        if (isActive) {
+            // Remove
+            await window.supabaseClient
+                .from('product_favorites')
+                .delete()
+                .eq('product_id', currentProduct.id)
+                .eq('client_id', clientId);
+        } else {
+            // Add
+            await window.supabaseClient
+                .from('product_favorites')
+                .insert([{
+                    product_id: currentProduct.id,
+                    client_id: clientId
+                }]);
+        }
+    } catch (e) {
+        console.error('Erro ao alterar favoritos:', e);
+        // Revert UI on error
+        btn.classList.toggle('active');
+        btn.innerHTML = isActive ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>';
+        alert('Erro ao atualizar favoritos. Tente novamente.');
+    }
+}
+
+// ==========================================
+// REVIEWS SYSTEM
+// ==========================================
+let reviewPhotos = [];
+
+function toggleReviewForm() {
+    const container = document.getElementById('review-form-container');
+    container.classList.toggle('active');
+    // Scroll to form if opening
+    if (container.classList.contains('active')) {
+        container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function handleReviewPhotos(input) {
+    const files = Array.from(input.files);
+    const previewContainer = document.getElementById('review-photos-preview');
+
+    // Limit to 5 photos
+    if (files.length + reviewPhotos.length > 5) {
+        alert('Máximo de 5 fotos permitidas.');
+        return;
+    }
+
+    files.forEach(file => {
+        reviewPhotos.push(file);
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'preview-photo-item';
+            previewContainer.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+async function uploadReviewImages() {
+    if (reviewPhotos.length === 0) return [];
+
+    const uploadedUrls = [];
+    for (const file of reviewPhotos) {
+        // Sanitize filename
+        const fileExt = file.name.split('.').pop();
+        const safeName = file.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const fileName = `review_${Date.now()}_${Math.random().toString(36).substr(2, 9)}_${safeName}.${fileExt}`;
+
+        try {
+            console.log('Uploading image:', fileName);
+            const { data, error } = await window.supabaseClient.storage
+                .from('reviews-images')
+                .upload(fileName, file);
+
+            if (error) {
+                console.error('Supabase Storage Error:', error);
+                throw error;
+            }
+
+            const { data: { publicUrl } } = window.supabaseClient.storage
+                .from('reviews-images')
+                .getPublicUrl(fileName);
+
+            console.log('Image uploaded successfully:', publicUrl);
+            uploadedUrls.push(publicUrl);
+        } catch (e) {
+            console.error('Erro detalhado upload imagem:', e);
+        }
+    }
+    return uploadedUrls;
+}
+
+async function submitReviewForm(e) {
+    e.preventDefault();
+
+    if (!currentProduct) return;
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    // Get Form Data
+    const userName = document.getElementById('review-name').value;
+    const comment = document.getElementById('review-comment').value;
+    const ratingInput = document.querySelector('input[name="rating"]:checked');
+    const rating = ratingInput ? parseInt(ratingInput.value) : 5;
+
+    try {
+        // Upload images first
+        const photoUrls = await uploadReviewImages();
+
+        // Save to Supabase
+        const { error } = await window.supabaseClient
+            .from('product_reviews')
+            .insert([{
+                product_id: currentProduct.id,
+                user_name: userName,
+                rating: rating,
+                comment: comment,
+                photos: photoUrls,
+                verified: false
+            }]);
+
+        if (error) throw error;
+
+        // Reset form and reload
+        alert('Obrigado pela sua avaliação!');
+        document.getElementById('review-form').reset();
+        document.getElementById('review-photos-preview').innerHTML = '';
+        reviewPhotos = [];
+        toggleReviewForm();
+
+        // Reload reviews
+        loadProductReviews(currentProduct.id);
+
+    } catch (err) {
+        console.error('Erro ao enviar avaliação:', err);
+        alert('Ocorreu um erro ao enviar sua avaliação. Tente novamente.');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+    }
+}
+
+async function loadProductReviews(prodId) {
+    const listContainer = document.getElementById('reviews-list');
+    if (!listContainer) return; // Segurança
+
+    try {
+        const { data: reviews, error } = await window.supabaseClient
+            .from('product_reviews')
+            .select('*')
+            .eq('product_id', prodId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Calcular estatísticas reais baseadas nas reviews
+        let avg = 0;
+        let total = 0;
+
+        if (reviews && reviews.length > 0) {
+            total = reviews.length;
+            avg = reviews.reduce((acc, curr) => acc + curr.rating, 0) / total;
+        }
+
+        // Atualizar UI da Aba de Reviews
+        const avgDisplay = document.getElementById('avg-rating-display');
+        const countDisplay = document.getElementById('total-reviews-display');
+
+        if (avgDisplay) avgDisplay.textContent = avg.toFixed(1);
+        if (countDisplay) countDisplay.textContent = `(${total} avaliações)`;
+        renderStars('avg-stars-display', avg);
+
+        // Atualizar UI do Topo da Página (Header do Produto)
+        // Isso garante que o usuário veja a média atualizada imediatamente
+        const headerStars = document.getElementById('product-stars');
+        const headerCount = document.getElementById('review-count');
+
+        if (headerStars) renderStars('product-stars', avg);
+        if (headerCount) headerCount.textContent = `(${total} ${total === 1 ? 'Avaliação' : 'Avaliações'})`;
+
+        // Renderizar Lista
+        if (reviews && reviews.length > 0) {
+            renderReviewsListHTML(listContainer, reviews);
+        } else {
+            listContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">Nenhuma avaliação ainda. Seja o primeiro a avaliar!</p>';
+        }
+
+    } catch (e) {
+        console.error('Erro ao carregar avaliações:', e);
+        listContainer.innerHTML = '<p style="color: red; text-align: center;">Erro ao carregar avaliações.</p>';
+    }
+}
+
+function renderReviewsListHTML(container, reviews) {
+    container.innerHTML = '';
+
+    reviews.forEach(review => {
+        const date = new Date(review.created_at).toLocaleDateString('pt-BR');
+        const initial = review.user_name.charAt(0).toUpperCase();
+
+        let photosHtml = '';
+        let photosArray = [];
+
+        // Tratar formats diferentes (array PG vs string JSON)
+        if (Array.isArray(review.photos)) {
+            photosArray = review.photos;
+        } else if (typeof review.photos === 'string') {
+            try {
+                // Tenta limpar formato Postgres {url,url} se vier como string crua
+                const cleanStr = review.photos.replace(/^\{|\}$/g, '').replace(/\"/g, '');
+                if (cleanStr) photosArray = cleanStr.split(',');
+            } catch (e) {
+                console.warn('Erro ao processar fotos da review:', review.photos);
+            }
+        }
+
+        if (photosArray.length > 0) {
+            photosHtml = '<div class="review-photos">';
+            photosArray.forEach(url => {
+                if (url && url.trim() !== '') {
+                    photosHtml += `<img src="${url}" class="review-photo" onclick="window.open('${url}', '_blank')" onerror="this.style.display='none'">`;
+                }
+            });
+            photosHtml += '</div>';
+        }
+
+        const div = document.createElement('div');
+        div.className = 'review-item';
+        div.innerHTML = `
+            <div class="review-header">
+                <div class="reviewer-info">
+                    <div class="reviewer-avatar">${initial}</div>
+                    <div>
+                        <div class="reviewer-name">${review.user_name}</div>
+                        <div class="review-date">${date}</div>
+                    </div>
+                </div>
+                <div class="review-stars">
+                    ${renderStarsHTML(review.rating)}
+                </div>
+            </div>
+            <div class="review-content">
+                ${review.comment}
+            </div>
+            ${photosHtml}
+        `;
+        container.appendChild(div);
+    });
+}
+
+function renderStarsHTML(rating) {
+    let html = '';
+    for (let i = 0; i < 5; i++) {
+        if (i < rating) {
+            html += '<i class="fas fa-star"></i>';
+        } else {
+            html += '<i class="far fa-star"></i>';
+        }
+    }
+    return html;
+}
+
+// ==========================================
+// BUY NOW VIA WHATSAPP (RECORD ORDER)
+// ==========================================
+async function buyNowWhatsApp() {
+    if (!currentProduct) return;
+
+    const qtyInput = document.getElementById('product-quantity');
+    const quantity = parseInt(qtyInput.value) || 1;
+
+    // Generate Order Code
+    const orderCode = 'DVN' + new Date().getFullYear() + String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+
+    // Build Message
+    let msg = `*Olá, Divinos Graffic! Gostaria de comprar este produto agora:*\n\n`;
+    msg += `📋 *Pedido: ${orderCode}*\n\n`;
+
+    const priceNum = parseFloat(String(currentProduct.price).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+    const total = priceNum * quantity;
+
+    msg += `📦 *${quantity}x ${currentProduct.title}*\n`;
+    msg += `   Preço: ${currentProduct.price} (Total: ${total.toLocaleString('pt-MZ', { style: 'currency', currency: 'MZN' })})\n`;
+    if (selectedSize) msg += `   Tamanho: ${selectedSize}\n`;
+    msg += `\n`;
+
+    msg += `---------------------------------\n`;
+    msg += `💰 *TOTAL ESTIMADO: ${total.toLocaleString('pt-MZ', { style: 'currency', currency: 'MZN' })}*\n`;
+    msg += `\n📝 *Aguardo confirmação e dados para pagamento.*`;
+
+    const orderItem = {
+        product_id: currentProduct.id,
+        title: currentProduct.title,
+        price: priceNum,
+        quantity: quantity,
+        size: selectedSize || null,
+        image_url: currentProduct.image_url || null
+    };
+
+    // Save order to Supabase
+    try {
+        console.log('Tentando salvar pedido "Comprar Agora":', orderCode);
+        if (window.supabaseClient) {
+            const { data, error } = await window.supabaseClient.from('orders').insert({
+                order_code: orderCode,
+                items: [orderItem],
+                total: total,
+                channel: 'whatsapp (direto)',
+                status: 'pendente',
+                client_id: localStorage.getItem('divinos_client_id') || null
+            });
+
+            if (error) {
+                console.error('Erro ao salvar no Supabase:', error);
+                alert('Aviso: O pedido será enviado via WhatsApp, mas não pôde ser registrado no sistema. (Erro: ' + error.message + '). Verifique se a tabela "orders" foi criada no Supabase.');
+                throw error;
+            }
+            console.log('Pedido "Comprar Agora" salvo com sucesso:', orderCode);
+        } else {
+            console.warn('supabaseClient não encontrado para salvar pedido');
+        }
+    } catch (e) {
+        console.warn('Erro ao salvar pedido (mantendo redirecionamento):', e);
+    }
+
+    // Send via WhatsApp
+    const phone = "258848800311";
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+}
+
+// Attach to window for onClick events if needed
+window.toggleReviewForm = toggleReviewForm;
+window.handleReviewPhotos = handleReviewPhotos;
+window.buyNowWhatsApp = buyNowWhatsApp;

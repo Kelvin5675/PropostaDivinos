@@ -202,33 +202,74 @@ function setupCartListeners() {
 }
 
 /* --- CHECKOUT WHATSAPP --- */
-function checkoutWhatsApp() {
+async function checkoutWhatsApp() {
     if (cart.length === 0) return;
+
+    // Generate Order Code
+    const orderCode = 'DVN' + new Date().getFullYear() + String(Math.floor(Math.random() * 10000)).padStart(4, '0');
 
     // Build Message
     let msg = `*Olá, Divinos Graffic! Gostaria de fazer um pedido pelo site:*\n\n`;
+    msg += `📋 *Pedido: ${orderCode}*\n\n`;
     let total = 0;
 
-    cart.forEach(item => {
-        const priceNum = parseFloat(item.price.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+    const orderItems = cart.map(item => {
+        const priceNum = parseFloat(String(item.price).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
         const subtotal = priceNum * item.qty;
         total += subtotal;
 
         msg += `📦 *${item.qty}x ${item.title}*\n`;
         msg += `   Preço: ${item.price} (Sub: ${subtotal.toLocaleString('pt-MZ', { style: 'currency', currency: 'MZN' })})\n`;
-        if (item.category) msg += `   Categoria: _${item.category}_\n`;
+        if (item.size) msg += `   Tamanho: ${item.size}\n`;
         msg += `\n`;
+
+        return {
+            product_id: item.id,
+            title: item.title,
+            price: priceNum,
+            quantity: item.qty,
+            size: item.size || null,
+            image_url: item.image_url || null
+        };
     });
 
     msg += `---------------------------------\n`;
     msg += `💰 *TOTAL ESTIMADO: ${total.toLocaleString('pt-MZ', { style: 'currency', currency: 'MZN' })}*\n`;
     msg += `\n📝 *Aguardo confirmação e dados para pagamento.*`;
 
-    // Send
-    // Use the secondary phone for sales if defined, otherwise primary
-    // Hardcoded for now based on context, or fetch from site_settings later
+    // Save order to Supabase
+    try {
+        console.log('Tentando salvar pedido do carrinho:', orderCode);
+        console.log('Itens do pedido:', orderItems);
+
+        if (window.supabaseClient) {
+            const { data, error } = await window.supabaseClient.from('orders').insert({
+                order_code: orderCode,
+                items: orderItems,
+                total: total,
+                channel: 'whatsapp',
+                status: 'pendente',
+                client_id: localStorage.getItem('divinos_client_id') || null
+            });
+
+            if (error) {
+                console.error('Erro ao salvar no Supabase (Carrinho):', error);
+                alert('Aviso: O pedido será enviado via WhatsApp, mas não pôde ser registrado no sistema. (Erro: ' + error.message + '). Verifique se a tabela "orders" foi criada no Supabase.');
+                throw error;
+            }
+            console.log('Pedido do carrinho salvo com sucesso:', orderCode);
+        } else {
+            console.warn('supabaseClient não encontrado para salvar pedido do carrinho');
+        }
+    } catch (e) {
+        console.warn('Erro ao salvar pedido (continuando com WhatsApp):', e);
+    }
+
+    // Send via WhatsApp
     const phone = "258848800311";
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-
     window.open(url, '_blank');
+
+    // Clear cart after order
+    clearCart();
 }

@@ -376,7 +376,7 @@
                         document.getElementById('2fa-code').focus();
                     } else {
                         // Sem 2FA, entra direto
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/admin/dashboard.html';
                     }
                 } catch (err) {
                     errorMsg.textContent = err.message === "Invalid login credentials"
@@ -410,7 +410,7 @@
 
                     const isValid = lib.authenticator.check(code, secret);
                     if (isValid) {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/admin/dashboard.html';
                     } else {
                         throw new Error("Código 2FA incorreto ou expirado.");
                     }
@@ -437,7 +437,7 @@
             const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (session) {
                 // Se já tem sessão de uma aba aberta, manda pro dashboard
-                window.location.href = 'dashboard.html';
+                window.location.href = '/admin/dashboard.html';
             }
         }
         checkSession();

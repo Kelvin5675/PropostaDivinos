@@ -19,6 +19,8 @@
     --font-buttons: 'Space Grotesk', sans-serif;
 }
 
+/* ===== MOBILE-FIRST DEFENSIVE CSS ===== */
+/* Prevents horizontal scroll and layout breaks on ALL devices */
 * {
     margin: 0;
     padding: 0;
@@ -27,6 +29,15 @@
 
 html {
     scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    line-height: 1.6;
+    color: var(--color-text-main);
+    background-color: var(--color-bg-light);
+    overflow-x: hidden;
+    /* Only prevent horizontal scroll on body */
 }
 
 /* Custom Thin Scrollbar */
@@ -48,23 +59,17 @@ html {
 }
 
 /* Firefox */
-* {
+html {
     scrollbar-width: thin;
     scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
-}
-
-body {
-    font-family: var(--font-body);
-    line-height: 1.6;
-    color: var(--color-text-main);
-    background-color: var(--color-bg-light);
-    overflow-x: hidden;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+    width: 100%;
+    /* Ensure it doesn't exceed parent */
 }
 
 /* ===== TYPOGRAPHY ===== */
@@ -188,20 +193,21 @@ p {
     top: 0;
     left: 0;
     width: 100%;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
     z-index: 1000;
     transition: all 0.3s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .header.scrolled {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 1);
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
 }
 
 .navbar {
-    padding: -1rem 0;
+    padding: 0;
 }
 
 .nav-container {
@@ -230,6 +236,8 @@ p {
     list-style: none;
     gap: 2rem;
     margin: 0;
+    max-width: none !important;
+    /* Override global max-width */
 }
 
 .nav-link {
@@ -238,6 +246,8 @@ p {
     font-weight: 500;
     position: relative;
     transition: color 0.3s ease;
+    max-width: none !important;
+    /* Override global max-width */
 }
 
 .nav-link::after {
@@ -247,7 +257,7 @@ p {
     left: 0;
     width: 0;
     height: 2px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: var(--primary-color);
     transition: width 0.3s ease;
 }
 
@@ -373,6 +383,14 @@ p {
     background-size: cover;
 }
 
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    width: 100%;
+    max-width: 100%;
+}
+
 .hero-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -404,6 +422,49 @@ p {
     color: #666;
     margin-bottom: 2rem;
     line-height: 1.6;
+}
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    max-width: none !important;
+    /* Override universal max-width */
+    width: 100%;
+}
+
+.search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+}
+
+.search-box {
+    width: 100%;
+    padding: 1rem 3rem 1rem 1.5rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    background: white;
+    max-width: none !important;
+    /* Override universal max-width */
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #667eea;
+    font-size: 1.2rem;
+    pointer-events: none;
 }
 
 .hero-buttons {
@@ -600,84 +661,139 @@ p {
 
 }
 
-/* ===== CAROUSEL SECTION ===== */
+/* ===== CAROUSEL SECTION "NOSSOS TRABALHOS" ===== */
 .carousel-section {
     padding: 6rem 0;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    overflow: hidden;
 }
 
-.carousel-container {
-    position: relative;
+.works-carousel {
+    width: 100%;
     overflow: hidden;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 2rem 0;
 }
 
-.carousel-track {
+.works-track {
     display: flex;
-    animation: infiniteScroll 20s linear infinite;
-    width: calc(300px * 8);
-    /* 4 slides * 2 for infinite effect */
+    gap: 2rem;
+    animation: worksScroll 30s linear infinite;
+    will-change: transform;
 }
 
-.carousel-track:hover {
+.works-track:hover {
     animation-play-state: paused;
 }
 
-.carousel-slide {
-    min-width: 300px;
-    height: 400px;
-    position: relative;
-    margin-right: 2rem;
-    border-radius: 15px;
-    overflow: hidden;
-}
-
-.carousel-slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.carousel-slide:hover img {
-    transform: scale(1.1);
-}
-
-.slide-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-    color: white;
-    padding: 2rem 1.5rem 1.5rem;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
-}
-
-.carousel-slide:hover .slide-overlay {
-    transform: translateY(0);
-}
-
-.slide-overlay h4 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-}
-
-.slide-overlay p {
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-@keyframes infiniteScroll {
+@keyframes worksScroll {
     0% {
         transform: translateX(0);
     }
 
     100% {
-        transform: translateX(calc(-300px * 4 - 8rem));
+        transform: translateX(-50%);
+    }
+}
+
+.work-card {
+    flex: 0 0 280px;
+    height: 400px;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.work-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+}
+
+.work-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.work-card:hover .work-card-image {
+    transform: scale(1.05);
+}
+
+.work-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top,
+            rgba(0, 0, 0, 0.9) 0%,
+            rgba(0, 0, 0, 0.7) 50%,
+            transparent 100%);
+    padding: 2rem 1.5rem 1.5rem;
+    transform: translateY(calc(100% - 60px));
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.work-card:hover .work-card-overlay {
+    transform: translateY(0);
+}
+
+.work-card-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.work-card-description {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.5;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+}
+
+.work-card:hover .work-card-description {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .work-card {
+        flex: 0 0 240px;
+        height: 350px;
+    }
+
+    .work-card-title {
+        font-size: 1.1rem;
+    }
+
+    .work-card-description {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .work-card {
+        flex: 0 0 220px;
+        height: 320px;
+    }
+
+    .work-card-title {
+        font-size: 1rem;
+    }
+
+    .work-card-description {
+        font-size: 0.8rem;
+    }
+
+    .work-card-overlay {
+        padding: 1.5rem 1rem 1rem;
     }
 }
 
@@ -938,21 +1054,25 @@ p {
 
 .filter-buttons {
     display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 3rem;
     flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin: 2rem 0;
+    max-width: none !important;
+    /* Override universal max-width */
 }
 
 .filter-btn {
-    padding: 10px 20px;
-    border: 2px solid #ddd;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid transparent;
     background: white;
-    color: #666;
     border-radius: 25px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s;
     font-weight: 500;
+    color: #333;
+    max-width: none !important;
+    /* Override universal max-width */
 }
 
 .filter-btn.active,
@@ -1142,8 +1262,8 @@ p {
     }
 
     .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
     }
 
     .footer-content {

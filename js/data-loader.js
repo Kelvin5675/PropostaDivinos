@@ -138,6 +138,18 @@ async function loadSiteSettings() {
             }
             if (key === 'seo_keywords') updateMetaTag('keywords', val);
         });
+
+        // Carregar configurações de pagamento
+        const { data: paymentConfig } = await supabaseClient
+            .from('payment_config')
+            .select('is_enabled, provider, public_key, currency')
+            .maybeSingle();
+
+        if (paymentConfig) {
+            window.siteSettings = window.siteSettings || {};
+            window.siteSettings.payment = paymentConfig;
+        }
+
     } catch (err) { console.error('Erro ao carregar configurações:', err); }
 }
 
@@ -199,20 +211,63 @@ async function loadServices() {
 
 async function loadNossosTrabalhos() {
     try {
-        const track = document.getElementById('works-carousel-track');
+        const track = document.getElementById('works-track');
         if (!track) return;
-        const { data: items, error } = await window.supabaseClient.from('carousel_items').select('*').order('display_order', { ascending: true });
-        if (error || !items) return;
-        track.innerHTML = '';
-        items.forEach(item => {
-            const slide = document.createElement('div');
-            slide.className = 'carousel-slide';
-            slide.innerHTML = `<img src="${item.image_url}" alt="${item.title || ''}">
-                <div class="slide-overlay"><h4>${item.title || ''}</h4><p>${item.subtitle || ''}</p></div>`;
-            track.appendChild(slide);
-        });
-        if (window.initWorksCarousel) window.initWorksCarousel();
-    } catch (e) { }
+
+        const { data: items, error } = await window.supabaseClient
+            .from('nossos_trabalhos')
+            .select('*')
+            .order('display_order', { ascending: true });
+
+        if (error || !items || items.length === 0) {
+            console.log('Usando carousel_items como fallback');
+            const fallback = await window.supabaseClient
+                .from('carousel_items')
+                .select('*')
+                .order('display_order', { ascending: true });
+
+            if (fallback.data && fallback.data.length > 0) {
+                renderWorksCards(track, fallback.data);
+            }
+            return;
+        }
+
+        renderWorksCards(track, items);
+
+    } catch (e) {
+        console.error('Erro ao carregar Nossos Trabalhos:', e);
+    }
+}
+
+function renderWorksCards(track, items) {
+    track.innerHTML = '';
+
+    // Renderizar cards originais
+    items.forEach((item, index) => {
+        const card = createWorkCard(item, index);
+        track.appendChild(card);
+    });
+
+    // Duplicar para scroll infinito
+    items.forEach((item, index) => {
+        const card = createWorkCard(item, index + items.length);
+        track.appendChild(card);
+    });
+}
+
+function createWorkCard(item, index) {
+    const card = document.createElement('div');
+    card.className = 'work-card';
+
+    card.innerHTML = `
+        <img src="${item.image_url}" alt="${item.title || ''}" class="work-card-image" loading="lazy">
+        <div class="work-card-overlay">
+            <h3 class="work-card-title">${item.title || ''}</h3>
+            <p class="work-card-description">${item.subtitle || ''}</p>
+        </div>
+    `;
+
+    return card;
 }
 
 async function loadMomentos() {
@@ -291,6 +346,14 @@ async function loadProducts() {
                 initializeProductFilters();
                 console.log("DEBUG: Filtros inicializados");
             }
+
+            // Inicializar a busca após carregar os produtos
+            if (typeof initializeSearch === 'function') {
+                initializeSearch();
+                console.log("DEBUG: Busca inicializada após carga");
+            } else if (window.initializeSearch) {
+                window.initializeSearch();
+            }
         }
     } catch (e) {
         console.error("DEBUG: Exceção crítica em loadProducts:", e);
@@ -343,8 +406,12 @@ function createProductCard(product) {
     const rating = product.rating || 0;
     const reviewCount = product.review_count || 0;
 
-    // Link para página de detalhes
-    const detailLink = isPagesPath ? `product-detail.html?id=${product.id}` : `pages/product-detail.html?id=${product.id}`;
+    // Link para página de detalhes - Use hash to avoid server URL rewriting
+    // Hash (#) is client-side only and won't be stripped by 'npx serve'
+    const detailLink = isPagesPath
+        ? `product-detail.html#${product.id}`
+        : `pages/product-detail.html#${product.id}`;
+    console.log(`DEBUG: Generated Link for ${product.title} (ID: ${product.id}): ${detailLink}`);
 
     // HTML do preço
     let priceHTML = `<span class="current-price">${price} MT</span>`;
@@ -396,6 +463,10 @@ function createProductCard(product) {
                 <button class="action-icon add-cart" title="Adicionar ao carrinho" onclick="event.stopPropagation(); addToCart({id:'${product.id}', title:'${product.title}', price:'${price}', image_url:'${imgUrl}'}, this);">
                     <i class="fas fa-shopping-cart"></i>
                 </button>
+                ${(window.siteSettings?.payment?.is_enabled) ?
+            `<button class="action-icon buy-now" title="Pagar Agora" onclick="event.stopPropagation(); window.location.href='checkout.html?product=${product.id}'" style="background: #28a745; color: white;">
+                    <i class="fas fa-credit-card"></i>
+                </button>` : ''}
             </div>
         </div>
         <div class="product-card-info">

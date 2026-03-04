@@ -7,7 +7,8 @@
     <title>Detalhes do Produto - Divinos Graffic</title>
     <link rel="stylesheet" href="../css/style.css?v=13">
     <link rel="stylesheet" href="../css/cart.css?v=13">
-    <link rel="stylesheet" href="../css/product-detail.css?v=1">
+    <link rel="stylesheet" href="../css/product-detail.css?v=2">
+    <link rel="stylesheet" href="../css/product-reviews.css?v=1">
     <link rel="stylesheet" href="../css/premium-preloader.css?v=12">
     <link rel="shortcut icon" href="../images/Logo Official 2019 E 2024Cor caregada.png" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
@@ -17,7 +18,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<body>
+<body class="product-detail-page">
     <!-- Premium Preloader -->
     <div id="preloader">
         <div class="loader-content">
@@ -102,13 +103,15 @@
     <section class="product-detail-section">
         <div class="container">
             <div class="product-main">
-                <!-- Left: Gallery -->
+                <!-- Left: Gallery Carousel -->
                 <div class="product-gallery">
                     <div class="main-image-container">
+                        <button class="gallery-arrow gallery-prev" id="gallery-prev"><i class="fas fa-chevron-left"></i></button>
                         <img id="main-product-image" src="../images/placeholder.jpg" alt="Produto">
+                        <button class="gallery-arrow gallery-next" id="gallery-next"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                    <div class="thumbnail-container" id="image-thumbnails">
-                        <!-- Thumbnails serão carregados via JS -->
+                    <div class="gallery-dots" id="gallery-dots">
+                        <!-- Dots serão carregados via JS -->
                     </div>
                 </div>
 
@@ -142,13 +145,18 @@
                         </div>
                     </div>
 
-                    <!-- Quantity Control -->
+                    <!-- Quantity + Wishlist -->
                     <div class="quantity-section">
                         <label>Quantidade:</label>
-                        <div class="quantity-control">
-                            <button class="qty-btn minus" id="qty-minus">-</button>
-                            <input type="number" id="product-quantity" value="1" min="1" max="999">
-                            <button class="qty-btn plus" id="qty-plus">+</button>
+                        <div class="quantity-row">
+                            <div class="quantity-control">
+                                <button class="qty-btn minus" id="qty-minus">-</button>
+                                <input type="number" id="product-quantity" value="1" min="1" max="999">
+                                <button class="qty-btn plus" id="qty-plus">+</button>
+                            </div>
+                            <button class="btn-wishlist" id="btn-wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -157,13 +165,13 @@
                         <button class="btn-add-to-cart" id="btn-add-cart">
                             <i class="fas fa-shopping-cart"></i> Adicionar ao Carrinho
                         </button>
-                        <button class="btn-whatsapp" id="btn-whatsapp">
+                        <a href="#" id="btn-whatsapp" class="btn-whatsapp" target="_blank">
                             <i class="fab fa-whatsapp"></i> Comprar via WhatsApp
-                        </button>
-                        <button class="btn-wishlist" id="btn-wishlist">
-                            <i class="far fa-heart"></i>
-                        </button>
+                        </a>
                     </div>
+                    <a href="#" id="buy-now-btn" class="buy-now-button" style="display: none;">
+                        <i class="fas fa-credit-card"></i> Pagar Agora Online
+                    </a>
 
                     <!-- Product Meta -->
                     <div class="product-meta">
@@ -210,16 +218,78 @@
                     </div>
 
                     <div id="tab-reviews" class="tab-pane">
-                        <div class="reviews-summary">
-                            <h3>Avaliações dos Clientes</h3>
-                            <div class="average-rating">
-                                <span class="rating-number" id="avg-rating">0.0</span>
-                                <div class="stars" id="avg-stars"></div>
-                                <span id="total-reviews">(0 avaliações)</span>
+                        <div class="reviews-container">
+                            <!-- Header with Stats and Button -->
+                            <div class="reviews-header">
+                                <div class="reviews-stats">
+                                    <div class="average-rating-display">
+                                        <div class="average-number" id="avg-rating-display">0.0</div>
+                                        <div class="average-stars" id="avg-stars-display"></div>
+                                        <div class="total-count" id="total-reviews-display">(0 avaliações)</div>
+                                    </div>
+                                </div>
+                                <button class="btn-write-review" onclick="toggleReviewForm()">
+                                    <i class="fas fa-pen"></i> Escrever Avaliação
+                                </button>
                             </div>
-                        </div>
-                        <div class="reviews-list" id="reviews-list">
-                            <p>Nenhuma avaliação ainda. Seja o primeiro a avaliar!</p>
+
+                            <!-- Review Form -->
+                            <div class="review-form-container" id="review-form-container">
+                                <h3>Deixe sua opinião</h3>
+                                <form id="review-form">
+                                    <div class="form-group">
+                                        <label>Sua Classificação</label>
+                                        <div class="rating-input">
+                                            <input type="radio" name="rating" id="star5" value="5" required><label
+                                                for="star5" title="5 estrelas">★</label>
+                                            <input type="radio" name="rating" id="star4" value="4"><label for="star4"
+                                                title="4 estrelas">★</label>
+                                            <input type="radio" name="rating" id="star3" value="3"><label for="star3"
+                                                title="3 estrelas">★</label>
+                                            <input type="radio" name="rating" id="star2" value="2"><label for="star2"
+                                                title="2 estrelas">★</label>
+                                            <input type="radio" name="rating" id="star1" value="1"><label for="star1"
+                                                title="1 estrela">★</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="review-name">Seu Nome</label>
+                                        <input type="text" id="review-name" class="form-control" required
+                                            placeholder="Ex: João Silva">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="review-comment">Seu Comentário</label>
+                                        <textarea id="review-comment" class="form-control" rows="4" required
+                                            placeholder="Conte-nos o que achou do produto..."></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Fotos (Opcional)</label>
+                                        <div class="photo-upload-area"
+                                            onclick="document.getElementById('review-photos-input').click()">
+                                            <i class="fas fa-camera"
+                                                style="font-size: 2rem; color: #ccc; margin-bottom: 10px;"></i>
+                                            <p>Clique para adicionar fotos</p>
+                                        </div>
+                                        <input type="file" id="review-photos-input" multiple accept="image/*"
+                                            style="display: none;" onchange="handleReviewPhotos(this)">
+                                        <div class="preview-photos" id="review-photos-preview"></div>
+                                    </div>
+
+                                    <button type="submit" class="btn-add-to-cart"
+                                        style="width: 100%; margin-top: 1rem;">
+                                        Enviar Avaliação
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Reviews List -->
+                            <div class="reviews-list" id="reviews-list">
+                                <!-- Loaded via JS -->
+                                <p style="text-align: center; color: #666;">Carregando avaliações...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -311,10 +381,10 @@
 
     <!-- Scripts -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="../js/supabase-config.js?v=12"></script>
-    <script src="../js/product-detail.js?v=1"></script>
-    <script src="../js/script.js?v=12"></script>
-    <script src="../js/cart.js?v=12"></script>
+    <script src="../js/supabase-config.js?v=13"></script>
+    <script src="../js/product-detail.js?v=2"></script>
+    <script src="../js/script.js?v=13"></script>
+    <script src="../js/cart.js?v=13"></script>
 </body>
 
 </html>

@@ -39,7 +39,10 @@ function switchTab(tabId) {
         // Reload data for specific tabs if needed
         if (tabId === 'products') loadProductsAdmin();
         if (tabId === 'categories') loadCategoriesAdmin();
+        if (tabId === 'orders') loadOrdersAdmin();
         if (tabId === 'carousel-editor') loadCarouselAdmin();
+        if (tabId === 'trabalhos-editor') loadTrabalhosAdmin();
+        if (tabId === 'payments') loadPaymentSettings();
         if (tabId === 'content-mgmt') {
             loadServicesAdmin();
             loadMomentosAdmin();
@@ -450,6 +453,9 @@ async function loadProductsAdmin() {
 
 function showAddProductForm() {
     document.getElementById('product-form-container').style.display = 'block';
+    // Initialize editors if not already done
+    initializeQuillEditors();
+
     document.getElementById('product-form').reset();
     document.getElementById('prod-id').value = '';
     document.getElementById('prod-gallery').value = '[]';
@@ -1080,6 +1086,131 @@ window.deleteCarouselItem = async (id) => {
     }
 };
 
+// ==========================================
+// NOSSOS TRABALHOS MANAGEMENT
+// ==========================================
+const trabalhosTableBody = document.getElementById('trabalhos-table-body');
+
+async function loadTrabalhosAdmin() {
+    if (!trabalhosTableBody) return;
+    trabalhosTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Carregando...</td></tr>';
+
+    const { data, error } = await supabaseClient
+        .from('nossos_trabalhos')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+    if (error) {
+        console.error("Erro ao carregar trabalhos:", error);
+        trabalhosTableBody.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center; padding: 20px;">
+            <i class="fas fa-exclamation-triangle"></i> Erro ao acessar banco de dados.<br>
+            <small>${error.message}</small>
+        </td></tr>`;
+        return;
+    }
+
+    trabalhosTableBody.innerHTML = '';
+    if (!data || data.length === 0) {
+        trabalhosTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px;">
+            <p>Nenhum trabalho encontrado.</p>
+        </td></tr>`;
+        return;
+    }
+
+    data.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <img src="${item.image_url}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;">
+            </td>
+            <td style="font-weight: 500;">${item.title || '-'}</td>
+            <td>${item.subtitle || '-'}</td>
+            <td>${item.display_order}</td>
+            <td>
+                <button class="btn btn-primary" onclick="editTrabalho('${item.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; margin-right: 5px;"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-danger" onclick="deleteTrabalho('${item.id}')" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;"><i class="fas fa-trash"></i></button>
+            </td>
+        `;
+        trabalhosTableBody.appendChild(tr);
+    });
+}
+
+function showAddTrabalhoForm() {
+    document.getElementById('trabalho-form-container').style.display = 'block';
+    const form = document.getElementById('trabalho-form');
+    if (form) form.reset();
+    document.getElementById('trab-id').value = '';
+    const preview = document.getElementById('trab-preview');
+    if (preview) {
+        preview.src = '';
+        preview.style.display = 'none';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function hideTrabalhoForm() {
+    document.getElementById('trabalho-form-container').style.display = 'none';
+}
+
+window.editTrabalho = async (id) => {
+    const { data, error } = await supabaseClient.from('nossos_trabalhos').select('*').eq('id', id).single();
+    if (data) {
+        showAddTrabalhoForm();
+        document.getElementById('trab-id').value = data.id;
+        document.getElementById('trab-title').value = data.title || '';
+        document.getElementById('trab-subtitle').value = data.subtitle || '';
+        document.getElementById('trab-order').value = data.display_order || 0;
+        document.getElementById('trab-image').value = data.image_url || '';
+
+        if (data.image_url) {
+            const preview = document.getElementById('trab-preview');
+            preview.src = data.image_url;
+            preview.style.display = 'block';
+        }
+    }
+};
+
+window.deleteTrabalho = async (id) => {
+    if (confirm('Tem certeza que deseja remover este trabalho?')) {
+        const { error } = await supabaseClient.from('nossos_trabalhos').delete().eq('id', id);
+        if (error) showToast('Erro: ' + error.message, 'error');
+        else {
+            showToast('Trabalho removido!');
+            loadTrabalhosAdmin();
+        }
+    }
+};
+
+const trabalhoForm = document.getElementById('trabalho-form');
+if (trabalhoForm) {
+    trabalhoForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('trab-id').value;
+
+        const workData = {
+            title: document.getElementById('trab-title').value,
+            subtitle: document.getElementById('trab-subtitle').value,
+            display_order: parseInt(document.getElementById('trab-order').value) || 0,
+            image_url: document.getElementById('trab-image').value
+        };
+
+        let result;
+        if (id) {
+            result = await supabaseClient.from('nossos_trabalhos').update(workData).eq('id', id);
+        } else {
+            result = await supabaseClient.from('nossos_trabalhos').insert([workData]);
+        }
+
+        if (result.error) {
+            showToast('Erro ao salvar: ' + result.error.message, 'error');
+        } else {
+            showToast('Trabalho atualizado!');
+            hideTrabalhoForm();
+            loadTrabalhosAdmin();
+        }
+    });
+}
+
 const carouselForm = document.getElementById('carousel-form');
 if (carouselForm) {
     carouselForm.addEventListener('submit', async (e) => {
@@ -1307,3 +1438,427 @@ window.loadMomentosAdmin = loadMomentosAdmin;
 window.showMomentoModal = showMomentoModal;
 window.hideMomentoModal = hideMomentoModal;
 window.deleteMomento = deleteMomento;
+
+window.loadTrabalhosAdmin = loadTrabalhosAdmin;
+window.showAddTrabalhoForm = showAddTrabalhoForm;
+window.hideTrabalhoForm = hideTrabalhoForm;
+window.deleteTrabalho = deleteTrabalho;
+window.editTrabalho = editTrabalho;
+
+// ==========================================
+// PAYMENT CONFIGURATION
+// ==========================================
+async function loadPaymentSettings() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('payment_config')
+            .select('*')
+            .maybeSingle();
+
+        if (data) {
+            document.getElementById('payment-enabled-toggle').checked = data.is_enabled;
+            document.getElementById('payment-provider').value = data.provider || 'generic';
+            document.getElementById('payment-public-key').value = data.public_key || '';
+            document.getElementById('payment-secret-key').value = data.secret_key || ''; // Placeholder, usually masked
+            document.getElementById('payment-currency').value = data.currency || 'MZN';
+        }
+    } catch (e) {
+        console.error('Erro ao carregar configs de pagamento:', e);
+    }
+}
+
+document.getElementById('payment-config-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = 'Salvando...';
+    btn.disabled = true;
+
+    const config = {
+        is_enabled: document.getElementById('payment-enabled-toggle').checked,
+        provider: document.getElementById('payment-provider').value,
+        public_key: document.getElementById('payment-public-key').value,
+        secret_key: document.getElementById('payment-secret-key').value,
+        currency: document.getElementById('payment-currency').value,
+        updated_at: new Date()
+    };
+
+    try {
+        // Check if exists
+        const { data: existing } = await supabaseClient.from('payment_config').select('id').maybeSingle();
+
+        let result;
+        if (existing) {
+            result = await supabaseClient.from('payment_config').update(config).eq('id', existing.id);
+        } else {
+            result = await supabaseClient.from('payment_config').insert([config]);
+        }
+
+        if (result.error) throw result.error;
+
+        showToast('Configurações de pagamento salvas com sucesso!', 'success');
+    } catch (err) {
+        console.error('Erro ao salvar pagamentos:', err);
+        showToast('Erro ao salvar configurações.', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+});
+
+// ==========================================
+// ORDERS MANAGEMENT
+// ==========================================
+let allOrders = [];
+
+async function loadOrdersAdmin() {
+    const tableBody = document.getElementById('orders-table-body');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Carregando...</td></tr>';
+
+    const { data, error } = await supabaseClient
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error(error);
+        tableBody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Erro ao carregar dados</td></tr>';
+        return;
+    }
+
+    allOrders = data;
+    updateOrderStats(data);
+    renderOrdersTable(data);
+    renderSalesChart(data); // Render chart here
+}
+
+function updateOrderStats(orders) {
+    const totalCount = orders.length;
+    const pendingCount = orders.filter(o => o.status === 'pendente').length;
+    const totalRevenue = orders.reduce((sum, o) => sum + (parseFloat(o.total) || 0), 0);
+
+    document.getElementById('orders-total-count').innerText = totalCount;
+    document.getElementById('orders-pending-count').innerText = pendingCount;
+    document.getElementById('orders-revenue').innerText = totalRevenue.toLocaleString('pt-MZ', { style: 'currency', currency: 'MZN' });
+}
+
+function renderOrdersTable(orders) {
+    const tableBody = document.getElementById('orders-table-body');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = '';
+    if (orders.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Nenhum pedido encontrado.</td></tr>';
+        return;
+    }
+
+    orders.forEach(order => {
+        const date = new Date(order.created_at).toLocaleDateString();
+        const itemsCount = Array.isArray(order.items) ? order.items.reduce((sum, i) => sum + i.quantity, 0) : 0;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="font-weight: 600;">#${order.order_code}</td>
+            <td>${date}</td>
+            <td>${itemsCount} itens</td>
+            <td style="font-weight: 500;">${parseFloat(order.total).toLocaleString('pt-MZ', { style: 'currency', currency: 'MZN' })}</td>
+            <td><i class="fab fa-whatsapp" style="color:#25D366"></i> WhatsApp</td>
+            <td>
+                <select onchange="updateOrderStatus(${order.id}, this.value)" class="status-badge" style="background: ${getStatusColor(order.status)}; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer;">
+                    <option value="pendente" ${order.status === 'pendente' ? 'selected' : ''}>Pendente</option>
+                    <option value="confirmado" ${order.status === 'confirmado' ? 'selected' : ''}>Confirmado</option>
+                    <option value="concluido" ${order.status === 'concluido' ? 'selected' : ''}>Concluído</option>
+                    <option value="cancelado" ${order.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                </select>
+            </td>
+            <td>
+                <button class="btn btn-secondary btn-sm" onclick="downloadInvoice(${order.id})" title="Baixar Fatura PDF">
+                    <i class="fas fa-file-invoice-dollar"></i> PDF
+                </button>
+            </td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
+
+function getStatusColor(status) {
+    switch (status) {
+        case 'pendente': return '#f59e0b'; // Amber
+        case 'confirmado': return '#0ea5e9'; // Sky Blue
+        case 'concluido': return '#10b981'; // Emerald
+        case 'cancelado': return '#ef4444'; // Red
+        default: return '#64748b'; // Slate
+    }
+}
+
+let salesChart = null;
+let currentChartPeriod = 'daily';
+
+// SEARCH ORDERS
+function searchOrders() {
+    const query = document.getElementById('order-search-input').value.toLowerCase();
+    const activeFilter = document.querySelector('.order-filter-btn.active').dataset.status;
+
+    let filtered = allOrders;
+
+    // Apply Status Filter first
+    if (activeFilter !== 'all') {
+        filtered = filtered.filter(o => o.status === activeFilter);
+    }
+
+    // Apply Search Query
+    if (query) {
+        filtered = filtered.filter(o =>
+            o.order_code.toLowerCase().includes(query) ||
+            (o.client_id && o.client_id.toLowerCase().includes(query))
+        );
+    }
+
+    renderOrdersTable(filtered);
+}
+
+// PERIOD SWITCHER
+window.changeChartPeriod = (period, btn) => {
+    currentChartPeriod = period;
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSalesChart(allOrders);
+};
+
+// MULTI-PERIOD SALES CHART
+function renderSalesChart(orders) {
+    const ctx = document.getElementById('salesChart');
+    if (!ctx) return;
+
+    if (salesChart) salesChart.destroy();
+
+    const dataMap = new Map();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (currentChartPeriod === 'daily') {
+        // Last 7 days
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+            dataMap.set(d.toLocaleDateString(), 0);
+        }
+        orders.forEach(o => {
+            const date = new Date(o.created_at).toLocaleDateString();
+            if (dataMap.has(date)) {
+                dataMap.set(date, dataMap.get(date) + (parseFloat(o.total) || 0));
+            }
+        });
+    } else if (currentChartPeriod === 'weekly') {
+        // Last 4 weeks
+        for (let i = 3; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - (i * 7));
+            // Get start of week (Sunday)
+            const startOfWeek = new Date(d);
+            startOfWeek.setDate(d.getDate() - d.getDay());
+            dataMap.set(`Semana ${startOfWeek.toLocaleDateString()}`, 0);
+        }
+        orders.forEach(o => {
+            const d = new Date(o.created_at);
+            const start = new Date(d);
+            start.setDate(d.getDate() - d.getDay());
+            const key = `Semana ${start.toLocaleDateString()}`;
+            if (dataMap.has(key)) {
+                dataMap.set(key, dataMap.get(key) + (parseFloat(o.total) || 0));
+            }
+        });
+    } else if (currentChartPeriod === 'monthly') {
+        // Last 6 months
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(today);
+            d.setMonth(today.getMonth() - i);
+            const key = d.toLocaleString('pt-MZ', { month: 'short', year: 'numeric' });
+            dataMap.set(key, 0);
+        }
+        orders.forEach(o => {
+            const d = new Date(o.created_at);
+            const key = d.toLocaleString('pt-MZ', { month: 'short', year: 'numeric' });
+            if (dataMap.has(key)) {
+                dataMap.set(key, dataMap.get(key) + (parseFloat(o.total) || 0));
+            }
+        });
+    }
+
+    const labels = Array.from(dataMap.keys());
+    const values = Array.from(dataMap.values());
+
+    salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Receita (MT)',
+                data: values,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#10b981',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    padding: 10,
+                    callbacks: {
+                        label: function (context) {
+                            return 'Receita: ' + context.parsed.y.toLocaleString('pt-MZ', { style: 'currency', currency: 'MZN' });
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: {
+                        callback: function (value) {
+                            return value.toLocaleString('pt-MZ') + ' MT';
+                        }
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+window.filterOrders = (status, btn) => {
+    // UI update
+    document.querySelectorAll('.order-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Filter logic
+    searchOrders(); // Re-trigger search which combines filters
+};
+
+window.updateOrderStatus = async (id, newStatus) => {
+    try {
+        const { error } = await supabaseClient
+            .from('orders')
+            .update({ status: newStatus })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        showToast('Status atualizado!');
+        // Update local data and UI
+        const order = allOrders.find(o => o.id === id);
+        if (order) order.status = newStatus;
+        updateOrderStats(allOrders);
+
+        // Refresh table colors (re-render current filter if needed, or just let select change stay)
+    } catch (err) {
+        console.error(err);
+        showToast('Erro ao atualizar status', 'error');
+    }
+};
+
+window.downloadInvoice = async (orderId) => {
+    const order = allOrders.find(o => o.id === orderId);
+    if (!order) return;
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Official Logo - Try to use the logo from the site
+        const logoPath = '../images/Logo Official 2019 E 2024Cor caregada.png';
+        try {
+            // Tentativa de adicionar o logo se estiver disponível
+            doc.addImage(logoPath, 'PNG', 85, 10, 40, 40);
+            // Posicionamento: X=85 (centro-ish), Y=10, Largura=40, Altura=40
+        } catch (logoErr) {
+            console.warn('Logo could not be added to PDF:', logoErr);
+            // Fallback: Título em texto se o logo falhar
+            doc.setFontSize(22);
+            doc.setTextColor(230, 57, 70);
+            doc.text('DIVINOS GRAFFIC', 105, 30, { align: 'center' });
+        }
+
+        // Header (Ajustado se houver logo)
+        const headerY = 55;
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text('Maputo, Moçambique | Tel: +258 84 880 0311', 105, headerY, { align: 'center' });
+
+        doc.setDrawColor(220);
+        doc.line(20, 35, 190, 35);
+
+        // Order Info
+        doc.setFontSize(14);
+        doc.setTextColor(0);
+        doc.text(`FATURA / RECIBO: #${order.order_code}`, 20, 45);
+
+        doc.setFontSize(10);
+        doc.text(`Data: ${new Date(order.created_at).toLocaleString()}`, 20, 52);
+        doc.text(`Canal: WhatsApp`, 20, 57);
+        doc.text(`Status: ${order.status.toUpperCase()}`, 20, 62);
+
+        // Table of Items
+        const tableData = [];
+        if (Array.isArray(order.items)) {
+            order.items.forEach(item => {
+                tableData.push([
+                    item.title,
+                    item.size || '-',
+                    item.quantity,
+                    parseFloat(item.price).toLocaleString('pt-MZ', { minimumFractionDigits: 2 }),
+                    (parseFloat(item.price) * item.quantity).toLocaleString('pt-MZ', { minimumFractionDigits: 2 })
+                ]);
+            });
+        }
+
+        doc.autoTable({
+            startY: headerY + 40,
+            head: [['Produto', 'Tamanho', 'Qtd', 'Preço Unit.', 'Subtotal']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: { fillColor: [44, 62, 80] },
+            columnStyles: {
+                2: { halign: 'center' },
+                3: { halign: 'right' },
+                4: { halign: 'right' }
+            }
+        });
+
+        // Total
+        const finalY = doc.lastAutoTable.finalY + 10;
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`TOTAL FINAL: ${parseFloat(order.total).toLocaleString('pt-MZ', { style: 'currency', currency: 'MZN' })}`, 190, finalY, { align: 'right' });
+
+        // Footer
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(150);
+        doc.text('Obrigado por escolher a Divinos Graffic!', 105, 280, { align: 'center' });
+
+        // Save
+        doc.save(`Fatura_Divinos_${order.order_code}.pdf`);
+        showToast('Fatura gerada com sucesso!');
+
+    } catch (err) {
+        console.error('PDF Error:', err);
+        showToast('Erro ao gerar PDF: ' + err.message, 'error');
+    }
+};

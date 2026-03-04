@@ -49,8 +49,8 @@ function initializeSearch() {
         cards.forEach(card => {
             if (card.classList.contains('no-results-msg')) return;
 
-            const title = (card.querySelector('h3')?.innerText || '').toLowerCase();
-            const desc = (card.querySelector('p')?.innerText || '').toLowerCase();
+            const title = (card.querySelector('.product-name')?.innerText || card.querySelector('h3')?.innerText || '').toLowerCase();
+            const desc = (card.querySelector('.product-card-info')?.innerText || card.querySelector('p')?.innerText || '').toLowerCase();
             const category = (card.dataset.category || '').toLowerCase();
 
             const matchesSearch = query === '' || title.includes(query) || desc.includes(query);
@@ -726,51 +726,22 @@ function initializeReviews() {
 }
 
 // ===== PRODUCT DETAIL =====
+// Product Detail functions moved to product-detail.js and cart.js
+// Kept empty to prevent reference errors if called from old HTML
 function changeMainImage(thumbnail) {
-    const mainImage = document.getElementById('main-product-image');
-    const thumbnails = document.querySelectorAll('.thumbnail');
-
-    if (mainImage) {
-        mainImage.src = thumbnail.src;
-
-        // Update active thumbnail
-        thumbnails.forEach(thumb => thumb.classList.remove('active'));
-        thumbnail.classList.add('active');
-    }
+    // Moved to product-detail.js
 }
 
 function increaseQuantity() {
-    const quantityInput = document.getElementById('quantity');
-    if (quantityInput) {
-        const currentValue = parseInt(quantityInput.value) || 1;
-        quantityInput.value = currentValue + 1;
-    }
+    // Moved to product-detail.js
 }
 
 function decreaseQuantity() {
-    const quantityInput = document.getElementById('quantity');
-    if (quantityInput) {
-        const currentValue = parseInt(quantityInput.value) || 1;
-        if (currentValue > 1) {
-            quantityInput.value = currentValue - 1;
-        }
-    }
+    // Moved to product-detail.js
 }
 
 function addToCart() {
-    const quantity = document.getElementById('quantity')?.value || 1;
-    const productTitle = document.getElementById('product-title')?.textContent || 'Produto';
-
-    showNotification(`${quantity}x ${productTitle} adicionado ao carrinho!`, 'success');
-
-    // Add cart animation
-    const addToCartBtn = document.querySelector('.add-to-cart');
-    if (addToCartBtn) {
-        addToCartBtn.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            addToCartBtn.style.transform = 'scale(1)';
-        }, 150);
-    }
+    // Moved to cart.js
 }
 
 // ===== SCROLL EFFECTS =====
@@ -916,7 +887,8 @@ window.addEventListener('error', function (e) {
 
 // ===== ACCESSIBILITY =====
 function initializeAccessibility() {
-    // Skip to main content link
+    // Skip link removed - not needed for this site
+    /*
     const skipLink = document.createElement('a');
     skipLink.href = '#main';
     skipLink.textContent = 'Skip to main content';
@@ -942,6 +914,7 @@ function initializeAccessibility() {
     });
 
     document.body.insertBefore(skipLink, document.body.firstChild);
+    */
 
     // Keyboard navigation for custom elements
     const customButtons = document.querySelectorAll('.btn, .filter-btn, .gallery-btn');
