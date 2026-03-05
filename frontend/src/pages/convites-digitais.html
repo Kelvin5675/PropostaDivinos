@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convites Digitais - Divinos Graffic</title>
+
+    <!-- CSS Otimizado com Breakpoints -->
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" media="(max-width: 767px)" href="../css/breakpoints/mobile.css">
+    <link rel="stylesheet" media="(min-width: 768px) and (max-width: 1023px)" href="../css/breakpoints/tablet.css">
+    <link rel="stylesheet" media="(min-width: 1024px)" href="../css/breakpoints/desktop.css">
+    <link rel="stylesheet" href="../css/style.css"> <!-- Para herdar a Navbar/Footer originais se necessário -->
+
+    <style>
+        .invitations-hero {
+            padding: 120px 20px 80px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--secondary-rgb), 0.05) 100%);
+        }
+
+        .invitations-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .invitations-hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            color: #666;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .plan-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 20px 0;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .plan-features li i {
+            color: #28a745;
+            margin-right: 10px;
+        }
+
+        .buy-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.3s;
+        }
+
+        .buy-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header (Poderá ser importado dinamicamente no futuro) -->
+    <header class="main-header">
+        <div class="logo">
+            <a href="../index.html">Divinos Graffic</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="invitations-hero">
+            <h1>Convites Digitais Memoráveis</h1>
+            <p>Substitua o papel pelo digital. Mais barato, mais elegante e amigo do ambiente. Com confirmação de
+                presença (RSVP) e muito mais!</p>
+        </section>
+
+        <section class="plans-section" id="plans">
+            <h2 style="text-align: center; margin-top: 50px;">Nossos Planos</h2>
+            <div class="plans-grid" id="plans-container">
+                <!-- Preenchido via JS -->
+                <p style="text-align: center; width: 100%;">Carregando planos...</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8000/api/v1' : 'https://api.divinos.com/v1';
+
+        async function loadPlans() {
+            try {
+                const response = await fetch(`${API_BASE}/invitations/plans`);
+                if (!response.ok) throw new Error('Falha ao carregar');
+                const plans = await response.json();
+
+                const container = document.getElementById('plans-container');
+                container.innerHTML = '';
+
+                plans.forEach(plan => {
+                    const div = document.createElement('div');
+                    div.className = 'plan-card fade-in';
+
+                    let featuresHtml = '';
+                    if (plan.features && typeof plan.features === 'object') {
+                        Object.entries(plan.features).forEach(([key, val]) => {
+                            if (val === true || typeof val === 'string' || typeof val === 'number') {
+                                const nomeFeature = key.replace(/_/g, ' ').toUpperCase();
+                                featuresHtml += `<li><i>✓</i> <strong>${nomeFeature}</strong>: ${val === true ? 'Sim' : val}</li>`;
+                            }
+                        });
+                    }
+
+                    div.innerHTML = `
+                        <h3>${plan.name}</h3>
+                        <div class="plan-price">${plan.price} MT</div>
+                        <ul class="plan-features">
+                            ${featuresHtml}
+                        </ul>
+                        <button class="buy-btn" onclick="comprarPlano('${plan.id}')">Criar meu Convite</button>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                console.error(e);
+                document.getElementById('plans-container').innerHTML = '<p>Erro ao carregar planos.</p>';
+            }
+        }
+
+        function comprarPlano(id) {
+            // No futuro abre checkout e regista no Supabase com "pending_approval"
+            alert("Esta funcionalidade será integrada com a gateway de pagamentos M-PESA/E-mola em breve. Plano ID: " + id);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadPlans);
+    </script>
+</body>
+
+</html>

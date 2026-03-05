@@ -1,0 +1,27 @@
+/* ==========================================================================
+   MOBILE FIRST STYLES (Ecrãs até 767px)
+   Aqui ficam as regras para os telemóveis.
+   ========================================================================== */
+
+/* Exemplo de Re-ajuste do Hero para Mobile */
+.hero-content h1 {
+    font-size: 2.5rem !important;
+}
+
+.hero-content p {
+    font-size: 1rem !important;
+}
+
+/* Ajustes da Navbar no Mobile */
+.nav-links {
+    display: none;
+    /* Escondido por defeito, ativado via JS do Hamburger Mneu */
+}
+
+/* Grelhas */
+.products-grid,
+.services-grid,
+.works-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+}

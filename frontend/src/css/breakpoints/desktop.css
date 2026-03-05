@@ -1,0 +1,29 @@
+/* ==========================================================================
+   DESKTOP STYLES (Ecrãs 1024px e superiores)
+   Monitores de PC, Laptops.
+   ========================================================================== */
+
+/* Navbar expandida */
+.hamburger {
+    display: none;
+}
+
+.nav-links {
+    display: flex !important;
+}
+
+/* Grelhas completas (3 ou 4 colunas) */
+.products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.services-grid {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Prevenir overflow em ecrãs muito grandes */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}

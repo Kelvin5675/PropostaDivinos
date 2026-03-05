@@ -1,0 +1,19 @@
+/* ==========================================================================
+   TABLET STYLES (Ecrãs de 768px até 1023px)
+   Tablets em modo vertical ou ecrãs portáteis pequenos.
+   ========================================================================== */
+
+/* Ajustes da Grelha para Tablets (2 colunas) */
+.products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.services-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Ajuste Hero */
+.hero-content h1 {
+    font-size: 3.5rem;
+}
