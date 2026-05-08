@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convites Admin | Divinos – Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: #0f0523;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(197, 160, 89, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(109, 40, 217, 0.05) 0%, transparent 40%);
+        }
+
+        /* Partículas decorativas */
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .p1 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(197, 160, 89, 0.1), transparent); top: -5%; left: -5%; }
+        .p2 { width: 250px; height: 250px; background: radial-gradient(circle, rgba(109, 40, 217, 0.1), transparent); bottom: -5%; right: -5%; animation-delay: 2s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            padding: 4rem 3rem;
+            width: 100%;
+            max-width: 460px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .login-logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #c5a059;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-logo p {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .login-form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .login-form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.75rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #c5a059;
+            font-size: 0.9rem;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 1rem 1.25rem 1rem 3.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            transition: var(--transition, 0.3s);
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #c5a059;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1.1rem;
+            background: #c5a059;
+            color: #0f0523;
+            border: none;
+            border-radius: 16px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 20px rgba(197, 160, 89, 0.2);
+        }
+
+        .btn-login:hover {
+            background: #d4af37;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(197, 160, 89, 0.3);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .login-footer a {
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+
+        .login-footer a:hover { color: #c5a059; }
+
+        .login-error.show {
+            display: flex !important;
+        }
+
+        @media (max-width: 480px) {
+            .login-card { padding: 3rem 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particle p1"></div>
+    <div class="particle p2"></div>
+
+    <div class="login-card">
+        <div class="login-logo">
+            <h1>Divinos</h1>
+            <p>Digital Invitations</p>
+        </div>
+
+        <div class="login-error" id="login-error" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); border-radius:12px; padding:1rem; color:#ef4444; margin-bottom:1.5rem; font-size:0.85rem; align-items:center; gap:0.5rem;">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="login-error-msg">Email ou palavra-passe incorretos.</span>
+        </div>
+
+        <form id="login-form">
+            <div class="login-form-group">
+                <label for="email">Endereço de Email</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" class="login-input" placeholder="admin@divinos.com" required autocomplete="email">
+                </div>
+            </div>
+            <div class="login-form-group">
+                <label for="password">Palavra-passe</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" class="login-input" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+            </div>
+            <button type="submit" class="btn-login" id="login-btn">
+                <i class="fas fa-sign-in-alt"></i>
+                Entrar no Painel
+            </button>
+        </form>
+
+        <div class="login-footer">
+            <a href="/"><i class="fas fa-arrow-left" style="margin-right:5px;"></i>Voltar ao site</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js?v=21"></script>
+    <script>
+        // Check if already logged in
+        (async () => {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                window.location.href = '/admin_invitation/dashboard.html';
+            }
+        })();
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const errorBox = document.getElementById('login-error');
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A entrar...';
+            btn.disabled = true;
+            errorBox.classList.remove('show');
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                console.error("Login failed:", error);
+                document.getElementById('login-error-msg').textContent = error.message === 'Invalid login credentials' 
+                    ? 'Email ou palavra-passe incorretos.' 
+                    : 'Erro: ' + error.message;
+                errorBox.classList.add('show');
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Entrar no Painel';
+                btn.disabled = false;
+            } else {
+                window.location.href = '/admin_invitation/dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>

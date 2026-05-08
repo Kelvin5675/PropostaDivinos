@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel dos Noivos | Divinos Graffic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <link rel="shortcut icon" href="/assets/images/logo-official.png" type="image/x-icon">
+    <!-- Supabase Core -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js?v=21"></script>
+    <style>
+        :root {
+            --gold: #C5A059;
+            --gold-bg: #F5F1E9;
+            --text: #4A4A4A;
+            --muted: #A1A1A1;
+            --bg: #F9F8F5;
+            --white: #ffffff;
+            --border: rgba(0,0,0,0.07);
+            --radius: 30px;
+            --radius-sm: 18px;
+            --green: #10B981;
+            --red: #EF4444;
+            --shadow: 0 4px 20px rgba(0,0,0,0.06);
+            --shadow-hover: 0 15px 50px rgba(0,0,0,0.10);
+            --transition: all 0.3s ease;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .font-serif { font-family: 'Playfair Display', serif; }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* ── LOGIN SCREEN ── */
+        #login-overlay {
+            position: fixed; inset: 0;
+            background: var(--bg);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 3.5rem 3rem;
+            width: 100%; max-width: 440px;
+            text-align: center;
+            box-shadow: var(--shadow-hover);
+            animation: fadeIn .8s ease forwards;
+        }
+          .animate-fade-in-up { animation: fadeInUp 1.2s cubic-bezier(.2,.8,.2,1) forwards; }
+
+        /* Switch toggle for live */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; }
+        .switch input:checked + .slider { background-color: var(--jobie-primary); }
+        .switch input:checked + .slider:before { transform: translateX(20px); }
+        .slider.round { border-radius: 34px; }
+        .slider.round:before { border-radius: 50%; }
+
+        /* Reveal on scroll — more dramatic */
+        .login-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: .5rem;
+        }
+
+        .login-subtitle {
+            color: var(--muted);
+            font-size: .85rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: #F9F9F9;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 4px;
+            color: var(--text);
+            outline: none;
+            margin-bottom: 1rem;
+            transition: box-shadow .3s ease;
+        }
+
+        .login-input:focus { box-shadow: 0 0 0 3px rgba(197,160,89,.2); }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gold);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: .85rem;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 8px 25px rgba(197,160,89,.3);
+        }
+
+        .login-btn:hover { background: #A6864A; transform: translateY(-2px); }
+        .login-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+        .login-error {
+            color: var(--red);
+            font-size: .78rem;
+            margin-top: .75rem;
+            display: none;
+        }
+
+        /* ── LAYOUT ── */
+        #app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ── SIDEBAR ── */
+        #sidebar {
+            width: 280px;
+            background: var(--white);
+            border-radius: 0 40px 40px 0;
+            box-shadow: var(--shadow);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 2.5rem 2rem;
+            gap: 2.5rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 900px) { #sidebar { display: none; } }
+
+        .sidebar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            color: var(--gold);
+            letter-spacing: -1px;
+        }
+
+        .sidebar-nav { display: flex; flex-direction: column; gap: .75rem; }
+
+        .sidebar-btn {
+            width: 100%;
+            text-align: left;
+            padding: 1rem 1.25rem;
+            border-radius: 18px;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            cursor: pointer;
+            transition: var(--transition);
+            background: transparent;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .sidebar-btn:hover { background: #f5f5f5; color: var(--text); }
+        .sidebar-btn.active { background: var(--gold-bg); color: var(--gold); }
+
+        .sidebar-badge {
+            margin-left: auto;
+            background: var(--red);
+            color: #fff;
+            border-radius: 50px;
+            font-size: .6rem;
+            padding: 2px 7px;
+            font-weight: 700;
+            display: none;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: .75rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: .7rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover { background: #FEF2F2; color: var(--red); border-color: #FECACA; }
+
+        /* ── MAIN CONTENT ── */
+        #main {
+            flex: 1;
+            padding: 2.5rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            animation: fadeIn .5s ease;
+        }
+
+        /* ── MOBILE TOPBAR ── */
+        .mobile-topbar {
+            display: none;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+
+        @media (max-width: 900px) {
+            .mobile-topbar { display: flex; }
+            #main { padding: 1.5rem 1rem; }
+        }
+
+        .mobile-brand { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold); font-style: italic; }
+
+        /* ── MOBILE NAV ── */
+        .mobile-nav {
+            display: none;
+            gap: .25rem;
+            padding: .75rem 1rem;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border);
+            background: var(--white);
+        }
+
+        @media (max-width: 900px) { .mobile-nav { display: flex; } }
+
+        .mobile-nav-btn {
+            flex-shrink: 0;
+            padding: .6rem 1rem;
+            border-radius: 50px;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: .6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted);
+            transition: var(--transition);
+        }
+
+        .mobile-nav-btn.active { background: var(--gold-bg); color: var(--gold); }
+
+        /* ── HEADER ── */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--text); }
+        .page-subtitle { color: var(--muted); font-size: .85rem; margin-top: .4rem; font-weight: 500; }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            padding: .7rem 1.25rem;
+            border-radius: 50px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            font-size: .65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: var(--text);
+        }
+
+        .status-dot {
+            width: .65rem; height: .65rem;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        /* ── TABS SECTIONS ── */
+        .section { display: none; animation: fadeIn .3s ease; }
+        .section.active { display: block; }
+
+        /* ── STATS ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+
+        .stat-label {
+            font-size: .6rem;
+            text-transform: uppercase;
+            letter-spacing: .3em;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .stat-value.green { color: var(--green); }
+        .stat-value.blue  { color: #3B82F6; }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--text);
+        }
+
+        .card-body { padding: 2rem; }
+
+        /* ── TABLE ── */
+        .table-wrap { overflow-x: auto; padding: 0 2rem 2rem; }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0 .5rem; }
+
+        thead th {
+            padding: .75rem 1rem;
+            text-align: left;
+            font-size: .6rem;
+            text-transform: uppercase;
+            letter-spacing: .2em;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        tbody td {
+            padding: .85rem 1rem;
+            font-size: .88rem;
+            background: #FAFAFA;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody td:first-child { border-left: 1px solid var(--border); border-radius: 14px 0 0 14px; }
+        tbody td:last-child  { border-right: 1px solid var(--border); border-radius: 0 14px 14px 0; }
+        tbody tr:hover td { background: var(--gold-bg); }
+
+        /* ── BADGE ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: .7rem;
+            font-weight: 700;
+        }
+
+        .badge-success { background: #ECFDF5; color: #10B981; }
+        .badge-danger  { background: #FEF2F2; color: #EF4444; }
+        .badge-pending { background: #FFFBEB; color: #F59E0B; }
+
+        /* ── ACTION BTN ── */
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            border-radius: 10px;
+            padding: 5px 12px;
+            font-size: .7rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover { background: #f5f5f5; color: var(--text); }
+        .action-btn.danger:hover { background: #FEF2F2; color: var(--red); border-color: #FECACA; }
+
+        /* ── MESSAGES ── */
+        .message-item {
+            padding: 1.5rem;
+            border-radius: 25px;
+            background: var(--bg);
+            margin-bottom: 1rem;
+            border: 1px solid #E8E8E8;
+            transition: var(--transition);
+        }
+
+        .message-item:hover { border-color: rgba(197,160,89,.3); }
+        .message-item .from { font-weight: 700; font-size: .85rem; color: var(--gold); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .4rem; }
+        .message-item .text { font-size: .9rem; color: #7A7A7A; line-height: 1.7; font-style: italic; }
+        .message-item .meta { font-size: .65rem; color: var(--muted); margin-top: .6rem; }
+        .message-actions { display: flex; gap: .5rem; margin-top: .75rem; }
+
+        /* ── FORM ── */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1.25rem; }
+
+        .form-label {
+            display: block;
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: .2em;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: .5rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: .85rem 1.25rem;
+            background: #F9F9F9;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: .9rem;
+            color: var(--text);
+            outline: none;
+            transition: box-shadow .3s ease;
+        }
+
+        .form-input:focus, .form-select:focus { box-shadow: 0 0 0 3px rgba(197,160,89,.2); }
+
+        .save-btn {
+            background: var(--gold);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: .85rem 2rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 8px 20px rgba(197,160,89,.2);
+        }
+
+        .save-btn:hover { background: #A6864A; transform: translateY(-2px); }
+
+        /* ── CHARTS WRAPPER ── */
+        .chart-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 2rem; padding: 2rem; }
+
+        /* ── MURAL ── */
+        .mural-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+        .mural-item { border-radius: var(--radius-sm); overflow: hidden; aspect-ratio: 1; position: relative; border: 1px solid var(--border); }
+        .mural-item img, .mural-item video { width: 100%; height: 100%; object-fit: cover; }
+        .mural-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.4); opacity: 0; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: .5rem; }
+        .mural-item:hover .mural-overlay { opacity: 1; }
+
+        /* ── LINK BOX ── */
+        .link-box {
+            display: flex;
+            gap: .75rem;
+            align-items: center;
+        }
+
+        .link-box input {
+            flex: 1;
+            padding: .85rem 1.25rem;
+            background: #F9F9F9;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Montserrat', sans-serif;
+            font-size: .85rem;
+            color: var(--text);
+            outline: none;
+        }
+
+        .copy-btn {
+            padding: .85rem 1.25rem;
+            background: var(--gold-bg);
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--gold);
+            cursor: pointer;
+            font-size: .9rem;
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover { background: var(--gold); color: #fff; }
+
+        /* ── EMPTY STATE ── */
+        .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+        .empty i { font-size: 2rem; display: block; margin-bottom: 1rem; }
+
+        /* ── PDF BTN ── */
+        .pdf-btn {
+            background: var(--gold-bg);
+            border: none;
+            color: var(--gold);
+            border-radius: 12px;
+            padding: 6px 14px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: .7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .pdf-btn:hover { background: var(--gold); color: #fff; }
+
+        /* ── TOAST ── */
+        #toast {
+            position: fixed;
+            bottom: 2rem; right: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            box-shadow: var(--shadow-hover);
+            transform: translateY(120px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 9999;
+            min-width: 240px;
+            font-size: .88rem;
+            color: var(--text);
+        }
+
+        #toast.show { transform: translateY(0); opacity: 1; }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .stat-value { font-size: 2.5rem; }
+        }
+        .flying-heart {
+            position: absolute;
+            bottom: 0;
+            color: var(--red);
+            font-size: 24px;
+            animation: flyUp 2.5s ease-out forwards;
+            opacity: 1;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        @keyframes flyUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-300px) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════ LOGIN OVERLAY ════ -->
+<div id="login-overlay">
+    <div class="login-card">
+        <div class="login-logo font-serif">💒 Divinos</div>
+        <p class="login-subtitle">Painel Exclusivo dos Noivos<br>Insira o código enviado pela equipa Divinos Graffic</p>
+        <input type="text" class="login-input" id="access-code" placeholder="XXXX-XXXX-XXXX" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter') doLogin()">
+        <button class="login-btn" onclick="doLogin()">Entrar no Painel</button>
+        <p class="login-error" id="login-error">Código inválido ou expirado. Verifique e tente novamente.</p>
+    </div>
+</div>
+
+<!-- ════ MOBILE TOPBAR ════ -->
+<div class="mobile-topbar">
+    <div class="mobile-brand font-serif">Divinos</div>
+    <span id="mobile-couple-name" style="font-weight:600; font-size:.85rem;"></span>
+    <button class="action-btn danger" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+</div>
+
+<!-- ════ MOBILE NAV ════ -->
+<div class="mobile-nav">
+    <button class="mobile-nav-btn active" onclick="switchTab('painel', this)"><i class="fas fa-home"></i> Painel</button>
+    <button class="mobile-nav-btn" onclick="switchTab('rsvp', this)"><i class="fas fa-user-check"></i> RSVPs</button>
+    <button class="mobile-nav-btn" onclick="switchTab('messages', this)"><i class="fas fa-comment-dots"></i> Mensagens</button>
+    <button class="mobile-nav-btn" onclick="switchTab('gifts', this)"><i class="fas fa-gift"></i> Presentes</button>
+    <button class="mobile-nav-btn" onclick="switchTab('mural', this)"><i class="fas fa-images"></i> Galeria</button>
+    <button class="mobile-nav-btn" onclick="switchTab('live', this)"><i class="fas fa-video"></i> Transmissão</button>
+    <button class="mobile-nav-btn" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Definições</button>
+</div>
+
+<!-- ════ APP LAYOUT ════ -->
+<div id="app">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+        <div class="sidebar-brand" id="sidebar-couple-name">Ana&Gabriel</div>
+        <nav class="sidebar-nav">
+            <button class="sidebar-btn active" onclick="switchTab('painel', this)">
+                <i class="fas fa-home"></i> Painel Geral
+            </button>
+            <button class="sidebar-btn" onclick="switchTab('rsvp', this)">
+                <i class="fas fa-user-check"></i> Convidados
+                <span class="sidebar-badge" id="rsvp-badge"></span>
+            </button>
+            <button class="sidebar-btn" onclick="switchTab('messages', this)">
+                <i class="fas fa-comment-dots"></i> Mensagens
+                <span class="sidebar-badge" id="msg-badge"></span>
+            </button>
+            <button class="sidebar-btn" onclick="switchTab('gifts', this)">
+                <i class="fas fa-gift"></i> Presentes
+            </button>
+            <button class="sidebar-btn" onclick="switchTab('mural', this)">
+                <i class="fas fa-images"></i> Galeria
+            </button>
+            <button class="sidebar-btn" onclick="switchTab('live', this)">
+                <i class="fas fa-video"></i> Transmissão
+            </button>
+            <button class="sidebar-btn" onclick="switchTab('settings', this)">
+                <i class="fas fa-cog"></i> Configurações
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="logout-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main id="main">
+
+        <!-- ── PAINEL GERAL ── -->
+        <div class="section active" id="tab-painel">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title font-serif">Olá, Noivos! 👋</h1>
+                    <p class="page-subtitle">Acompanhe os preparativos do seu casamento.</p>
+                </div>
+                <div class="status-pill">
+                    <span class="status-dot"></span> Convite Ativo
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <p class="stat-label">Total Confirmados</p>
+                    <div class="stat-value" id="dash-confirmed">0</div>
+                </div>
+                <div class="stat-card">
+                    <p class="stat-label">Total de Convidados</p>
+                    <div class="stat-value green" id="dash-total">0</div>
+                </div>
+                <div class="stat-card">
+                    <p class="stat-label">Mensagens Recebidas</p>
+                    <div class="stat-value blue" id="dash-messages">0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title font-serif">Últimas Mensagens do Mural</div>
+                </div>
+                <div class="card-body" id="dash-msgs-list">
+                    <div class="empty"><i class="fas fa-spinner fa-spin"></i> A carregar...</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title font-serif">Controlos do Convite</div>
+                </div>
+                <div class="card-body" style="display:flex; flex-wrap:wrap; gap:1rem;">
+                    <button class="save-btn" onclick="switchTab('rsvp', document.querySelector('.sidebar-btn:nth-child(2)'))">
+                        <i class="fas fa-user-check"></i> Ver Convidados
+                    </button>
+                    <button class="save-btn" style="background:var(--gold-bg); color:var(--gold); box-shadow:none;" onclick="exportRSVPToPDF()">
+                        <i class="fas fa-file-pdf"></i> Exportar Lista (PDF)
+                    </button>
+                    <button class="save-btn" style="background:#FEF2F2; color:var(--red); box-shadow:none;" onclick="switchTab('settings', null)">
+                        <i class="fas fa-cog"></i> Configurações
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── RSVP ── -->
+        <div class="section" id="tab-rsvp">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title font-serif">Convidados</h1>
+                    <p class="page-subtitle">Lista de confirmações de presença.</p>
+                </div>
+                <button class="pdf-btn" onclick="exportRSVPToPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card"><p class="stat-label">Total RSVP</p><div class="stat-value" id="stat-total">0</div></div>
+                <div class="stat-card"><p class="stat-label">Confirmados</p><div class="stat-value green" id="stat-confirmed">0</div></div>
+                <div class="stat-card"><p class="stat-label">Não Vieram</p><div class="stat-value" style="color:var(--red);" id="stat-declined">0</div></div>
+            </div>
+
+            <div class="chart-card">
+                <canvas id="rsvpChart" style="max-height:180px;"></canvas>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title font-serif">Lista de RSVP</div>
+                    <button class="action-btn" onclick="loadRSVP()"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Convidado</th>
+                                <th>Telefone</th>
+                                <th>Acomp.</th>
+                                <th>Estado</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rsvp-tbody">
+                            <tr><td colspan="6"><div class="empty"><i class="fas fa-spinner fa-spin"></i></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── MESSAGES ── -->
+        <div class="section" id="tab-messages">
+            <div class="page-header">
+                <h1 class="page-title font-serif">Mensagens</h1>
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title font-serif">Mensagens dos Convidados</div>
+                    <button class="action-btn" onclick="loadMessages()"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                <div class="card-body" id="messages-list">
+                    <div class="empty"><i class="fas fa-spinner fa-spin"></i> A carregar...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── GIFTS ── -->
+        <div class="section" id="tab-gifts">
+            <div class="page-header">
+                <h1 class="page-title font-serif">Presentes</h1>
+                <button class="pdf-btn" onclick="exportGiftsToPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title font-serif">Lista de Presentes</div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Convidado</th><th>Presente</th><th>Valor (MT)</th><th>Data</th></tr></thead>
+                        <tbody id="gifts-tbody">
+                            <tr><td colspan="4"><div class="empty"><i class="fas fa-spinner fa-spin"></i></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── MURAL ── -->
+        <div class="section" id="tab-mural">
+            <div class="page-header">
+                <h1 class="page-title font-serif">Galeria de Memórias</h1>
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title font-serif">Fotos e Vídeos Partilhados</div>
+                </div>
+                <div class="card-body">
+                    <div id="mural-status-banner" style="display:none; background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:.85rem 1.25rem; margin-bottom:1.5rem; font-size:.85rem; color:#F59E0B;">
+                        <i class="fas fa-clock"></i> A galeria de memórias será ativada automaticamente no dia do evento.
+                    </div>
+                    <div id="mural-controls" style="display:none; margin-bottom:1.5rem; text-align:right;">
+                        <input type="file" id="mural-upload-input" accept="image/*,video/*" style="display:none;" onchange="handleMuralUpload(this)">
+                        <button class="save-btn" onclick="document.getElementById('mural-upload-input').click()">
+                            <i class="fas fa-plus"></i> Partilhar Momento
+                        </button>
+                    </div>
+                    <div class="mural-grid" id="mural-grid">
+                        <div class="empty" style="grid-column:1/-1;"><i class="fas fa-images"></i> Nenhuma memória ainda.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SETTINGS ── -->
+        <div class="section" id="tab-settings">
+            <div class="page-header">
+                <h1 class="page-title font-serif">Configurações</h1>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title font-serif">Atualizar Dados do Evento</div>
+                </div>
+                <div class="card-body">
+                    <p style="font-size:.82rem; color:var(--muted); margin-bottom:1.5rem;"><i class="fas fa-info-circle"></i> Só pode alterar o local e a hora. Para alterações de data, contacte a equipa Divinos Graffic.</p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Local do Evento</label>
+                            <input type="text" class="form-input" id="settings-location" placeholder="Hotel Polana, Maputo">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hora do Evento</label>
+                            <input type="time" class="form-input" id="settings-time">
+                        </div>
+                    </div>
+                    <button class="save-btn" onclick="saveSettings()"><i class="fas fa-save"></i> Guardar Alterações</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title font-serif">Link dos Convidados</div>
+                </div>
+                <div class="card-body">
+                    <label class="form-label">Link para partilhar</label>
+                    <div class="link-box">
+                        <input type="text" id="guest-link-input" readonly>
+                        <button class="copy-btn" onclick="copyLink('guest-link-input')" title="Copiar"><i class="fas fa-copy"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── LIVE STREAM ── -->
+        <div class="section" id="tab-live">
+            <div class="page-header">
+                <h1 class="page-title font-serif">Transmissão ao Vivo</h1>
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title font-serif">Status da Live</div>
+                    <div class="live-pulse" id="live-indicator" style="display:none; width:12px; height:12px; background:var(--red); border-radius:50%; margin-left:10px; animation: pulse 1.5s infinite;"></div>
+                </div>
+                <div class="card-body">
+                    <p style="font-size:.85rem; color:var(--muted); margin-bottom:1.5rem;">Transmita ao vivo usando a sua câmara e microfone. Não é necessário software externo!</p>
+
+                    <div id="livekit-warning" style="display:none; background:#FEE2E2; color:#991B1B; padding:1rem; border-radius:10px; margin-bottom:1rem; font-size:.85rem;">
+                        <strong>Aviso:</strong> A transmissão não pôde ser iniciada pois as chaves do LiveKit não estão configuradas no servidor. Contacte a equipa técnica.
+                    </div>
+                    
+                    <div id="live-preview-container" style="aspect-ratio:16/9; background:#000; border-radius:15px; overflow:hidden; position:relative; margin-bottom:1.5rem;">
+                        <video id="live-local-video" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+                        
+                        <div id="dash-live-stats" style="display:none; position:absolute; top:2rem; right:2rem; gap:10px; z-index:10;">
+                            <div style="background:rgba(0,0,0,0.6); color:#fff; padding:.5rem 1rem; border-radius:30px; font-size:.7rem; font-weight:700; display:flex; align-items:center; gap:8px;">
+                                <i class="fas fa-eye"></i> <span id="dash-viewers-count">0</span>
+                            </div>
+                            <div style="background:rgba(239,68,68,0.9); color:#fff; padding:.5rem 1rem; border-radius:30px; font-size:.7rem; font-weight:700; letter-spacing:2px; display:flex; align-items:center; gap:8px;">
+                                <span style="width:8px; height:8px; background:#fff; border-radius:50%; animation: pulse 1.5s infinite;"></span> AO VIVO
+                            </div>
+                        </div>
+
+                        <div id="dash-hearts-container" style="position:absolute; bottom:5rem; right:3rem; width:50px; height:300px; pointer-events:none; z-index:9; overflow:visible;"></div>
+
+                        <div id="live-controls-overlay" style="position:absolute; bottom:1rem; left:50%; transform:translateX(-50%); display:flex; gap:10px;">
+                            <button id="btn-toggle-mic" class="btn btn-secondary" style="border-radius:50%; width:45px; height:45px; padding:0; display:none;" onclick="toggleMic()" title="Mutar/Desmutar"><i class="fas fa-microphone"></i></button>
+                            <button id="btn-toggle-cam" class="btn btn-secondary" style="border-radius:50%; width:45px; height:45px; padding:0;" onclick="toggleCam()" title="Ligar/Desligar Câmara"><i class="fas fa-video"></i></button>
+                            <button id="btn-switch-cam" class="btn btn-secondary" style="border-radius:50%; width:45px; height:45px; padding:0;" onclick="switchCamera()" title="Trocar Câmara"><i class="fas fa-sync-alt"></i></button>
+                        </div>
+                    </div>
+                    
+                    <button id="btn-start-stream" class="save-btn" onclick="toggleStream()"><i class="fas fa-satellite-dish"></i> Iniciar Transmissão</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div><!-- /#app -->
+
+<!-- ── TOAST ── -->
+<div id="toast"><i class="fas fa-check-circle" style="color:var(--green);"></i><span id="toast-msg">Operação concluída!</span></div>
+
+<!-- Supabase scripts moved to head -->
+<script>
+let invitationData = null;
+let rsvpChart = null;
+const sb = window.supabaseClient;
+
+// ══ LOGIN ════════════════════════════════════════
+async function doLogin() {
+    const code = document.getElementById('access-code').value.trim().toUpperCase();
+    if (!code) return;
+    const btn = document.querySelector('.login-btn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A verificar...';
+    btn.disabled = true;
+    try {
+        const { data, error } = await sb.rpc('get_invitation_by_password', { p_password: code });
+        if (error || !data) throw new Error('Código inválido');
+        invitationData = data;
+        localStorage.setItem('couple_code', code);
+        document.getElementById('login-overlay').style.display = 'none';
+        const name = data.title || data.customer_name || '';
+        document.getElementById('sidebar-couple-name').textContent = name;
+        document.getElementById('mobile-couple-name').textContent = name;
+        initDashboard();
+    } catch(e) {
+        document.getElementById('login-error').style.display = 'block';
+        btn.innerHTML = 'Entrar no Painel';
+        btn.disabled = false;
+    }
+}
+
+function doLogout() {
+    localStorage.removeItem('couple_code');
+    location.reload();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    // Support auto-login via ?code= URL param (e.g., link sent by admin)
+    const urlCode = new URLSearchParams(window.location.search).get('code');
+    const saved   = localStorage.getItem('couple_code');
+    const code    = urlCode || saved;
+    if (code) {
+        document.getElementById('access-code').value = code;
+        doLogin();
+    }
+});
+
+// ══ INIT ═════════════════════════════════════════
+function initDashboard() {
+    loadPainelGeral();
+    loadRSVP();
+    loadMessages();
+    loadGifts();
+    loadMural();
+    loadSettings();
+    loadLiveSettings();
+    setupRealtimeMural();
+
+    // Determinar data do evento para exibir se mural está bloqueado ou não
+    if (invitationData?.event_date) {
+        let tDate = new Date(`${invitationData.event_date}T${invitationData.event_time || '00:00'}`);
+        const checkMural = () => {
+            const isStarted = new Date() >= tDate;
+            const banner = document.getElementById('mural-status-banner');
+            const controls = document.getElementById('mural-controls');
+            if (banner) banner.style.display = isStarted ? 'none' : 'block';
+            if (controls) controls.style.display = isStarted ? 'block' : 'none';
+        };
+        checkMural();
+        setInterval(checkMural, 30000); // Check every 30s
+    }
+
+    const slug = invitationData?.slug || invitationData?.id;
+    if (slug) {
+        // Build correct dynamic link handling both slugs and fallback IDs
+        const qparam = invitationData?.slug ? `slug=${slug}` : `id=${slug}`;
+        const link = `${window.location.origin}/pages/convite.html?${qparam}`;
+        const el = document.getElementById('guest-link-input');
+        if (el) el.value = link;
+    }
+}
+
+function setupRealtimeMural() {
+    sb.channel('mural_changes').on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'invitations_mural',
+        filter: `invitation_id=eq.${invitationData.id}`
+    }, () => {
+        loadMural();
+    }).subscribe();
+}
+
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sidebar-btn, .mobile-nav-btn').forEach(b => b.classList.remove('active'));
+    const section = document.getElementById('tab-'+tabId);
+    if (section) section.classList.add('active');
+    if (btn) btn.classList.add('active');
+}
+
+// ══ PAINEL GERAL ═════════════════════════════════
+async function loadPainelGeral() {
+    if (!invitationData) return;
+    try {
+        const { data: rsvps } = await sb.from('invitations_rsvp').select('*').eq('invitation_id', invitationData.id);
+        const confirmed = rsvps?.filter(r => r.status === 'confirmed' || r.is_attending).length || 0;
+        const total = rsvps?.length || 0;
+        document.getElementById('dash-confirmed').textContent = confirmed;
+        document.getElementById('dash-total').textContent = total;
+
+        const { data: msgs } = await sb.from('invitations_rsvp').select('*').eq('invitation_id', invitationData.id).not('message', 'is', null);
+        document.getElementById('dash-messages').textContent = msgs?.length || 0;
+
+        const list = document.getElementById('dash-msgs-list');
+        if (!msgs?.length) { list.innerHTML = '<div class="empty"><i class="fas fa-comment-slash"></i> Nenhuma mensagem ainda.</div>'; return; }
+        list.innerHTML = msgs.slice(0, 5).map(m => `
+            <div class="message-item">
+                <p class="text">"${m.message || ''}"</p>
+                <div class="from">${m.guest_name || 'Convidado'}</div>
+                <div class="meta">${new Date(m.created_at).toLocaleString('pt-PT')}</div>
+            </div>
+        `).join('');
+    } catch(e) { console.error(e); }
+}
+
+// ══ RSVP ═════════════════════════════════════════
+async function loadRSVP() {
+    if (!invitationData) return;
+    try {
+        const { data: rsvps } = await sb.from('invitations_rsvp').select('*').eq('invitation_id', invitationData.id).order('created_at', { ascending: false });
+        const confirmed = rsvps?.filter(r => r.status === 'confirmed' || r.is_attending) || [];
+        const declined  = rsvps?.filter(r => r.status === 'declined'  || r.is_attending === false) || [];
+
+        document.getElementById('stat-total').textContent     = rsvps?.length || 0;
+        document.getElementById('stat-confirmed').textContent = confirmed.length;
+        document.getElementById('stat-declined').textContent  = declined.length;
+
+        const badge = document.getElementById('rsvp-badge');
+        if (confirmed.length) { badge.style.display = 'inline'; badge.textContent = confirmed.length; }
+
+        if (rsvpChart) rsvpChart.destroy();
+        const ctx = document.getElementById('rsvpChart').getContext('2d');
+        rsvpChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Confirmados', 'Não Confirmados'],
+                datasets: [{ data: [confirmed.length, declined.length], backgroundColor: ['rgba(16,185,129,0.6)', 'rgba(239,68,68,0.5)'], borderRadius: 10 }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { stepSize: 1 } } } }
+        });
+
+        const tbody = document.getElementById('rsvp-tbody');
+        if (!rsvps?.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><i class="fas fa-inbox"></i> Nenhuma confirmação ainda.</div></td></tr>'; return; }
+        tbody.innerHTML = rsvps.map(r => `
+            <tr>
+                <td><strong>${r.guest_name || '—'}</strong></td>
+                <td>${r.phone || '—'}</td>
+                <td>${r.guests_count || 1}</td>
+                <td><span class="badge ${(r.status==='confirmed'||r.is_attending) ? 'badge-success' : 'badge-danger'}">${(r.status==='confirmed'||r.is_attending) ? '✓ Confirmado' : '✗ Recusado'}</span></td>
+                <td>${new Date(r.created_at).toLocaleDateString('pt-PT')}</td>
+                <td><button class="action-btn danger" onclick="removeRSVP('${r.id}')"><i class="fas fa-trash"></i></button></td>
+            </tr>
+        `).join('');
+    } catch(e) { console.error(e); }
+}
+
+async function removeRSVP(id) {
+    if (!confirm('Remover este RSVP?')) return;
+    await sb.from('invitations_rsvp').delete().eq('id', id);
+    showToast('RSVP removido.'); loadRSVP();
+}
+
+// ══ MESSAGES ═════════════════════════════════════
+async function loadMessages() {
+    if (!invitationData) return;
+    try {
+        const { data: msgs } = await sb.from('invitations_rsvp').select('*').eq('invitation_id', invitationData.id).not('message', 'is', null).order('created_at', { ascending: false });
+        const badge = document.getElementById('msg-badge');
+        if (msgs?.length) { badge.style.display = 'inline'; badge.textContent = msgs.length; }
+
+        const list = document.getElementById('messages-list');
+        if (!msgs?.length) { list.innerHTML = '<div class="empty"><i class="fas fa-comment-slash"></i> Nenhuma mensagem ainda.</div>'; return; }
+        list.innerHTML = msgs.map(m => `
+            <div class="message-item" id="msg-${m.id}">
+                <div class="from">${m.guest_name || 'Anónimo'}</div>
+                <div class="text">"${m.message}"</div>
+                <div class="meta">${new Date(m.created_at).toLocaleString('pt-PT')}</div>
+                <div class="message-actions">
+                    <button class="action-btn danger" onclick="deleteMsg('${m.id}')"><i class="fas fa-trash"></i> Apagar</button>
+                </div>
+            </div>
+        `).join('');
+    } catch(e) { console.error(e); }
+}
+
+async function deleteMsg(id) {
+    if (!confirm('Apagar esta mensagem?')) return;
+    await sb.from('invitations_rsvp').update({ message: null }).eq('id', id);
+    showToast('Mensagem apagada.'); loadMessages();
+}
+
+// ══ GIFTS ════════════════════════════════════════
+async function loadGifts() {
+    if (!invitationData) return;
+    try {
+        const { data: gifts } = await sb.from('invitations_gifts').select('*').eq('invitation_id', invitationData.id).order('created_at', { ascending: false });
+        const tbody = document.getElementById('gifts-tbody');
+        if (!gifts?.length) { tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><i class="fas fa-gift"></i> Nenhum presente ainda.</div></td></tr>'; return; }
+        tbody.innerHTML = gifts.map(g => `
+            <tr>
+                <td>${g.gifted_by || '—'}</td>
+                <td>${g.gift_name || '—'}</td>
+                <td>${g.value ? Number(g.value).toLocaleString('pt') : '—'}</td>
+                <td>${new Date(g.created_at).toLocaleDateString('pt-PT')}</td>
+            </tr>
+        `).join('');
+    } catch(e) { console.error(e); }
+}
+
+// ══ MURAL ═════════════════════════════════════════
+async function loadMural() {
+    if (!invitationData) return;
+    try {
+        const { data: items } = await sb.from('invitations_mural').select('*').eq('invitation_id', invitationData.id).order('created_at', { ascending: false });
+        const grid = document.getElementById('mural-grid');
+        if (!items?.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><i class="fas fa-images"></i> Nenhuma memória ainda.</div>'; return; }
+        grid.innerHTML = items.map(item => `
+            <div class="mural-item">
+                ${item.file_type === 'video' ? `<video src="${item.file_url}" muted loop></video>` : `<img src="${item.file_url}" alt="memória" loading="lazy">`}
+                <div class="mural-overlay">
+                    <a href="${item.file_url}" download target="_blank"><button class="action-btn" style="color:#fff;"><i class="fas fa-download"></i></button></a>
+                    <button class="action-btn danger" onclick="deleteMuralItem('${item.id}')" style="color:#fff;"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    } catch(e) { console.error(e); }
+}
+
+async function handleMuralUpload(input) {
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    const btn = document.querySelector('#mural-controls .save-btn');
+    const oldText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar...';
+    btn.disabled = true;
+
+    try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${invitationData.id}/${Date.now()}.${fileExt}`;
+        const filePath = `mural/${fileName}`;
+
+        const { error: uploadError } = await sb.storage
+            .from('mural')
+            .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = sb.storage.from('mural').getPublicUrl(filePath);
+
+        const { error: dbError } = await sb.from('invitations_mural').insert({
+            invitation_id: invitationData.id,
+            file_url: publicUrl,
+            file_type: file.type.startsWith('video') ? 'video' : 'image',
+            author_name: invitationData.customer_name || 'Noivos'
+        });
+
+        if (dbError) throw dbError;
+        showToast('Memória partilhada!');
+    } catch(e) {
+        console.error(e);
+        showToast('Erro ao carregar ficheiro.', 'danger');
+    } finally {
+        btn.innerHTML = oldText;
+        btn.disabled = false;
+        input.value = '';
+    }
+}
+
+async function deleteMuralItem(id) {
+    if (!confirm('Apagar esta memória?')) return;
+    await sb.from('invitations_mural').delete().eq('id', id);
+    showToast('Ficheiro apagado.'); loadMural();
+}
+
+// ══ SETTINGS ═════════════════════════════════════
+function loadSettings() {
+    if (!invitationData) return;
+    const loc = document.getElementById('settings-location');
+    const time = document.getElementById('settings-time');
+    if (loc) loc.value = invitationData.event_location || '';
+    if (time) time.value = invitationData.event_time || '';
+}
+
+async function saveSettings() {
+    if (!invitationData) return;
+    const location = document.getElementById('settings-location').value.trim();
+    const time = document.getElementById('settings-time').value;
+    const { error } = await sb.from('invitations').update({ event_location: location, event_time: time }).eq('id', invitationData.id);
+    if (error) { showToast('Erro ao guardar.', 'error'); return; }
+    showToast('Dados actualizados!');
+}
+
+// ══ LIVE STREAM NATIVO (LIVEKIT) ══════════════════════════════════
+let currentRoom = null;
+let localStream = null;
+let isStreaming = false; 
+let currentFacingMode = 'user'; // 'user' or 'environment'
+
+async function loadLiveSettings() {
+    if (!invitationData) return;
+    const indicator = document.getElementById('live-indicator');
+    const startBtn = document.getElementById('btn-start-stream');
+    
+    // REMOVIDO: requestCamera() automático. Só deve ligar quando o usuário quiser.
+    
+    if (invitationData.is_live) {
+        if(indicator) indicator.style.display = 'block';
+        if(startBtn) {
+            startBtn.innerHTML = '<i class="fas fa-stop-circle"></i> Parar Transmissão';
+            startBtn.style.background = 'var(--red)';
+        }
+    } else {
+        if(indicator) indicator.style.display = 'none';
+        if(startBtn) {
+            startBtn.innerHTML = '<i class="fas fa-satellite-dish"></i> Iniciar Transmissão';
+            startBtn.style.background = '';
+        }
+    }
+}
+
+async function requestCamera() {
+    // Verificação de Segurança (HTTPS/Localhost)
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.error('[Camera] MediaDevices não disponível. Provavelmente falta de HTTPS.');
+        showToast('Erro: Navegador bloqueou acesso (Necessário HTTPS no telemóvel)', 'danger');
+        return;
+    }
+
+    try {
+        // Se já houver stream e estiver ativo, não faz nada
+        if (localStream && localStream.active && localStream.getVideoTracks().length > 0) return;
+        
+        console.log('[Camera] Solicitando acesso a media. Mode:', currentFacingMode);
+        localStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: currentFacingMode }, 
+            audio: true 
+        });
+
+        const videoEl = document.getElementById('live-local-video');
+        if (videoEl) {
+            videoEl.srcObject = localStream;
+            videoEl.play().catch(e => console.warn("Auto-play blocked:", e));
+            
+            // Lógica Universal de Ecrã Cheio (Android + iOS)
+            videoEl.onclick = () => {
+                console.log('[Camera] Tentando ecrã cheio...');
+                if (videoEl.requestFullscreen) videoEl.requestFullscreen();
+                else if (videoEl.webkitRequestFullscreen) videoEl.webkitRequestFullscreen();
+                else if (videoEl.webkitEnterFullscreen) videoEl.webkitEnterFullscreen(); // iOS
+                else if (videoEl.msRequestFullscreen) videoEl.msRequestFullscreen();
+            };
+            videoEl.style.cursor = 'zoom-in';
+        }
+        document.getElementById('btn-toggle-mic').style.display = 'inline-block';
+    } catch (e) {
+        console.error('Erro ao aceder câmara:', e);
+        if (e.name === 'NotAllowedError') {
+            showToast('Erro: Permissão negada. Verifique as definições do site.', 'danger');
+        } else {
+            showToast('Erro ao aceder à câmara: ' + e.message, 'danger');
+        }
+    }
+}
+
+async function switchCamera() {
+    console.log('[Camera] Trocando de lente...');
+    currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+    
+    // Se a live estiver a decorrer, usamos o LiveKit para trocar em tempo real
+    if (currentRoom) {
+        try {
+            const videoPubKey = currentRoom.localParticipant.getTrack(LivekitClient.Track.Source.Camera);
+            if (videoPubKey && videoPubKey.videoTrack) {
+                await videoPubKey.videoTrack.restartTrack({
+                    facingMode: currentFacingMode
+                });
+                showToast('Câmara trocada!');
+                return;
+            }
+        } catch (e) {
+            console.warn('[Camera] restartTrack falhou, tentando via stop/start', e);
+        }
+    }
+
+    // Fallback: Para e reinicia a câmara localmente
+    stopCamera();
+    await requestCamera();
+    showToast('Câmara trocada!');
+}
+
+function stopCamera() {
+    console.log('[Camera] Parando tracks e desligando câmara...');
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+    }
+    const videoEl = document.getElementById('live-local-video');
+    if (videoEl) {
+        videoEl.srcObject = null;
+    }
+    const micBtn = document.getElementById('btn-toggle-mic');
+    if (micBtn) micBtn.style.display = 'none';
+}
+
+function toggleCam() {
+    const btn = document.getElementById('btn-toggle-cam');
+    
+    // Se a câmara estiver ligada (localStream ativo), desligamos completamente
+    if (localStream && localStream.active && localStream.getVideoTracks().length > 0) {
+        console.log('[Camera] Desligando câmara via botão toggle...');
+        stopCamera();
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-video-slash"></i>';
+            btn.style.color = 'var(--red)';
+        }
+        showToast('Câmara desligada');
+    } else {
+        // Se estiver desligada, pedimos acesso novamente
+        console.log('[Camera] Ligando câmara via botão toggle...');
+        requestCamera().then(() => {
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-video"></i>';
+                btn.style.color = '';
+            }
+            showToast('Câmara ligada');
+        });
+    }
+}
+
+function toggleMic() {
+    if (!localStream) return;
+    const audioTrack = localStream.getAudioTracks()[0];
+    if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        const btn = document.getElementById('btn-toggle-mic');
+        if (audioTrack.enabled) {
+            btn.innerHTML = '<i class="fas fa-microphone"></i>';
+            btn.style.color = '';
+        } else {
+            btn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            btn.style.color = 'var(--red)';
+        }
+    }
+}
+
+async function toggleStream() {
+    if (!invitationData) return;
+    const btn = document.getElementById('btn-start-stream');
+    const warning = document.getElementById('livekit-warning');
+    warning.style.display = 'none';
+    
+    if (invitationData.is_live) {
+        // Parar Transmissão
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Encerrando...';
+        btn.disabled = true;
+        
+        if (currentRoom) {
+            currentRoom.disconnect();
+            currentRoom = null;
+        }
+        
+        // Desligar a câmara fisicamente
+        stopCamera();
+        
+        await updateSupabaseLiveState(false);
+        showToast('Transmissão Encerrada');
+        return;
+    }
+
+    // Iniciar Transmissão
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
+    btn.disabled = true;
+
+    try {
+        // Garantir que temos a câmara antes de tudo
+        await requestCamera();
+        if (!localStream) {
+            throw new Error("Não foi possível aceder à câmara.");
+        }
+        // Pede token ao Backend Node.js de forma Dinâmica (+ rede local)
+        const host = window.location.hostname;
+        const res = await fetch(`http://${host}:8000/api/v1/live/token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                roomName: invitationData.id,
+                participantName: invitationData.customer_name || 'Noivos',
+                isPublisher: true
+            })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) {
+            if (data.setupRequired) {
+                warning.style.display = 'block';
+                throw new Error("LiveKit não configurado no servidor.");
+            }
+            throw new Error(data.error || 'Erro ao obter token');
+        }
+
+        const token = data.token;
+        const livekitUrl = data.url;
+
+        // Se o livekit-client.umd.js estiver carregado
+        if (typeof LivekitClient !== 'undefined' && livekitUrl) {
+            currentRoom = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+            await currentRoom.connect(livekitUrl, token);
+            
+            // Publicar tracks locais (que já tinhamos) para o LiveKit
+            if (!localStream) await requestCamera();
+            if (localStream) {
+                const videoTrack = localStream.getVideoTracks()[0];
+                const audioTrack = localStream.getAudioTracks()[0];
+                if (videoTrack) await currentRoom.localParticipant.publishTrack(videoTrack);
+                if (audioTrack) await currentRoom.localParticipant.publishTrack(audioTrack);
+            }
+        } else {
+            console.warn("LiveKit (livkitUrl ou SDK) em falta. Simulando mudança de estado.");
+        }
+
+        // Marcar como ao vivo na DB para avisar os convidados
+        await updateSupabaseLiveState(true);
+        showToast('Transmissão no Ar!');
+    } catch (e) {
+        console.error(e);
+        showToast('Falha ao iniciar transmissão', 'danger');
+        btn.innerHTML = '<i class="fas fa-satellite-dish"></i> Iniciar Transmissão';
+        btn.disabled = false;
+    }
+}
+
+async function updateSupabaseLiveState(isLive) {
+    const password = localStorage.getItem('couple_code');
+    console.log('[Live Debug] Tentando atualizar via RPC. ID:', invitationData?.id, 'State:', isLive);
+    
+    if (!invitationData?.id || !password) {
+        console.error('[Live Debug] ERRO: ID ou Senha em falta!');
+        showToast('Erro de autenticação: Faça logout e login novamente.', 'danger');
+        return;
+    }
+
+    const { error } = await sb.rpc('update_live_status_secure', {
+        p_invitation_id: invitationData.id,
+        p_is_live: isLive,
+        p_password: password
+    });
+    
+    if (error) {
+        console.error('[Live Debug] Erro RPC:', error.message);
+        // Se a função ainda não existir no Supabase, avisar o usuário
+        if (error.message.includes('function') && error.message.includes('does not exist')) {
+            showToast('Erro: SQL de segurança ainda não executado no Supabase.', 'danger');
+        } else {
+            showToast('Erro ao atualizar banco: ' + error.message, 'danger');
+        }
+    } else {
+        console.log('[Live Debug] Sucesso via RPC!');
+        invitationData.is_live = isLive;
+        loadLiveSettings();
+    }
+    
+    const btn = document.getElementById('btn-start-stream');
+    if (btn) btn.disabled = false;
+}
+
+// ══ UTILS ════════════════════════════════════════
+function copyLink(inputId) {
+    const val = document.getElementById(inputId).value;
+    navigator.clipboard.writeText(val).then(() => showToast('Link copiado!'));
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══ PDF EXPORTS ═══════════════════════════════════
+function exportRSVPToPDF() {
+    if (!invitationData) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
+    doc.text('Relatório de Convidados (RSVP)', 14, 20);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(12);
+    doc.text(`Casamento: ${invitationData.customer_name || invitationData.title}`, 14, 30);
+    const rows = Array.from(document.querySelectorAll('#rsvp-tbody tr')).map(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length <= 1) return null;
+        return [tds[0].textContent.trim(), tds[1].textContent.trim(), tds[2].textContent.trim(), tds[3].textContent.trim(), tds[4].textContent.trim()];
+    }).filter(r => r);
+    doc.autoTable({ startY: 40, head: [['Convidado', 'Telefone', 'Acomp.', 'Estado', 'Data']], body: rows, theme: 'striped', headStyles: { fillColor: [197,160,89] } });
+    doc.save(`rsvp_${invitationData.slug || 'convite'}.pdf`);
+}
+
+function exportGiftsToPDF() {
+    if (!invitationData) return;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
+    doc.text('Relatório de Presentes Recebidos', 14, 20);
+    const rows = Array.from(document.querySelectorAll('#gifts-tbody tr')).map(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length <= 1) return null;
+        return [tds[0].textContent.trim(), tds[1].textContent.trim(), tds[2].textContent.trim(), tds[3].textContent.trim()];
+    }).filter(r => r);
+    doc.autoTable({ startY: 35, head: [['Convidado', 'Presente', 'Valor (MT)', 'Data']], body: rows, theme: 'striped', headStyles: { fillColor: [197,160,89] } });
+    doc.save(`presentes_${invitationData.slug || 'convite'}.pdf`);
+}
+</script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+</html>

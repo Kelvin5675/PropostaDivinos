@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosso Casamento | Convite Digital</title>
+    <link rel="shortcut icon" href="/assets/images/logo-official.png" type="image/x-icon">
+
+    <!-- Fonts: Sophisticated & Modern -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@600&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary: #c5a059;
+            /* Elegant Gold */
+            --secondary: #1a1a1a;
+            --text-dark: #2d3436;
+            --text-light: #636e72;
+            --bg-soft: #fcfbf7;
+            --white: #ffffff;
+            --glass: rgba(255, 255, 255, 0.85);
+            --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-soft);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        .heading-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .cursive {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: var(--transition);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--white);
+            overflow: hidden;
+            background-color: var(--secondary);
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.6);
+            transition: transform 10s ease-out;
+            z-index: 1;
+        }
+
+        .hero:hover .hero-bg {
+            transform: scale(1.1);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+        }
+
+        .hero-names {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .hero-date {
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            animation: fadeIn 2s ease-out;
+        }
+
+        /* --- Countdown --- */
+        .countdown {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .count-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 12px;
+            min-width: 80px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .count-num {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .count-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- Section Styling --- */
+        section {
+            padding: 100px 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        /* --- Info Cards --- */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .info-card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            transition: var(--transition);
+        }
+
+        .info-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+        }
+
+        .info-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        /* --- Buttons --- */
+        .btn-premium {
+            background: var(--primary);
+            color: var(--white);
+            text-decoration: none;
+            padding: 16px 35px;
+            border-radius: 50px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .btn-premium:hover {
+            filter: brightness(1.1);
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(197, 160, 89, 0.3);
+        }
+
+        /* --- Music Player --- */
+        .music-player {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+        }
+
+        .music-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--white);
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(197, 160, 89, 0.4);
+            }
+
+            70% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 15px rgba(197, 160, 89, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(197, 160, 89, 0);
+            }
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .hero-names {
+                font-size: 2.5rem;
+            }
+
+            section {
+                padding: 60px 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Music Player -->
+    <div class="music-player">
+        <button class="music-btn" id="music-toggle">
+            <i class="fas fa-music"></i>
+        </button>
+        <audio id="bg-music" loop>
+            <source src="" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-bg" id="hero-img"
+            style="background-image: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+        </div>
+        <div class="hero-content">
+            <p class="cursive" style="font-size: 1.5rem; margin-bottom: 20px;">Seja bem-vindo ao nosso grande dia</p>
+            <h1 class="hero-names" id="couple-names">... & ...</h1>
+            <p class="hero-date" id="wedding-date-hero">Carregando Data...</p>
+
+            <div class="countdown" id="main-countdown">
+                <div class="count-item"><span class="count-num" id="days">00</span><span class="count-label">Dias</span>
+                </div>
+                <div class="count-item"><span class="count-num" id="hours">00</span><span
+                        class="count-label">Horas</span></div>
+                <div class="count-item"><span class="count-num" id="mins">00</span><span class="count-label">Mins</span>
+                </div>
+                <div class="count-item"><span class="count-num" id="secs">00</span><span class="count-label">Segs</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Section -->
+    <section id="detalhes" class="reveal">
+        <h2 class="section-title">Onde e Quando</h2>
+        <div class="info-grid">
+            <div class="info-card">
+                <i class="fas fa-church"></i>
+                <h3>Cerimónia</h3>
+                <p id="ceremony-time">14:00h</p>
+                <p id="ceremony-location">Local da Cerimónia</p>
+                <p id="full-address" style="color: var(--text-light); font-size: 0.9rem; margin-top: 10px;">Endereço
+                    Completo</p>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-glass-cheers"></i>
+                <h3>Recepção</h3>
+                <p id="reception-time">18:00h</p>
+                <p id="reception-location">Local da Festa</p>
+                <a href="#" id="gps-link" class="btn-premium" style="margin-top: 20px;" target="_blank">
+                    <i class="fas fa-location-arrow"></i> Abrir no GPS
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Story Section -->
+    <section id="historia" style="background: var(--white); max-width: 100%;" class="reveal">
+        <div style="max-width: 1100px; margin: 0 auto;">
+            <h2 class="section-title">Nossa História</h2>
+            <div id="story-timeline" style="margin-top: 50px;">
+                <!-- Dynamically filled -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Gift List Section -->
+    <section id="presentes" class="reveal">
+        <h2 class="section-title">Lista de Presentes</h2>
+        <p style="margin-bottom: 40px; color: var(--text-light);">Sua presença é o nosso maior presente, mas se desejar
+            nos presentear, aqui estão algumas sugestões:</p>
+
+        <div class="info-grid" id="gifts-container">
+            <!-- Dynamically filled with products or PIX option -->
+            <div class="info-card">
+                <i class="fas fa-hand-holding-usd"></i>
+                <h3>Presente em Dinheiro</h3>
+                <p>Contribua com qualquer valor para nossa lua de mel via PIX.</p>
+                <div id="pix-area" style="margin-top: 20px; display: none;">
+                    <code id="pix-key-display"
+                        style="background: #eee; padding: 10px; border-radius: 5px; display: block; margin-bottom: 10px;">chave-pix-aqui</code>
+                    <button class="btn-premium" onclick="copyPix()">Copiar Chave PIX</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Guestbook Section -->
+    <section id="mensagens" style="background: var(--white); max-width: 100%;" class="reveal">
+        <div style="max-width: 1100px; margin: 0 auto;">
+            <h2 class="section-title">Mensagens aos Noivos</h2>
+            <div id="messages-feed"
+                style="display: flex; flex-direction: column; gap: 20px; max-width: 700px; margin: 0 auto; text-align: left;">
+                <!-- Dynamically filled -->
+            </div>
+            <button class="btn-premium" style="margin-top: 40px;" onclick="openMessageModal()">Deixar uma
+                Mensagem</button>
+        </div>
+    </section>
+
+    <!-- Photo Mural Section -->
+    <section id="mural" class="reveal">
+        <h2 class="section-title">Mural de Fotos</h2>
+        <p style="margin-bottom: 30px; color: var(--text-light);">Compartilhe seus momentos conosco!</p>
+        <div id="mural-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px;">
+            <!-- Dynamically filled -->
+        </div>
+        <input type="file" id="mural-upload" hidden accept="image/*">
+        <button class="btn-premium" style="margin-top: 30px;" onclick="document.getElementById('mural-upload').click()">
+            <i class="fas fa-camera"></i> Enviar Foto
+        </button>
+    </section>
+
+    <!-- RSVP Section -->
+    <section id="rsvp" class="reveal">
+        <h2 class="section-title">Confirmar Presença</h2>
+        <p style="margin-bottom: 40px; color: var(--text-light);">Por favor, confirme sua presença até o dia <span
+                id="rsvp-deadline-text">...</span></p>
+
+        <div
+            style="max-width: 600px; margin: 0 auto; background: var(--white); padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
+            <form id="rsvp-form">
+                <input type="hidden" id="invitation_id">
+                <div style="display: grid; grid-template-columns: 1fr; gap: 20px; text-align: left;">
+                    <div>
+                        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Seu Nome Completo</label>
+                        <input type="text" id="guest_name" name="guest_name" required
+                            style="width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Você poderá
+                            comparecer?</label>
+                        <select id="rsvp_status" name="status" required
+                            style="width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 8px;">
+                            <option value="confirmed">Sim, com certeza!</option>
+                            <option value="declined">Infelizmente não poderei</option>
+                        </select>
+                    </div>
+                    <div id="companions-area">
+                        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Número de
+                            Acompanhantes</label>
+                        <input type="number" id="companions_count" name="companions_count" value="0" min="0"
+                            style="width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Observações /
+                            Restrições</label>
+                        <textarea id="observations" name="observations" rows="3"
+                            style="width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 8px;"></textarea>
+                    </div>
+                    <button type="submit" id="submit-rsvp" class="btn-premium"
+                        style="width: 100%; justify-content: center;">Enviar Confirmação</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Modals (Simple Overlay) -->
+    <div id="message-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center;">
+        <div
+            style="background:var(--white); padding:40px; border-radius:20px; width:90%; max-width:500px; position:relative;">
+            <button onclick="closeMessageModal()"
+                style="position:absolute; top:20px; right:20px; border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            <h3 class="heading-serif" style="margin-bottom:20px;">Deixe sua mensagem</h3>
+            <form id="message-form">
+                <input type="text" id="msg_author" placeholder="Seu Nome" required
+                    style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #eee; border-radius:8px;">
+                <textarea id="msg_content" placeholder="Sua Mensagem" required rows="5"
+                    style="width:100%; padding:12px; margin-bottom:15px; border:1px solid #eee; border-radius:8px;"></textarea>
+                <button type="submit" class="btn-premium" style="width:100%; justify-content:center;">Enviar
+                    Mensagem</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS Infrastructure -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/supabase-config.js"></script>
+    <script>
+        // --- Reveal Animations ---
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal();
+
+        // --- Invitation Data Logic ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const invitationSlug = urlParams.get('v');
+        let currentInvitationId = null;
+
+        async function init() {
+            if (!invitationSlug) {
+                Swal.fire('Erro', 'Convite não encontrado!', 'error');
+                return;
+            }
+
+            await loadInvitationData();
+            await loadMessages();
+            await loadMural();
+            await loadGifts();
+        }
+
+        async function loadInvitationData() {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('wedding_invitations')
+                    .select('*')
+                    .eq('slug', invitationSlug)
+                    .single();
+
+                if (error) throw error;
+                if (data) {
+                    currentInvitationId = data.id;
+                    document.getElementById('invitation_id').value = data.id;
+                    renderInvitation(data);
+                }
+            } catch (err) {
+                console.error("Erro ao carregar convite:", err.message);
+            }
+        }
+
+        function renderInvitation(data) {
+            document.title = `${data.groom_name} & ${data.bride_name} | Nosso Casamento`;
+            document.getElementById('couple-names').textContent = `${data.groom_name} & ${data.bride_name}`;
+
+            const date = new Date(data.wedding_date);
+            document.getElementById('wedding-date-hero').textContent = date.toLocaleDateString('pt-PT', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            document.getElementById('ceremony-time').textContent = data.ceremony_time.substring(0, 5) + 'h';
+            document.getElementById('reception-time').textContent = data.reception_time ? data.reception_time.substring(0, 5) + 'h' : '--';
+            document.getElementById('ceremony-location').textContent = data.address;
+            document.getElementById('gps-link').href = data.google_maps_url || '#';
+
+            if (data.pix_key) {
+                document.getElementById('pix-area').style.display = 'block';
+                document.getElementById('pix-key-display').textContent = data.pix_key;
+            }
+
+            if (data.rsvp_deadline) {
+                const deadline = new Date(data.rsvp_deadline);
+                document.getElementById('rsvp-deadline-text').textContent = deadline.toLocaleDateString('pt-PT');
+            }
+
+            if (data.background_music_url) {
+                document.getElementById('bg-music').src = data.background_music_url;
+            }
+
+            startCountdown(data.wedding_date + 'T' + data.ceremony_time);
+        }
+
+        // --- RSVP Handling ---
+        const rsvpForm = document.getElementById('rsvp-form');
+        rsvpForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-rsvp');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+
+            const formData = {
+                invitation_id: currentInvitationId,
+                guest_name: document.getElementById('guest_name').value,
+                status: document.getElementById('rsvp_status').value,
+                companions_count: parseInt(document.getElementById('companions_count').value) || 0,
+                observations: document.getElementById('observations').value
+            };
+
+            try {
+                const { error } = await window.supabaseClient
+                    .from('wedding_rsvp')
+                    .insert([formData]);
+
+                if (error) throw error;
+
+                Swal.fire({
+                    title: 'Confirmado!',
+                    text: 'Sua resposta foi enviada com sucesso.',
+                    icon: 'success',
+                    confirmButtonColor: '#c5a059'
+                });
+                rsvpForm.reset();
+            } catch (err) {
+                Swal.fire('Erro', 'Ocorreu um erro ao enviar sua confirmação.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Confirmação';
+            }
+        });
+
+        // --- Messages Logic ---
+        function openMessageModal() { document.getElementById('message-modal').style.display = 'flex'; }
+        function closeMessageModal() { document.getElementById('message-modal').style.display = 'none'; }
+
+        async function loadMessages() {
+            const { data, error } = await window.supabaseClient
+                .from('wedding_guestbook')
+                .select('*')
+                .eq('invitation_id', currentInvitationId)
+                .eq('is_moderated', true)
+                .order('created_at', { ascending: false });
+
+            if (data) {
+                const feed = document.getElementById('messages-feed');
+                feed.innerHTML = data.length ? '' : '<p style="text-align:center; color:var(--text-light);">Seja o primeiro a deixar uma mensagem!</p>';
+                data.forEach(msg => {
+                    feed.innerHTML += `
+                        <div style="background:#f9f9f9; padding:20px; border-radius:15px; border-left:4px solid var(--primary);">
+                            <p style="font-style:italic; margin-bottom:10px;">"${msg.message}"</p>
+                            <span style="font-weight:600; font-size:0.8rem; color:var(--primary);">— ${msg.author_name}</span>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        const messageForm = document.getElementById('message-form');
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const author = document.getElementById('msg_author').value;
+            const content = document.getElementById('msg_content').value;
+
+            const { error } = await window.supabaseClient
+                .from('wedding_guestbook')
+                .insert([{ invitation_id: currentInvitationId, author_name: author, message: content, is_moderated: false }]); // Default false for moderation
+
+            if (error) {
+                Swal.fire('Erro', 'Erro ao enviar mensagem.', 'error');
+            } else {
+                Swal.fire('Sucesso', 'Sua mensagem foi enviada e será exibida após moderação.', 'success');
+                messageForm.reset();
+                closeMessageModal();
+            }
+        });
+
+        // --- Helper Functions ---
+        function copyPix() {
+            const pixKey = document.getElementById('pix-key-display').textContent;
+            navigator.clipboard.writeText(pixKey).then(() => {
+                Swal.fire({
+                    title: 'Copiado!',
+                    text: 'Chave PIX copiada para a área de transferência.',
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+        }
+
+        function startCountdown(targetDate) {
+            const countDownDate = new Date(targetDate).getTime();
+            const x = setInterval(function () {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerHTML = days.toString().padStart(2, '0');
+                document.getElementById("hours").innerHTML = hours.toString().padStart(2, '0');
+                document.getElementById("mins").innerHTML = minutes.toString().padStart(2, '0');
+                document.getElementById("secs").innerHTML = seconds.toString().padStart(2, '0');
+
+                if (distance < 0) {
+                    clearInterval(x);
+                    document.getElementById("main-countdown").innerHTML = "É HOJE!";
+                }
+            }, 1000);
+        }
+
+        // --- Music Toggle ---
+        const musicBtn = document.getElementById('music-toggle');
+        const audio = document.getElementById('bg-music');
+        let isPlaying = false;
+
+        musicBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                audio.pause();
+                musicBtn.querySelector('i').classList.replace('fa-pause', 'fa-music');
+            } else {
+                audio.play();
+                musicBtn.querySelector('i').classList.replace('fa-music', 'fa-pause');
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // --- Mural Logic ---
+        async function loadMural() {
+            const { data, error } = await window.supabaseClient
+                .from('wedding_mural')
+                .select('*')
+                .eq('invitation_id', currentInvitationId)
+                .eq('is_moderated', true);
+
+            if (data) {
+                const grid = document.getElementById('mural-grid');
+                grid.innerHTML = '';
+                data.forEach(img => {
+                    grid.innerHTML += `
+                        <div style="aspect-ratio: 1; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <img src="${img.image_url}" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        document.getElementById('mural-upload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            Swal.fire({ title: 'Enviando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const filePath = `${currentInvitationId}/${fileName}`;
+
+                const { error: uploadError } = await window.supabaseClient.storage
+                    .from('wedding-mural')
+                    .upload(filePath, file);
+
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = window.supabaseClient.storage
+                    .from('wedding-mural')
+                    .getPublicUrl(filePath);
+
+                const { error: dbError } = await window.supabaseClient
+                    .from('wedding_mural')
+                    .insert([{ invitation_id: currentInvitationId, image_url: publicUrl, is_moderated: false }]);
+
+                if (dbError) throw dbError;
+
+                Swal.fire('Sucesso!', 'Sua foto foi enviada e aparecerá após moderação.', 'success');
+            } catch (err) {
+                Swal.fire('Erro', 'Falha ao enviar foto: ' + err.message, 'error');
+            }
+        });
+
+        // --- Gifts Logic ---
+        async function loadGifts() {
+            const { data, error } = await window.supabaseClient
+                .from('wedding_gifts')
+                .select('*')
+                .eq('invitation_id', currentInvitationId)
+                .eq('is_purchased', false);
+
+            if (data) {
+                const container = document.getElementById('gifts-container');
+                // Keep the PIX card if it exists, otherwise add it
+                data.forEach(gift => {
+                    container.innerHTML += `
+                        <div class="info-card">
+                            <img src="${gift.image_url || 'https://via.placeholder.com/150'}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 20px;">
+                            <h3>${gift.name}</h3>
+                            <p>${gift.description || ''}</p>
+                            <p style="font-weight: 700; color: var(--primary); margin: 10px 0;">${gift.price ? 'MT ' + gift.price : 'Sob Consulta'}</p>
+                            <button class="btn-premium" onclick="presentear('${gift.id}', '${gift.name}')">Presentear</button>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        async function presentear(giftId, giftName) {
+            const { value: name } = await Swal.fire({
+                title: 'Presentear: ' + giftName,
+                input: 'text',
+                inputLabel: 'Seu Nome',
+                inputPlaceholder: 'Digite seu nome',
+                showCancelButton: true,
+                confirmButtonColor: '#c5a059'
+            });
+
+            if (name) {
+                const { error } = await window.supabaseClient
+                    .from('wedding_gifts')
+                    .update({ is_purchased: true, purchaser_name: name })
+                    .eq('id', giftId);
+
+                if (!error) {
+                    Swal.fire('Obrigado!', 'Você selecionou este presente.', 'success');
+                    location.reload();
+                }
+            }
+        }
+
+        // --- History / Timeline ---
+        function renderTimeline(history) {
+            const timeline = document.getElementById('story-timeline');
+            if (!history || history.length === 0) {
+                timeline.innerHTML = '<p>Nossa história está sendo escrita...</p>';
+                return;
+            }
+
+            timeline.innerHTML = history.map((item, index) => `
+                <div style="display: flex; gap: 40px; margin-bottom: 60px; flex-direction: ${index % 2 === 0 ? 'row' : 'row-reverse'}; align-items: center; text-align: ${index % 2 === 0 ? 'right' : 'left'};">
+                    <div style="flex: 1;">
+                        <span class="heading-serif" style="font-size: 3rem; color: var(--primary); opacity: 0.3;">${item.year}</span>
+                        <h3 style="margin-bottom: 15px;">${item.title}</h3>
+                        <p style="color: var(--text-light);">${item.description}</p>
+                    </div>
+                    <div style="flex: 1; aspect-ratio: 4/3; background: #eee; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+                        <img src="${item.image_url}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Modified renderInvitation to include timeline
+        const originalRender = renderInvitation;
+        renderInvitation = function (data) {
+            originalRender(data);
+            if (data.couple_history) renderTimeline(data.couple_history);
+        };
+
+        init();
+    </script>
+</body>
+
+</html>

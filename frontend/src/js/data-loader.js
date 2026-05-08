@@ -3,15 +3,26 @@
  * DATA LOADER
  * Responsável por buscar dados do Supabase e preencher o site dinamicamente.
  */
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:8000/api/v1'
+const _hostname = window.location.hostname;
+const API_BASE_URL = _hostname === 'localhost' || _hostname === '127.0.0.1' || _hostname.startsWith('192.') || _hostname.startsWith('10.')
+    ? `http://${_hostname}:8000/api/v1`
     : 'https://api.divinos.com/v1'; // Ajustar URL de produção no futuro
+window.API_BASE_URL = API_BASE_URL;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Garantir que o preloader saia mesmo se algo travar (Timeout de segurança)
+    const safetyTimeout = setTimeout(() => {
+        console.warn("Preloader stuck for too long. Forcing hide...");
+        if (window.hidePreloader) window.hidePreloader();
+        else {
+            const pl = document.getElementById('preloader');
+            if (pl) pl.style.display = 'none';
+        }
+    }, 5000);
+
     try {
         if (!window.supabaseClient) {
             console.error("Supabase client not found.");
-            if (window.hidePreloader) window.hidePreloader();
             return;
         }
 
@@ -22,11 +33,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isIndex = document.querySelector('.services-grid') || document.getElementById('works-carousel-track');
 
         if (isIndex) {
-            await loadServices();
-            await loadNossosTrabalhos();
-            await loadMomentos();
-            await loadHeroCarousel();
-            await loadFeaturedProducts();
+            // Rodar em paralelo para velocidade
+            await Promise.allSettled([
+                loadServices(),
+                loadNossosTrabalhos(),
+                loadMomentos(),
+                loadHeroCarousel(),
+                loadFeaturedProducts()
+            ]);
         }
 
         if (document.querySelector('.products-grid')) {
@@ -35,10 +49,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Registrar Visita
         trackVisit();
+        trackPresence();
 
     } catch (err) {
         console.error("Error during data loading:", err);
     } finally {
+        clearTimeout(safetyTimeout);
         // Finalize: Trigger observations and hide preloader
         setTimeout(() => {
             if (window.observeNewElements) {
@@ -50,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const pl = document.getElementById('preloader');
                 if (pl) pl.style.display = 'none';
             }
-        }, 300);
+        }, 100);
     }
 });
 
@@ -206,7 +222,7 @@ async function loadServices() {
             card.className = 'service-card';
             card.innerHTML = `<div class="service-icon"><i class="${s.icon || 'fas fa-star'}"></i></div>
                 <h3 data-pt="${s.title_pt}">${s.title_pt}</h3>
-                <p data-pt="${s.description_pt}">${s.description_pt.replace(/\n/g, '<br>')}</p>`;
+                <p data-pt="${s.description_pt}">${s.description_pt.replace(/\\n/g, '<br>').replace(/\n/g, '<br>')}</p>`;
             grid.appendChild(card);
         });
     } catch (e) { }
@@ -283,7 +299,17 @@ async function loadMomentos() {
         m.forEach(mom => {
             const div = document.createElement('div');
             div.className = 'momento-card';
-            div.innerHTML = `<video src="${mom.video_url}" autoplay muted loop playsinline></video>`;
+            
+            // Normalize video URL: if it starts with 'videos/' and we are in frontend/src contexts
+            let vUrl = mom.video_url || '';
+            if (vUrl.startsWith('videos/')) {
+                vUrl = '/assets/' + vUrl;
+            } else if (!vUrl.startsWith('http') && !vUrl.startsWith('/')) {
+                // Fallback for missing assets prefix
+                vUrl = '/assets/videos/' + vUrl;
+            }
+            
+            div.innerHTML = `<video src="${vUrl}" autoplay muted loop playsinline></video>`;
             grid.appendChild(div);
             div.querySelector('video').addEventListener('click', function () {
                 const mod = document.getElementById('videoModal'), vid = document.getElementById('modalVideo');
@@ -296,6 +322,15 @@ async function loadMomentos() {
 async function loadProducts() {
     console.log("DEBUG: loadProducts iniciado");
     try {
+        // SECURITY/BUG FIX: Dont load all products if we are on the index/home page 
+        // because it would overwrite the Featured Products grid.
+        // We now check for the specific ID added to the section.
+        const isProductsPage = document.getElementById('products-page-container');
+        if (!isProductsPage) {
+            console.log("DEBUG: Not on products page, skipping loadProducts to avoid overwriting highlights.");
+            return;
+        }
+
         console.log("DEBUG: Buscando categorias...");
         const { data: categories, error: catError } = await window.supabaseClient.from('categories').select('*').order('name');
 
@@ -454,7 +489,7 @@ function createProductCard(product) {
                     <i class="fas fa-shopping-cart"></i>
                 </button>
                 ${(window.siteSettings?.payment?.is_enabled) ?
-            `<button class="action-icon buy-now" title="Pagar Agora" onclick="event.stopPropagation(); window.location.href='checkout.html?product=${product.id}'" style="background: #28a745; color: white;">
+            `<button class="action-icon buy-now" title="Pagar Agora" onclick="event.stopPropagation(); addToCart({id:'${product.id}', title:'${product.title}', price:'${price}', image_url:'${imgUrl}'}, this); setTimeout(() => { window.location.href='/pages/checkout.html' }, 500);" style="background: #28a745; color: white;">
                     <i class="fas fa-credit-card"></i>
                 </button>` : ''}
             </div>
@@ -522,4 +557,26 @@ function getBrowserName(ua) {
 function getOSName(ua) {
     if (ua.includes('Windows')) return 'Windows'; if (ua.includes('Mac')) return 'MacOS';
     if (ua.includes('Android')) return 'Android'; if (ua.includes('iPhone')) return 'iOS'; return 'Other';
+}
+
+async function trackPresence() {
+    if (!window.supabaseClient) return;
+    
+    // Join a channel to signal presence
+    const channel = window.supabaseClient.channel('online-visitors');
+    
+    channel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+            await channel.track({
+                online_at: new Date().toISOString(),
+                page: window.location.pathname,
+                user: 'customer'
+            });
+        }
+    });
+
+    // Cleanup on page leave
+    window.addEventListener('beforeunload', () => {
+        channel.unsubscribe();
+    });
 }

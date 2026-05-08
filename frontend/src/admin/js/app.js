@@ -1,21 +1,42 @@
+// ==========================================
+// CONFIGURATION
+// ==========================================
+let allOrders = [];
+let visitorsDate = new Date();
+let salesDate = new Date();
+const API_BASE_URL = (window.location.protocol === 'http:' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.')))
+    ? `http://${window.location.hostname}:8000/api/v1`
+    : 'https://api.divinos.com/v1';
+
+console.log('App initialization...', { hostname: window.location.hostname, API_BASE_URL });
 
 // ==========================================
 // AUTHENTICATION CHECK
 // ==========================================
 async function checkAuth() {
     const { data: { session } } = await supabaseClient.auth.getSession();
-    if (!session) {
+    const is2FAPending = sessionStorage.getItem('admin_2fa_pending') === 'true';
+
+    if (!session || is2FAPending) {
         window.location.href = 'index.html';
     } else {
-        // Load initial data
-        loadDashboardData();
-        setupAutoLogout(); // Start inactivity timer
+        try {
+            // Load initial data
+            await loadDashboardData();
+            setupRealtimeListeners();
+            setupAutoLogout();
+        } catch (dashErr) {
+            console.error("Dashboard initialization error:", dashErr);
+            showToast("Erro ao carregar alguns dados do painel.", "error");
+        }
     }
 }
 // Run check on load
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     setupEventListeners();
+
+
 });
 
 async function logout() {
@@ -47,7 +68,8 @@ function switchTab(tabId) {
             loadServicesAdmin();
             loadMomentosAdmin();
         }
-        if (tabId.includes('editor') || tabId === 'settings' || tabId === 'marketing') loadSettingsToForms();
+
+        if (tabId.includes('editor') || tabId === 'settings' || tabId === 'marketing' || tabId === 'profile') loadSettingsToForms();
     }
 
     // Close sidebar on mobile after selecting
@@ -121,6 +143,9 @@ async function loadDashboardData() {
 
     // 4. Load Recent Visits Table
     fetchRecentVisits();
+
+    // 5. Load Settings (Profile, etc.)
+    loadSettingsToForms();
 }
 
 async function fetchRecentVisits() {
@@ -158,10 +183,14 @@ async function fetchRecentVisits() {
     }
 }
 
-async function fetchChartData() {
-    const today = new Date();
+async function fetchChartData(refDate = visitorsDate) {
+    visitorsDate = new Date(refDate);
+    const datePicker = document.getElementById('visitors-date-picker');
+    if (datePicker) datePicker.value = visitorsDate.toISOString().split('T')[0];
+
+    const today = new Date(visitorsDate);
     const lastWeek = new Date(today);
-    lastWeek.setDate(today.getDate() - 6); // 7 days inc today
+    lastWeek.setDate(today.getDate() - 6);
 
     const { data, error } = await supabaseClient
         .from('page_visits')
@@ -214,6 +243,29 @@ async function fetchChartData() {
 
     renderVisitorsChart(labels, dataPoints);
 }
+
+window.navigateChart = (type, direction) => {
+    if (type === 'visitors') {
+        visitorsDate.setDate(visitorsDate.getDate() + (direction * 7));
+        fetchChartData(visitorsDate);
+    } else {
+        const jump = currentChartPeriod === 'daily' ? 7 : (currentChartPeriod === 'weekly' ? 28 : 180);
+        salesDate.setDate(salesDate.getDate() + (direction * jump));
+        renderSalesChart(allOrders, salesDate);
+    }
+};
+
+window.jumpToDate = (type, dateStr) => {
+    if (!dateStr) return;
+    const d = new Date(dateStr + 'T00:00:00');
+    if (type === 'visitors') {
+        visitorsDate = d;
+        fetchChartData(visitorsDate);
+    } else {
+        salesDate = d;
+        renderSalesChart(allOrders, salesDate);
+    }
+};
 
 let visitorsChartInstance = null;
 
@@ -271,6 +323,17 @@ async function loadCategoriesAdmin() {
         console.error(error);
         categoriesTableBody.innerHTML = '<tr><td colspan="3" style="color:red">Erro ao carregar</td></tr>';
         return;
+    }
+
+    // Self-healing: Ensure 'Quadros' exists (case insensitive)
+    const hasQuadros = data.some(cat => cat.name.toLowerCase() === 'quadros');
+    if (!hasQuadros) {
+        try {
+            await supabaseClient.from('categories').insert([{ name: 'Quadros' }]);
+            // Reload to show it
+            const { data: newData } = await supabaseClient.from('categories').select('*').order('name', { ascending: true });
+            if (newData) data = newData;
+        } catch (e) { console.error("Could not auto-create category", e); }
     }
 
     categoriesTableBody.innerHTML = '';
@@ -744,6 +807,8 @@ function setupEventListeners() {
     if (momentoForm) {
         momentoForm.addEventListener('submit', saveMomento);
     }
+
+
 
     // Password Change Listener ...
     const passForm = document.getElementById('change-password-form');
@@ -1413,6 +1478,42 @@ async function toggle2FA() {
 window.switchTab = switchTab;
 window.handleFileUpload = handleFileUpload;
 window.logout = logout;
+window.toggle2FA = toggle2FA;
+window.deleteOrder = async (id) => {
+    if (!confirm('Tem certeza que deseja excluir este pedido permanentemente?')) return;
+    
+    try {
+        const { error } = await supabaseClient.from('orders').delete().eq('id', id);
+        if (error) throw error;
+        
+        showToast('Pedido excluído com sucesso!');
+        allOrders = allOrders.filter(o => o.id !== id);
+        updateOrderStats(allOrders);
+        renderOrdersTable(allOrders);
+    } catch (err) {
+        console.error(err);
+        showToast('Erro ao excluir pedido', 'error');
+    }
+};
+window.resetAllOrders = async () => {
+    if (!confirm('ATENÇÃO: Isso irá apagar TODO o histórico de pedidos e receita para sempre. Deseja continuar?')) return;
+    const confirmation = prompt('Digite "RESETAR" para confirmar a exclusão total:');
+    if (confirmation !== 'RESETAR') return;
+
+    try {
+        const { error } = await supabaseClient.from('orders').delete().neq('id', 0); // Delete all
+        if (error) throw error;
+
+        showToast('Histórico resetado com sucesso!');
+        allOrders = [];
+        updateOrderStats([]);
+        renderOrdersTable([]);
+        if (salesChart) renderSalesChart([]);
+    } catch (err) {
+        console.error(err);
+        showToast('Erro ao resetar histórico', 'error');
+    }
+};
 window.showAddProductForm = showAddProductForm;
 window.hideProductForm = hideProductForm;
 window.showAddCategoryForm = showAddCategoryForm;
@@ -1424,6 +1525,8 @@ window.loadCarouselAdmin = loadCarouselAdmin;
 window.seedCarouselData = seedCarouselData;
 window.toggleSidebar = toggleSidebar;
 window.toggle2FA = toggle2FA;
+window.navigateChart = navigateChart;
+window.jumpToDate = jumpToDate;
 window.show2FASetup = show2FASetup;
 window.hide2FASetup = hide2FASetup;
 window.confirm2FASetup = confirm2FASetup;
@@ -1444,6 +1547,124 @@ window.showAddTrabalhoForm = showAddTrabalhoForm;
 window.hideTrabalhoForm = hideTrabalhoForm;
 window.deleteTrabalho = deleteTrabalho;
 window.editTrabalho = editTrabalho;
+
+// ==========================================
+// REALTIME UPDATES (SHOPIFY/WHATSAPP STYLE)
+// ==========================================
+function setupRealtimeListeners() {
+    if (!supabaseClient) return;
+
+    // 1. Escutar Novos Pedidos e Mudanças de Status
+    supabaseClient
+        .channel('public:orders')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+            console.log('Realtime Order Change:', payload);
+            // Mostrar Toast se for um novo pedido
+            if (payload.eventType === 'INSERT') {
+                showToast('🚀 Novo pedido recebido!', 'success');
+            }
+            // Recarregar os dados se a aba de pedidos estiver ativa ou no dashboard
+            if (document.getElementById('nav-orders').classList.contains('active')) {
+                loadOrdersAdmin();
+            } else if (document.getElementById('nav-dashboard').classList.contains('active')) {
+                // Atualizar stats do dashboard (contagem de produtos/vendas) se necessário
+            }
+        })
+        .subscribe();
+
+    // 2. Escutar Visitas em Tempo Real
+    supabaseClient
+        .channel('public:page_visits')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'page_visits' }, (payload) => {
+            console.log('Realtime Visit:', payload);
+            if (document.getElementById('dashboard').classList.contains('active')) {
+                loadDashboardData();
+            }
+        })
+        .subscribe();
+
+    // 3. Escutar Mudanças em Produtos
+    supabaseClient
+        .channel('public:products')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
+            console.log('Realtime Product Change:', payload);
+            if (document.getElementById('products').classList.contains('active')) {
+                loadProductsAdmin();
+            } else if (document.getElementById('dashboard').classList.contains('active')) {
+                loadDashboardData(); // Update products count
+            }
+        })
+        .subscribe();
+
+    // 4. Escutar Mudanças em Categorias
+    supabaseClient
+        .channel('public:categories')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, (payload) => {
+            console.log('Realtime Category Change:', payload);
+            if (document.getElementById('categories').classList.contains('active')) {
+                loadCategoriesAdmin();
+            }
+        })
+        .subscribe();
+
+    // 5. Escutar Mudanças em Outros Conteúdos (Carrossel, Serviços, Trabalhos)
+    ['carousel_items', 'site_services', 'nossos_trabalhos', 'site_momentos'].forEach(table => {
+        supabaseClient
+            .channel(`public:${table}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: table }, (payload) => {
+                console.log(`Realtime ${table} Change:`, payload);
+                // Recarregar aba ativa se o ID corresponder
+                if (document.getElementById('carousel-editor').classList.contains('active') && table === 'carousel_items') loadCarouselAdmin();
+                if (document.getElementById('content-mgmt').classList.contains('active')) {
+                    if (table === 'site_services') loadServicesAdmin();
+                    if (table === 'site_momentos') loadMomentosAdmin();
+                }
+                if (document.getElementById('trabalhos-editor').classList.contains('active') && table === 'nossos_trabalhos') loadTrabalhosAdmin();
+            })
+            .subscribe();
+    });
+    // 6. Escutar Mudanças em Configurações (site_settings)
+    supabaseClient
+        .channel('public:site_settings')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'site_settings' }, (payload) => {
+            console.log('Realtime Setting Change:', payload);
+            loadSettingsToForms();
+        })
+        .subscribe();
+
+    // 7. Monitoramento de Presença (Visitantes Online)
+    const presenceChannel = supabaseClient.channel('online-visitors');
+    
+    presenceChannel
+        .on('presence', { event: 'sync' }, () => {
+            const state = presenceChannel.presenceState();
+            
+            // Filtrar apenas clientes (que não tem user: 'admin')
+            const customers = Object.values(state)
+                .flat()
+                .filter(p => p.user !== 'admin');
+            
+            const onlineCount = customers.length;
+            const el = document.getElementById('online-count');
+            const dot = document.getElementById('status-dot');
+            
+            if (el) el.innerText = onlineCount;
+            
+            if (dot) {
+                if (onlineCount > 0) {
+                    dot.className = 'status-dot pulse-green';
+                } else {
+                    dot.className = 'status-dot pulse-red';
+                }
+            }
+            console.log('Online customers sync:', onlineCount);
+        })
+        .subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+                await presenceChannel.track({ online_at: new Date().toISOString(), user: 'admin' });
+            }
+        });
+}
 
 // ==========================================
 // PAYMENT CONFIGURATION
@@ -1509,7 +1730,6 @@ document.getElementById('payment-config-form').addEventListener('submit', async 
 // ==========================================
 // ORDERS MANAGEMENT
 // ==========================================
-let allOrders = [];
 
 async function loadOrdersAdmin() {
     const tableBody = document.getElementById('orders-table-body');
@@ -1556,7 +1776,8 @@ function renderOrdersTable(orders) {
 
     orders.forEach(order => {
         const date = new Date(order.created_at).toLocaleDateString();
-        const itemsCount = Array.isArray(order.items) ? order.items.reduce((sum, i) => sum + i.quantity, 0) : 0;
+        // Fix for NaN/0: ensure quantity is a number and handle missing items
+        const itemsCount = Array.isArray(order.items) ? order.items.reduce((sum, i) => sum + (parseInt(i.quantity || i.qty) || 0), 0) : 0;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -1574,9 +1795,14 @@ function renderOrdersTable(orders) {
                 </select>
             </td>
             <td>
-                <button class="btn btn-secondary btn-sm" onclick="downloadInvoice(${order.id})" title="Baixar Fatura PDF">
-                    <i class="fas fa-file-invoice-dollar"></i> PDF
-                </button>
+                <div style="display: flex; gap: 5px; justify-content: flex-end;">
+                    <button class="btn btn-secondary btn-sm" onclick="downloadInvoice(${order.id})" title="Baixar Fatura PDF">
+                        <i class="fas fa-file-invoice-dollar"></i> PDF
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id})" title="Excluir Pedido">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </td>
         `;
         tableBody.appendChild(tr);
@@ -1628,14 +1854,18 @@ window.changeChartPeriod = (period, btn) => {
 };
 
 // MULTI-PERIOD SALES CHART
-function renderSalesChart(orders) {
+function renderSalesChart(orders, refDate = salesDate) {
+    salesDate = new Date(refDate);
+    const datePicker = document.getElementById('sales-date-picker');
+    if (datePicker) datePicker.value = salesDate.toISOString().split('T')[0];
+
     const ctx = document.getElementById('salesChart');
     if (!ctx) return;
 
     if (salesChart) salesChart.destroy();
 
     const dataMap = new Map();
-    const today = new Date();
+    const today = new Date(salesDate);
     today.setHours(0, 0, 0, 0);
 
     if (currentChartPeriod === 'daily') {
@@ -1781,12 +2011,12 @@ window.downloadInvoice = async (orderId) => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
-        // Official Logo - Try to use the logo from the site
-        const logoPath = '../images/Logo Official 2019 E 2024Cor caregada.png';
+        // Official Logo - Fixed Path
+        const logoPath = '../assets/images/Logo Official 2019 E 2024Cor caregada.png';
         try {
-            // Tentativa de adicionar o logo se estiver disponível
-            doc.addImage(logoPath, 'PNG', 85, 10, 40, 40);
-            // Posicionamento: X=85 (centro-ish), Y=10, Largura=40, Altura=40
+            // Tentativa de adicionar o logo no canto superior esquerdo para organização
+            doc.addImage(logoPath, 'PNG', 15, 10, 30, 30);
+            // Posicionamento: X=15, Y=10, Largura=30, Altura=30
         } catch (logoErr) {
             console.warn('Logo could not be added to PDF:', logoErr);
             // Fallback: Título em texto se o logo falhar
@@ -1818,12 +2048,14 @@ window.downloadInvoice = async (orderId) => {
         const tableData = [];
         if (Array.isArray(order.items)) {
             order.items.forEach(item => {
+                const qty = parseInt(item.quantity) || 0;
+                const priceNum = parseFloat(item.price) || 0;
                 tableData.push([
                     item.title,
                     item.size || '-',
-                    item.quantity,
-                    parseFloat(item.price).toLocaleString('pt-MZ', { minimumFractionDigits: 2 }),
-                    (parseFloat(item.price) * item.quantity).toLocaleString('pt-MZ', { minimumFractionDigits: 2 })
+                    qty,
+                    priceNum.toLocaleString('pt-MZ', { minimumFractionDigits: 2 }),
+                    (priceNum * qty).toLocaleString('pt-MZ', { minimumFractionDigits: 2 })
                 ]);
             });
         }
@@ -1860,5 +2092,16 @@ window.downloadInvoice = async (orderId) => {
     } catch (err) {
         console.error('PDF Error:', err);
         showToast('Erro ao gerar PDF: ' + err.message, 'error');
+    }
+};
+
+// Auto-fill sizes for "Quadros" category
+window.handleCategoryChange = function(category) {
+    const sizesInput = document.getElementById('prod-sizes');
+    if (category && category.toLowerCase() === 'quadros') {
+        // Se estiver vazio, auto preenche.
+        if (sizesInput && !sizesInput.value.trim()) {
+            sizesInput.value = 'A0, A1, A2, A3, A4, A5';
+        }
     }
 };

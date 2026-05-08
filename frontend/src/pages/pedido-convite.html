@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido de Convite Digital | Divinos Graffic</title>
+    <meta name="description" content="Preencha os dados do seu evento e crie o seu convite digital personalizado.">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="shortcut icon" href="/assets/images/logo-official.png" type="image/x-icon">
+    <!-- Supabase Core -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js?v=21"></script>
+    <style>
+        :root {
+            --primary: #6d28d9;
+            --accent: #c084fc;
+            --gold: #c5a059;
+            --bg: #0d0520;
+            --surface: rgba(255,255,255,0.04);
+            --surface-2: rgba(255,255,255,0.08);
+            --border: rgba(255,255,255,0.1);
+            --text: #e2d4f5;
+            --text-muted: rgba(226,212,245,0.55);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at 10% 0%, rgba(109,40,217,0.25) 0%, transparent 55%),
+                radial-gradient(ellipse at 90% 100%, rgba(192,132,252,0.15) 0%, transparent 55%);
+        }
+
+        /* ── HEADER ─────────────────────────── */
+        .page-header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            background: rgba(13,5,32,0.85);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold); font-weight: 700; }
+        .header-logo span { font-size: 0.85rem; color: var(--text-muted); font-family: 'Poppins', sans-serif; font-weight: 400; margin-left: 0.5rem; }
+        .back-btn { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.85rem; margin-right: auto; transition: var(--transition); }
+        .back-btn:hover { color: var(--accent); }
+
+        /* ── PROGRESS BAR ───────────────────── */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0;
+            padding: 2rem 1rem 0;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            position: relative;
+            flex: 1;
+        }
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--border);
+            z-index: 0;
+            transition: var(--transition);
+        }
+        .step.done:not(:last-child)::after { background: var(--primary); }
+        .step-circle {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
+            position: relative; z-index: 1;
+            transition: var(--transition);
+        }
+        .step.active .step-circle { border-color: var(--accent); color: var(--accent); background: rgba(192,132,252,0.1); }
+        .step.done .step-circle { border-color: var(--primary); background: var(--primary); color: white; }
+        .step-label { font-size: 0.72rem; color: var(--text-muted); text-align: center; font-weight: 500; }
+        .step.active .step-label { color: var(--accent); }
+        .step.done .step-label { color: var(--text); }
+
+        /* ── PLAN BADGE ─────────────────────── */
+        .plan-badge {
+            max-width: 700px;
+            margin: 1.5rem auto 0;
+            padding: 0.75rem 1.5rem;
+            background: rgba(109,40,217,0.15);
+            border: 1px solid rgba(109,40,217,0.35);
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .plan-badge i { color: var(--gold); }
+        .plan-badge strong { color: white; }
+
+        /* ── FORM CONTAINER ─────────────────── */
+        .form-container {
+            max-width: 700px;
+            margin: 2rem auto 4rem;
+            padding: 0 1rem;
+        }
+
+        .form-step { display: none; animation: fadeIn 0.4s ease; }
+        .form-step.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: white;
+            margin-bottom: 0.4rem;
+        }
+        .step-subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+
+        /* ── FORM ELEMENTS ──────────────────── */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .form-grid.single { grid-template-columns: 1fr; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .form-group { margin-bottom: 1.5rem; }
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        label .required { color: #f43f5e; margin-left: 2px; }
+        label .optional { font-weight: 400; color: rgba(226,212,245,0.35); font-size: 0.7rem; text-transform: none; letter-spacing: 0; margin-left: 4px; }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.85rem 1.1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            outline: none;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+            background: var(--surface-2);
+            box-shadow: 0 0 0 4px rgba(192,132,252,0.12);
+        }
+        input::placeholder, textarea::placeholder { color: rgba(226,212,245,0.25); }
+        textarea { resize: vertical; min-height: 110px; }
+        select option { background: #1a0935; }
+
+        /* ── UPLOAD AREAS ───────────────────── */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--accent);
+            background: rgba(192,132,252,0.06);
+        }
+        .upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .upload-icon { font-size: 2rem; color: var(--accent); margin-bottom: 0.75rem; }
+        .upload-label { font-size: 0.9rem; color: var(--text-muted); }
+        .upload-label strong { color: var(--accent); }
+        .upload-sublabel { font-size: 0.75rem; color: rgba(226,212,245,0.3); margin-top: 0.3rem; }
+        .upload-preview { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem; }
+        .preview-item {
+            width: 80px; height: 80px; border-radius: 10px; overflow: hidden;
+            border: 2px solid var(--border); position: relative;
+        }
+        .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-item .remove-btn {
+            position: absolute; top: 2px; right: 2px; width: 20px; height: 20px;
+            background: rgba(244,63,94,0.9); border-radius: 50%; border: none;
+            color: white; font-size: 0.7rem; cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+        }
+
+        /* ── TOGGLE OPTION ──────────────────── */
+        .toggle-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .toggle-option {
+            flex: 1; min-width: 140px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            background: var(--surface);
+        }
+        .toggle-option:hover { border-color: var(--accent); }
+        .toggle-option.selected { border-color: var(--accent); background: rgba(192,132,252,0.1); }
+        .toggle-option i { font-size: 1.5rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem; }
+        .toggle-option.selected i { color: var(--accent); }
+        .toggle-option span { font-size: 0.82rem; color: var(--text-muted); }
+        .toggle-option.selected span { color: var(--text); }
+
+        /* ── GIFT LIST BUILDER ──────────────── */
+        .gift-items { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
+        .gift-item { display: flex; gap: 0.75rem; align-items: center; }
+        .gift-item input { flex: 1; }
+        .gift-item .price-input { max-width: 120px; }
+        .gift-item .remove-gift { background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.25); color: #f43f5e; border-radius: 8px; padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.85rem; white-space: nowrap; }
+        .add-gift-btn { background: var(--surface); border: 1px dashed var(--border); color: var(--accent); border-radius: 10px; padding: 0.65rem 1.25rem; cursor: pointer; font-size: 0.85rem; font-family: 'Poppins', sans-serif; transition: var(--transition); display: inline-flex; align-items: center; gap: 0.5rem; }
+        .add-gift-btn:hover { border-color: var(--accent); background: rgba(192,132,252,0.08); }
+
+        /* ── BUTTONS ─────────────────────────── */
+        .btn-row { display: flex; gap: 1rem; margin-top: 2rem; }
+        .btn {
+            flex: 1; padding: 0.9rem 1.25rem;
+            border-radius: 50px; font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem; font-weight: 600; cursor: pointer;
+            border: none; transition: var(--transition);
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .btn-next { background: var(--primary); color: white; }
+        .btn-next:hover { background: #7c3aed; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(109,40,217,0.4); }
+        .btn-back { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
+        .btn-back:hover { background: var(--surface-2); color: white; }
+
+        /* ── FINAL STEP ──────────────────────── */
+        .finalize-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
+        @media (max-width: 500px) { .finalize-options { grid-template-columns: 1fr; } }
+
+        .finalize-card {
+            padding: 2rem 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--surface);
+        }
+        .finalize-card:hover { transform: translateY(-4px); }
+        .finalize-card.whatsapp { border-color: rgba(37,211,102,0.3); }
+        .finalize-card.whatsapp:hover { background: rgba(37,211,102,0.08); border-color: #25d466; }
+        .finalize-card.payment { border-color: rgba(109,40,217,0.4); }
+        .finalize-card.payment:hover { background: rgba(109,40,217,0.1); border-color: var(--primary); }
+        .finalize-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .finalize-card h3 { font-size: 1.1rem; color: white; margin-bottom: 0.5rem; }
+        .finalize-card p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+        .finalize-card .finalize-btn {
+            margin-top: 1.25rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+        }
+        .finalize-card.whatsapp .finalize-btn { background: #25d466; color: white; }
+        .finalize-card.whatsapp .finalize-btn:hover { background: #1ab354; }
+        .finalize-card.payment .finalize-btn { background: var(--primary); color: white; }
+        .finalize-card.payment .finalize-btn:hover { background: #7c3aed; }
+
+        /* ── SUCCESS STATE ──────────────────── */
+        #success-state { display: none; text-align: center; padding: 4rem 1rem; }
+        .success-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+        .success-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: white; margin-bottom: 1rem; }
+        .success-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; max-width: 480px; margin: 0 auto 2rem; }
+        .order-id-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; display: inline-block; }
+        .order-id-box span { font-size: 0.75rem; color: var(--text-muted); display: block; }
+        .order-id-box strong { font-size: 1.1rem; color: var(--accent); font-family: monospace; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="page-header">
+        <a href="/pages/convites-digitais.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+        <div class="header-logo">Divinos <span>Convites Digitais</span></div>
+    </header>
+
+    <div id="order-form-wrapper">
+
+        <!-- PROGRESS -->
+        <div class="progress-bar" id="progress-bar">
+            <div class="step active" id="step-indicator-1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Evento</div>
+            </div>
+            <div class="step" id="step-indicator-2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Fotos</div>
+            </div>
+            <div class="step" id="step-indicator-3">
+                <div class="step-circle">3</div>
+                <div class="step-label">Música</div>
+            </div>
+            <div class="step" id="step-indicator-4">
+                <div class="step-circle">4</div>
+                <div class="step-label">Extras</div>
+            </div>
+            <div class="step" id="step-indicator-5">
+                <div class="step-circle">5</div>
+                <div class="step-label">Finalizar</div>
+            </div>
+        </div>
+
+        <!-- PLAN BADGE -->
+        <div class="plan-badge" id="plan-badge" style="display:none;">
+            <i class="fas fa-layer-group"></i>
+            Plano selecionado: <strong id="selected-plan-name">—</strong>
+        </div>
+
+        <div class="form-container">
+
+            <!-- ══ STEP 1: Dados do Evento ══════════════════════ -->
+            <div class="form-step active" id="step-1">
+                <h2 class="step-title">Dados do Evento 💍</h2>
+                <p class="step-subtitle">Conte-nos sobre o vosso grande dia.</p>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nome da Noiva <span class="required">*</span></label>
+                        <input type="text" id="bride-name" placeholder="Ex: Maria" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nome do Noivo <span class="required">*</span></label>
+                        <input type="text" id="groom-name" placeholder="Ex: João" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Data do Evento <span class="required">*</span></label>
+                        <input type="date" id="event-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hora do Evento <span class="required">*</span></label>
+                        <input type="time" id="event-time" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Local do Evento <span class="required">*</span></label>
+                    <input type="text" id="event-location" placeholder="Ex: Hotel Polana, Av. Julius Nyerere, Maputo" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mensagem de Abertura <span class="optional">(opcional)</span></label>
+                    <textarea id="couple-message" placeholder="Uma mensagem especial para os vossos convidados... Ex: 'Com amor e alegria convidamos para celebrar connosco este momento único.'"
+></textarea>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Seu Telefone / WhatsApp <span class="required">*</span></label>
+                        <input type="tel" id="client-phone" placeholder="+258 84 000 0000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Seu Email <span class="optional">(opcional)</span></label>
+                        <input type="email" id="client-email" placeholder="email@exemplo.com">
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-next" onclick="goToStep(2)">
+                        Próximo: Fotos <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ══ STEP 2: Fotos ════════════════════════════════ -->
+            <div class="form-step" id="step-2">
+                <h2 class="step-title">Fotos do Casal 📸</h2>
+                <p class="step-subtitle">Carregue as fotos que serão usadas no convite.</p>
+
+                <div class="form-group">
+                    <label>Foto Principal (Capa) <span class="required">*</span></label>
+                    <div class="upload-area" id="cover-upload-area" onclick="document.getElementById('cover-photo-input').click()">
+                        <input type="file" id="cover-photo-input" accept="image/*" onchange="previewCover(this)">
+                        <div class="upload-icon"><i class="fas fa-image"></i></div>
+                        <div class="upload-label">Clique para <strong>escolher a foto de capa</strong></div>
+                        <div class="upload-sublabel">JPG, PNG ou WEBP. Máx. 10MB</div>
+                    </div>
+                    <div id="cover-preview" style="display:none; margin-top:1rem;">
+                        <img id="cover-preview-img" src="" style="max-height:200px; border-radius:12px; border:2px solid var(--border);">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Galeria de Fotos <span class="optional">(opcional — até 20 fotos)</span></label>
+                    <div class="upload-area" id="gallery-upload-area">
+                        <input type="file" id="gallery-photos-input" accept="image/*" multiple onchange="previewGallery(this)">
+                        <div class="upload-icon"><i class="fas fa-images"></i></div>
+                        <div class="upload-label">Clique para <strong>adicionar fotos à galeria</strong></div>
+                        <div class="upload-sublabel">Selecione múltiplas fotos de uma vez</div>
+                    </div>
+                    <div class="upload-preview" id="gallery-preview"></div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-back" onclick="goToStep(1)"><i class="fas fa-arrow-left"></i> Anterior</button>
+                    <button class="btn btn-next" onclick="goToStep(3)">
+                        Próximo: Música <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ══ STEP 3: Música ═══════════════════════════════ -->
+            <div class="form-step" id="step-3">
+                <h2 class="step-title">Música de Fundo 🎵</h2>
+                <p class="step-subtitle">A música que vai tocar quando os convidados abrirem o convite.</p>
+
+                <div class="form-group">
+                    <label>Como prefere fornecer a música?</label>
+                    <div class="toggle-group">
+                        <div class="toggle-option selected" id="music-opt-info" onclick="selectMusicOpt('info')">
+                            <i class="fas fa-music"></i>
+                            <span>Digo o título/artista</span>
+                        </div>
+                        <div class="toggle-option" id="music-opt-upload" onclick="selectMusicOpt('upload')">
+                            <i class="fas fa-upload"></i>
+                            <span>Faço upload do arquivo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="music-info-section">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Título da Música <span class="required">*</span></label>
+                            <input type="text" id="music-title" placeholder="Ex: A Thousand Years">
+                        </div>
+                        <div class="form-group">
+                            <label>Artista / Cantor <span class="required">*</span></label>
+                            <input type="text" id="music-artist" placeholder="Ex: Christina Perri">
+                        </div>
+                    </div>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-top: -0.5rem; margin-bottom: 1.5rem;">
+                        <i class="fas fa-info-circle"></i> A nossa equipa encontrará e adicionará a música ao convite.
+                    </p>
+                </div>
+
+                <div id="music-upload-section" style="display:none;">
+                    <div class="form-group">
+                        <label>Ficheiro de Música</label>
+                        <div class="upload-area">
+                            <input type="file" id="music-file-input" accept="audio/*" onchange="previewMusic(this)">
+                            <div class="upload-icon"><i class="fas fa-file-audio"></i></div>
+                            <div class="upload-label">Clique para <strong>carregar a música</strong></div>
+                            <div class="upload-sublabel">MP3 ou M4A. Máx. 20MB</div>
+                        </div>
+                        <div id="music-file-preview" style="display:none; margin-top:1rem; padding:1rem; background:var(--surface); border-radius:10px; border:1px solid var(--border);">
+                            <i class="fas fa-music" style="color:var(--accent);"></i>
+                            <span id="music-file-name" style="margin-left:0.5rem; font-size:0.88rem;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-back" onclick="goToStep(2)"><i class="fas fa-arrow-left"></i> Anterior</button>
+                    <button class="btn btn-next" onclick="goToStep(4)">
+                        Próximo: Extras <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ══ STEP 4: Extras ═══════════════════════════════ -->
+            <div class="form-step" id="step-4">
+                <h2 class="step-title">Informações Extras ✨</h2>
+                <p class="step-subtitle">Campos opcionais para personalizar ainda mais o convite.</p>
+
+                <div class="form-group">
+                    <label>Dress Code <span class="optional">(opcional)</span></label>
+                    <input type="text" id="dress-code" placeholder="Ex: Traje Formal — Paleta de Cores: Azul e Dourado">
+                </div>
+
+                <div class="form-group">
+                    <label>Lista de Presentes <span class="optional">(opcional)</span></label>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:1rem;">Adicione sugestões de presentes para os convidados.</p>
+                    <div class="gift-items" id="gift-items-list">
+                        <div class="gift-item">
+                            <input type="text" class="gift-name" placeholder="Nome do presente (ex: Serviço de Jantar)">
+                            <input type="number" class="gift-price price-input" placeholder="Valor (MT)" min="0">
+                            <button class="remove-gift" onclick="removeGiftItem(this)"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <button class="add-gift-btn" onclick="addGiftItem()">
+                        <i class="fas fa-plus"></i> Adicionar Presente
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label>Vídeos <span class="optional">(opcional — até 3 vídeos)</span></label>
+                    <div class="upload-area">
+                        <input type="file" id="videos-input" accept="video/*" multiple onchange="previewVideos(this)">
+                        <div class="upload-icon"><i class="fas fa-video"></i></div>
+                        <div class="upload-label">Clique para <strong>adicionar vídeos</strong></div>
+                        <div class="upload-sublabel">MP4 ou MOV. Máx. 50MB por vídeo</div>
+                    </div>
+                    <div id="video-preview-list" style="margin-top:0.75rem; display:flex; flex-direction:column; gap:0.5rem;"></div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-back" onclick="goToStep(3)"><i class="fas fa-arrow-left"></i> Anterior</button>
+                    <button class="btn btn-next" onclick="goToStep(5)">
+                        Próximo: Finalizar <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ══ STEP 5: Finalizar ════════════════════════════ -->
+            <div class="form-step" id="step-5">
+                <h2 class="step-title">Finalizar Pedido 🎉</h2>
+                <p class="step-subtitle">Reveja o seu pedido e escolha como quer finalizar.</p>
+
+                <div id="order-summary" style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; margin-bottom:1.5rem; font-size:0.88rem; line-height:2;">
+                    <!-- preenchido por JS -->
+                </div>
+
+                <div class="finalize-options">
+                    <div class="finalize-card whatsapp">
+                        <div class="finalize-icon">💬</div>
+                        <h3>Via WhatsApp</h3>
+                        <p>O pedido será registado e serão enviadas as instruções de pagamento pelo WhatsApp.</p>
+                        <button class="finalize-btn" onclick="submitOrder('whatsapp')" id="btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> Enviar pelo WhatsApp
+                        </button>
+                    </div>
+                    <div class="finalize-card payment">
+                        <div class="finalize-icon">💳</div>
+                        <h3>Pagar Agora</h3>
+                        <p>Pague diretamente no site via M-Pesa, e-Mola ou cartão e o seu pedido fica confirmado.</p>
+                        <button class="finalize-btn" onclick="submitOrder('payment')" id="btn-payment">
+                            <i class="fas fa-lock"></i> Pagar no Site
+                        </button>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-back" onclick="goToStep(4)"><i class="fas fa-arrow-left"></i> Anterior</button>
+                </div>
+            </div>
+
+        </div><!-- /form-container -->
+
+    </div><!-- /order-form-wrapper -->
+
+    <!-- SUCCESS STATE -->
+    <div id="success-state" style="max-width:600px; margin:0 auto; padding:2rem;">
+        <div class="success-icon">🎊</div>
+        <h2 class="success-title">Pedido Enviado com Sucesso!</h2>
+        <p class="success-desc">O vosso pedido foi recebido pela equipa Divinos Graffic. Em breve entrarão em contacto convosco para confirmar e dar início à criação do convite.</p>
+        <div class="order-id-box">
+            <span>Código do Pedido</span>
+            <strong id="success-order-id">—</strong>
+        </div>
+        <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+            <a href="/pages/convites-digitais.html" style="background:var(--surface); border:1px solid var(--border); color:var(--text); padding:0.75rem 1.5rem; border-radius:50px; text-decoration:none; font-size:0.88rem;">
+                <i class="fas fa-arrow-left"></i> Voltar ao início
+            </a>
+        </div>
+    </div>
+
+    <!-- Supabase scripts moved to head -->
+    <script>
+    // ================================================
+    // STATE
+    // ================================================
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    let musicMode = 'info'; // 'info' | 'upload'
+    let coverFile = null;
+    let galleryFiles = [];
+    let musicFile = null;
+    let videoFiles = [];
+    let selectedPlanId = null;
+    let selectedPlanName = null;
+
+    // ================================================
+    // INIT: read plan from URL
+    // ================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        selectedPlanId = params.get('plan_id');
+        selectedPlanName = params.get('plan_name');
+        if (selectedPlanName) {
+            document.getElementById('plan-badge').style.display = 'flex';
+            document.getElementById('selected-plan-name').textContent = decodeURIComponent(selectedPlanName);
+        }
+        // Set min date to today
+        document.getElementById('event-date').min = new Date().toISOString().split('T')[0];
+    });
+
+    // ================================================
+    // STEP NAVIGATION
+    // ================================================
+    function goToStep(step) {
+        if (step > currentStep && !validateStep(currentStep)) return;
+
+        document.getElementById(`step-${currentStep}`).classList.remove('active');
+        document.getElementById(`step-indicator-${currentStep}`).classList.remove('active');
+        document.getElementById(`step-indicator-${currentStep}`).classList.add('done');
+
+        currentStep = step;
+        document.getElementById(`step-${currentStep}`).classList.add('active');
+        // Fix indicators for back navigation
+        for (let i = 1; i <= totalSteps; i++) {
+            const ind = document.getElementById(`step-indicator-${i}`);
+            ind.classList.remove('active', 'done');
+            if (i < currentStep) ind.classList.add('done');
+            if (i === currentStep) ind.classList.add('active');
+        }
+
+        if (step === 5) buildSummary();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ================================================
+    // VALIDATION
+    // ================================================
+    function validateStep(step) {
+        if (step === 1) {
+            const bride = document.getElementById('bride-name').value.trim();
+            const groom = document.getElementById('groom-name').value.trim();
+            const date = document.getElementById('event-date').value;
+            const time = document.getElementById('event-time').value;
+            const location = document.getElementById('event-location').value.trim();
+            const phone = document.getElementById('client-phone').value.trim();
+            if (!bride || !groom || !date || !time || !location || !phone) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return false;
+            }
+        }
+        if (step === 2) {
+            if (!coverFile) {
+                alert('Por favor, carregue a foto de capa do convite.');
+                return false;
+            }
+        }
+        if (step === 3) {
+            if (musicMode === 'info') {
+                const title = document.getElementById('music-title').value.trim();
+                const artist = document.getElementById('music-artist').value.trim();
+                if (!title || !artist) {
+                    alert('Por favor, preencha o título e o artista da música, ou faça o upload do ficheiro.');
+                    return false;
+                }
+            } else {
+                if (!musicFile) {
+                    alert('Por favor, carregue o ficheiro de música.');
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    // ================================================
+    // MUSIC TOGGLE
+    // ================================================
+    function selectMusicOpt(opt) {
+        musicMode = opt;
+        document.getElementById('music-opt-info').classList.toggle('selected', opt === 'info');
+        document.getElementById('music-opt-upload').classList.toggle('selected', opt === 'upload');
+        document.getElementById('music-info-section').style.display = opt === 'info' ? 'block' : 'none';
+        document.getElementById('music-upload-section').style.display = opt === 'upload' ? 'block' : 'none';
+    }
+
+    // ================================================
+    // FILE PREVIEWS
+    // ================================================
+    function previewCover(input) {
+        if (!input.files[0]) return;
+        coverFile = input.files[0];
+        const url = URL.createObjectURL(coverFile);
+        document.getElementById('cover-preview-img').src = url;
+        document.getElementById('cover-preview').style.display = 'block';
+    }
+
+    function previewGallery(input) {
+        const files = Array.from(input.files).slice(0, 20);
+        galleryFiles = [...galleryFiles, ...files].slice(0, 20);
+        const container = document.getElementById('gallery-preview');
+        container.innerHTML = '';
+        galleryFiles.forEach((f, i) => {
+            const url = URL.createObjectURL(f);
+            container.innerHTML += `
+                <div class="preview-item">
+                    <img src="${url}" alt="foto ${i+1}">
+                    <button class="remove-btn" onclick="removeGalleryPhoto(${i})">×</button>
+                </div>
+            `;
+        });
+    }
+
+    function removeGalleryPhoto(idx) {
+        galleryFiles.splice(idx, 1);
+        previewGallery({ files: [] }); // re-render
+        const container = document.getElementById('gallery-preview');
+        container.innerHTML = '';
+        galleryFiles.forEach((f, i) => {
+            const url = URL.createObjectURL(f);
+            container.innerHTML += `
+                <div class="preview-item">
+                    <img src="${url}" alt="foto ${i+1}">
+                    <button class="remove-btn" onclick="removeGalleryPhoto(${i})">×</button>
+                </div>
+            `;
+        });
+    }
+
+    function previewMusic(input) {
+        if (!input.files[0]) return;
+        musicFile = input.files[0];
+        document.getElementById('music-file-name').textContent = musicFile.name;
+        document.getElementById('music-file-preview').style.display = 'flex';
+        document.getElementById('music-file-preview').style.alignItems = 'center';
+    }
+
+    function previewVideos(input) {
+        videoFiles = Array.from(input.files).slice(0, 3);
+        const list = document.getElementById('video-preview-list');
+        list.innerHTML = videoFiles.map(f => `
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:0.75rem 1rem; display:flex; align-items:center; gap:0.75rem;">
+                <i class="fas fa-film" style="color:var(--accent);"></i>
+                <span style="font-size:0.85rem;">${f.name}</span>
+                <span style="font-size:0.75rem; color:var(--text-muted); margin-left:auto;">${(f.size/1024/1024).toFixed(1)} MB</span>
+            </div>
+        `).join('');
+    }
+
+    // ================================================
+    // GIFT LIST
+    // ================================================
+    function addGiftItem() {
+        const list = document.getElementById('gift-items-list');
+        const item = document.createElement('div');
+        item.className = 'gift-item';
+        item.innerHTML = `
+            <input type="text" class="gift-name" placeholder="Nome do presente">
+            <input type="number" class="gift-price price-input" placeholder="Valor (MT)" min="0">
+            <button class="remove-gift" onclick="removeGiftItem(this)"><i class="fas fa-trash"></i></button>
+        `;
+        list.appendChild(item);
+    }
+
+    function removeGiftItem(btn) {
+        btn.closest('.gift-item').remove();
+    }
+
+    function getGiftsList() {
+        const items = document.querySelectorAll('.gift-item');
+        const gifts = [];
+        items.forEach(item => {
+            const name = item.querySelector('.gift-name').value.trim();
+            const price = item.querySelector('.gift-price').value;
+            if (name) gifts.push({ name, price: price ? Number(price) : null });
+        });
+        return gifts;
+    }
+
+    // ================================================
+    // SUMMARY
+    // ================================================
+    function buildSummary() {
+        const bride = document.getElementById('bride-name').value;
+        const groom = document.getElementById('groom-name').value;
+        const date = document.getElementById('event-date').value;
+        const time = document.getElementById('event-time').value;
+        const location = document.getElementById('event-location').value;
+        const phone = document.getElementById('client-phone').value;
+        const gifts = getGiftsList();
+
+        const musicInfo = musicMode === 'info'
+            ? `${document.getElementById('music-title').value} — ${document.getElementById('music-artist').value}`
+            : musicFile ? musicFile.name : '—';
+
+        document.getElementById('order-summary').innerHTML = `
+            <div style="font-size:0.78rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:1rem;">Resumo do Pedido</div>
+            <div>👰 <strong>Noivos:</strong> ${bride} & ${groom}</div>
+            <div>📅 <strong>Data:</strong> ${new Date(date + 'T00:00:00').toLocaleDateString('pt-PT', {day:'2-digit',month:'long',year:'numeric'})} às ${time}</div>
+            <div>📍 <strong>Local:</strong> ${location}</div>
+            <div>🎵 <strong>Música:</strong> ${musicInfo}</div>
+            <div>📸 <strong>Fotos da galeria:</strong> ${galleryFiles.length} foto(s)</div>
+            ${gifts.length ? `<div>🎁 <strong>Presentes:</strong> ${gifts.length} item(s)</div>` : ''}
+            <div>📞 <strong>Contacto:</strong> ${phone}</div>
+            ${selectedPlanName ? `<div>⭐ <strong>Plano:</strong> ${decodeURIComponent(selectedPlanName)}</div>` : ''}
+        `;
+    }
+
+    // ================================================
+    // SUBMIT ORDER
+    // ================================================
+    async function submitOrder(method) {
+        const btn = document.getElementById(method === 'whatsapp' ? 'btn-whatsapp' : 'btn-payment');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A processar...';
+
+        try {
+            console.log('--- SUBMIT ORDER START ---');
+            const supabase = window.supabaseClient;
+            if (!supabase) {
+                console.error('Supabase Client NÃO INICIALIZADO!');
+                throw new Error('Supabase não inicializado. Verifique a consola.');
+            }
+            console.log('Supabase Client pronto.');
+
+            const bride = document.getElementById('bride-name').value.trim();
+            const groom = document.getElementById('groom-name').value.trim();
+            const coupleName = `${bride} & ${groom}`;
+
+            // HELPER: Upload file to storage
+            async function uploadFile(file, folder) {
+                if (!file) return null;
+                console.log(`A carregar: ${file.name} para ${folder}...`);
+                const ext = file.name.split('.').pop();
+                const path = `${folder}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+                const { data, error } = await supabase.storage.from('invitation-assets').upload(path, file);
+                
+                if (error) {
+                    console.error(`Erro no upload (${folder}):`, error);
+                    throw new Error(`Erro ao carregar ficheiro ${file.name}: ${error.message}`);
+                }
+                
+                const { data: { publicUrl } } = supabase.storage.from('invitation-assets').getPublicUrl(path);
+                console.log(`Upload completo: ${publicUrl}`);
+                return publicUrl;
+            }
+
+            // Upload all files
+            const coverUrl = await uploadFile(coverFile, 'covers');
+            const galleryUrls = await Promise.all(galleryFiles.map(f => uploadFile(f, 'gallery')));
+            const musicUrl = (musicMode === 'upload' && musicFile) ? await uploadFile(musicFile, 'music') : null;
+
+            // Build order object
+            const orderData = {
+                plan_id: selectedPlanId || null,
+                plan_name: selectedPlanName ? decodeURIComponent(selectedPlanName) : null,
+                couple_names: coupleName,
+                bride_name: bride,
+                groom_name: groom,
+                event_date: document.getElementById('event-date').value,
+                event_time: document.getElementById('event-time').value,
+                event_location: document.getElementById('event-location').value.trim(),
+                couple_message: document.getElementById('couple-message').value.trim() || null,
+                client_phone: document.getElementById('client-phone').value.trim(),
+                client_email: document.getElementById('client-email').value.trim() || null,
+                dress_code: document.getElementById('dress-code').value.trim() || null,
+                music_title: musicMode === 'info' ? document.getElementById('music-title').value.trim() : null,
+                music_artist: musicMode === 'info' ? document.getElementById('music-artist').value.trim() : null,
+                music_url: musicUrl,
+                cover_photo_url: coverUrl,
+                gallery_urls: galleryUrls.filter(u => u),
+                gifts_list: getGiftsList(),
+                status: method === 'payment' ? 'paid' : 'new',
+                payment_method: method
+            };
+
+            // Insert order
+            console.log('A guardar pedido na base de dados...', orderData);
+            const { data: order, error } = await supabase
+                .from('invitation_orders')
+                .insert(orderData)
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            // WhatsApp redirect
+            if (method === 'whatsapp') {
+                const shortId = order.id.substring(0, 8).toUpperCase();
+                const msg = encodeURIComponent(
+                    `Olá Divinos Graffic! 🎊\n` +
+                    `Acabei de submeter um pedido de convite digital.\n\n` +
+                    `👰 Noivos: ${coupleName}\n` +
+                    `📅 Data: ${orderData.event_date}\n` +
+                    `⭐ Plano: ${orderData.plan_name || 'A confirmar'}\n` +
+                    `🆔 Código do Pedido: #${shortId}\n\n` +
+                    `Aguardo as instruções de pagamento. Obrigado!`
+                );
+                window.open(`https://wa.me/258828800311?text=${msg}`, '_blank');
+            }
+
+            // Show success
+            document.getElementById('order-form-wrapper').style.display = 'none';
+            document.getElementById('success-state').style.display = 'block';
+            document.getElementById('success-order-id').textContent = '#' + order.id.substring(0, 8).toUpperCase();
+
+        } catch (e) {
+            console.error('Order error:', e);
+            alert('Ocorreu um erro ao processar o pedido: ' + e.message);
+            btn.disabled = false;
+            btn.innerHTML = method === 'whatsapp'
+                ? '<i class="fab fa-whatsapp"></i> Enviar pelo WhatsApp'
+                : '<i class="fas fa-lock"></i> Pagar no Site';
+        }
+    }
+    </script>
+
+</body>
+</html>

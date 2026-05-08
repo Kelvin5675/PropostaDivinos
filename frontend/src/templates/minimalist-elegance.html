@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{COUPLE_NAMES}} - Nosso Casamento</title>
+
+    <!-- Premium Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Montserrat:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- Animate On Scroll (AOS) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS Variáveis Premium baseadas na referência da Limintso */
+        :root {
+            --bg-color: #0b0c10;
+            --text-gold: #c5a880;
+            --text-light: #e0e0e0;
+            --font-headings: 'Cormorant Garamond', serif;
+            --font-body: 'Josefin Sans', sans-serif;
+            --btn-bg: #c5a880;
+            --btn-text: #0b0c10;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Helpers Gerais */
+        .text-gold {
+            color: var(--text-gold);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .flex-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: var(--font-headings);
+            font-weight: 400;
+            margin: 0;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* Estilos dos Botões Premium */
+        .btn-premium {
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            padding: 12px 30px;
+            font-family: var(--font-body);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(197, 168, 128, 0.2);
+        }
+
+        .btn-premium:hover {
+            background-color: #d8be96;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(197, 168, 128, 0.4);
+        }
+
+        /* Componentes / Estruturas */
+        .hero-section {
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            color: var(--text-light);
+            margin: 20px 0;
+            text-transform: capitalize;
+        }
+
+        .hero-date {
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            color: var(--text-gold);
+            margin-bottom: 40px;
+        }
+
+        .section-padding {
+            padding: 80px 20px;
+        }
+
+        .monogram-img {
+            max-width: 150px;
+            margin-bottom: 20px;
+            filter: invert(80%) sepia(30%) saturate(600%) hue-rotate(350deg) brightness(85%) contrast(85%);
+        }
+
+        /* Música Flutuante */
+        .audio-player-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--btn-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s;
+        }
+
+        .audio-player-btn i {
+            color: var(--btn-text);
+            font-size: 20px;
+        }
+
+        .audio-player-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .audio-playing {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(197, 168, 128, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(197, 168, 128, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(197, 168, 128, 0);
+            }
+        }
+
+        /* Timeline da Agenda */
+        .timeline {
+            max-width: 500px;
+            margin: 40px auto;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            height: 100%;
+            width: 1px;
+            background: var(--text-gold);
+            transform: translateX(-50%);
+            opacity: 0.3;
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            text-align: center;
+        }
+
+        .timeline-time {
+            color: var(--text-gold);
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .timeline-title {
+            font-size: 1.8rem;
+            margin: 5px 0;
+        }
+
+        .timeline-dot {
+            width: 30px;
+            height: 30px;
+            background: var(--bg-color);
+            border: 2px solid var(--text-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .timeline-dot i {
+            color: var(--text-gold);
+            font-size: 12px;
+        }
+
+        /* Accordion Customizado */
+        .accordion-item {
+            background: transparent;
+            border-bottom: 1px solid rgba(197, 168, 128, 0.3);
+            margin: 10px auto;
+            max-width: 600px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 20px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-body);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            transition: max-height 0.3s ease-out;
+            padding: 0 20px;
+        }
+
+        .accordion-item.active .accordion-content {
+            max-height: 500px;
+            /* Suficientemente grande */
+            padding-bottom: 20px;
+        }
+
+        .accordion-content p {
+            font-style: italic;
+            font-family: var(--font-headings);
+            font-size: 1.3rem;
+        }
+
+        /* Convite Start Screen Overlay (Envelop / Capa) */
+        #envelop-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease-out, visibility 1s;
+        }
+
+        #envelop-screen.opened {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* Responsividade */
+        @media(max-width: 768px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+
+            .hero-date {
+                font-size: 1.2rem;
+            }
+
+            .timeline-content {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(even) {
+                flex-direction: column;
+            }
+
+            .timeline::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Start Overlay (Capa Inicial) -->
+    <div id="envelop-screen">
+        <div data-aos="fade-up" data-aos-duration="1500" class="flex-center">
+            <h3 class="text-gold" style="letter-spacing: 3px; margin-bottom: 15px">A união matrimonial de</h3>
+            <h1 class="hero-title" style="margin: 0 0 15px 0">{{COUPLE_NAMES}}</h1>
+            <p class="hero-date">{{EVENT_DATE_NUMBERS}}</p>
+            <button class="btn-premium" id="open-invite-btn">Abrir Convite</button>
+        </div>
+    </div>
+
+    <!-- Áudio Invisível (controlável pelo JS) -->
+    <audio id="bg-audio" loop preload="auto">
+        <source src="{{MUSIC_URL}}" type="audio/mpeg">
+    </audio>
+
+    <!-- Botão de Play/Pause Flutuante -->
+    <div class="audio-player-btn" id="audio-toggle" style="display:none;">
+        <i class="fas fa-play"></i>
+    </div>
+
+    <!-- Topo / Hero do Convite (Logo após abrir) -->
+    <header class="hero-section flex-center">
+        <!-- Ícone do Monograma Placeholder -->
+        <img src="https://api.iconify.design/ph/flower-lotus-light.svg" class="monogram-img" data-aos="zoom-in"
+            data-aos-duration="2000" alt="Logo">
+
+        <div data-aos="fade-up" data-aos-duration="1000" class="text-center">
+            <!-- Recepção Dinâmica do Convidado (Integrado com JS) -->
+            <p id="guest-welcome"
+                style="text-transform: uppercase; letter-spacing: 2px; font-size:0.9rem; margin-bottom: 5px; opacity:0; transition: opacity 1s">
+                Welcome</p>
+            <h2 id="guest-name"
+                style="font-family: var(--font-body); font-size: 1.5rem; letter-spacing: 1px; color: var(--text-gold); margin-bottom: 40px; opacity:0; transition: opacity 1s">
+            </h2>
+
+            <br>
+            <h3 class="text-gold" style="font-size: 1.2rem; margin-bottom: 15px; letter-spacing: 2px">Together as One
+            </h3>
+
+            <p
+                style="max-width: 600px; margin: 0 auto 30px auto; font-family: var(--font-headings); font-style: italic; font-size: 1.4rem;">
+                "É melhor ter companhia do que estar sozinho... Se um cair, o amigo pode ajudá-lo a levantar-se."<br>
+                <span class="text-gold"
+                    style="font-size: 1.1rem; font-style: normal; font-family: var(--font-body); display: block; margin-top: 15px;">—
+                    Eclesiastes 4:9-10</span>
+            </p>
+        </div>
+
+        <!-- Scroll down indicator (Lottie) -->
+        <div style="position: absolute; bottom: 40px;" data-aos="fade-in" data-aos-delay="2000">
+            <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+            <lottie-player src="https://lottie.host/7e008620-192f-4b08-bfee-5f430caad1bf/sXY2799c7o.json"
+                background="transparent" speed="1" style="width: 60px; height: 60px; filter: grayscale(1) invert(0.8);"
+                loop autoplay></lottie-player>
+        </div>
+    </header>
+
+    <!-- Sessão Os Noivos -->
+    <section class="section-padding text-center">
+        <h2 class="text-gold" style="font-size: 2.5rem; margin-bottom: 50px" data-aos="fade-up">Os Noivos</h2>
+
+        <!-- Accordions das Mensagens -->
+        <div class="accordion-item" data-aos="fade-up">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>Da Noiva: {{BRIDE_NAME}}</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <p>"Amor da minha vida, meu futuro esposo. Desde o primeiro olhar eu soube que este dia chegaria.
+                    Obrigada por ser o meu porto seguro."</p>
+            </div>
+        </div>
+
+        <div class="accordion-item" data-aos="fade-up" data-aos-delay="100">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>Do Noivo: {{GROOM_NAME}}</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <p>"Meu mundo ficou completo com você. Prometo amar, honrar e valorizar o nosso 'nós' para a
+                    eternidade."</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sessão Quando e Onde (Timeline) -->
+    <section class="section-padding">
+        <div class="text-center" data-aos="fade-up" style="margin-bottom: 60px;">
+            <p style="text-transform: uppercase; letter-spacing: 3px; font-size:0.9rem">Com a Bênção de Deus</p>
+            <h2 class="hero-title" style="margin-top: 5px; font-size: 3rem;">{{EVENT_TITLE}}</h2>
+            <br>
+            <p>Temos a honra de convidá-lo a comemorar esta data especial connosco.</p>
+        </div>
+
+        <h3 class="text-center text-gold" style="font-size: 2rem; margin-bottom: 40px" data-aos="fade-up">Agenda do Dia
+        </h3>
+
+        <div class="timeline">
+            <!-- Timeline Item 1 -->
+            <div class="timeline-item" data-aos="fade-up">
+                <div class="timeline-content">
+                    <p class="timeline-time">{{EVENT_TIME}}</p>
+                    <h3 class="timeline-title">Recepção</h3>
+                    <p>Welcome Drink para os convidados</p>
+                </div>
+                <div class="timeline-dot"><i class="fas fa-glass-cheers"></i></div>
+                <div class="timeline-content" style="opacity: 0;"></div> <!-- spacer -->
+            </div>
+
+            <!-- Timeline Item 2 -->
+            <div class="timeline-item" data-aos="fade-up">
+                <div class="timeline-content">
+                    <p class="timeline-time">{{EVENT_TIME}}</p>
+                    <h3 class="timeline-title">O Sim</h3>
+                    <p>Comemoração Religiosa e Assinaturas</p>
+                </div>
+                <div class="timeline-dot"><i class="fas fa-ring"></i></div>
+                <div class="timeline-content" style="opacity: 0;"></div> <!-- spacer -->
+            </div>
+
+            <!-- Timeline Item 3 -->
+            <div class="timeline-item" data-aos="fade-up">
+                <div class="timeline-content">
+                    <p class="timeline-time">Noite Mágica</p>
+                    <h3 class="timeline-title">Festa & Copo d'água</h3>
+                    <p>{{LOCATION}}</p>
+                    <div style="margin-top: 15px">
+                        <a href="https://maps.google.com/?q={{LOCATION}}" target="_blank" class="btn-premium"
+                            style="font-size: 0.8rem; padding: 8px 15px;">
+                            <i class="fas fa-map-marker-alt"></i> Mapa Local
+                        </a>
+                    </div>
+                </div>
+                <div class="timeline-dot"><i class="fas fa-map-pin"></i></div>
+                <div class="timeline-content" style="opacity: 0;"></div> <!-- spacer -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Presentes & RSVP -->
+    <section class="section-padding text-center"
+        style="background-color: #121319; border-top: 1px solid rgba(197, 168, 128, 0.2);">
+        <h2 class="text-gold" style="font-size: 2.5rem; margin-bottom: 20px" data-aos="fade-up">Presente de Casamento
+        </h2>
+        <p style="max-width: 600px; margin: 0 auto 40px auto" data-aos="fade-up" data-aos-delay="100">
+            Sua presença é o nosso maior presente. No entanto, caso queira nos agraciar, disponibilizamos nossas
+            preferências:
+        </p>
+
+        <div data-aos="fade-up" data-aos-delay="200"
+            style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <button class="btn-premium" onclick="alert('Em breve: Lista de Casamento em Loja Fictícia')"><i
+                    class="fas fa-gift"></i> Em Artigos</button>
+            <button class="btn-premium" onclick="alert('M-Pesa / Conta: XXXX XXXX XXXX')"><i class="fas fa-wallet"></i>
+                Em Valor Monetário</button>
+        </div>
+
+        <div style="margin-top: 80px;" data-aos="fade-up">
+            <h2 class="text-gold" style="font-size: 2.5rem; margin-bottom: 20px">R.S.V.P</h2>
+            <p>Por favor, confirme a sua presença até 30 dias antes do casamento.</p>
+            <p><strong>Dress Code:</strong> Elegante / Black Tie</p>
+            <br>
+            <button class="btn-premium" id="rsvp-btn" style="padding: 15px 40px; font-size: 1.1rem;"><i
+                    class="fas fa-check-circle"></i> Confirmar Presença</button>
+        </div>
+    </section>
+
+    <footer class="text-center"
+        style="padding: 40px 20px; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; opacity: 0.6;">
+        <p>Criado com amor por <strong>Divinos Graffic</strong></p>
+    </footer>
+
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Inicializa animações no Scroll
+        AOS.init({
+            once: true, // Animação ocorre apenas a primeira vez que entra na tela
+            offset: 50,
+        });
+
+        const envelopeScreen = document.getElementById('envelop-screen');
+        const openInviteBtn = document.getElementById('open-invite-btn');
+        const audio = document.getElementById('bg-audio');
+        const audioToggle = document.getElementById('audio-toggle');
+        const audioIcon = audioToggle.querySelector('i');
+        const guestWelcomeStr = document.getElementById('guest-welcome');
+        const guestNameStr = document.getElementById('guest-name');
+
+        let isPlaying = false;
+
+        // Abrir Convite (Esconde Envlope e Ativa Música)
+        openInviteBtn.addEventListener('click', () => {
+            envelopeScreen.classList.add('opened');
+
+            // Revela o botão da música
+            setTimeout(() => {
+                audioToggle.style.display = 'flex';
+                // Mostra o nome do convidado com fade-in suave
+                guestWelcomeStr.style.opacity = '1';
+                guestNameStr.style.opacity = '1';
+            }, 1000);
+
+            // Tenta reproduzir a música automaticamente
+            audio.volume = 0.5;
+            audio.play().then(() => {
+                updateAudioUI(true);
+            }).catch(e => {
+                console.warn('Autoplay bloqueado pelo navegador. Convidado precisará clicar em play.');
+                updateAudioUI(false);
+            });
+        });
+
+        // Toggle Audio
+        audioToggle.addEventListener('click', () => {
+            if (isPlaying) {
+                audio.pause();
+                updateAudioUI(false);
+            } else {
+                audio.play();
+                updateAudioUI(true);
+            }
+        });
+
+        function updateAudioUI(playing) {
+            isPlaying = playing;
+            if (playing) {
+                audioIcon.className = 'fas fa-pause';
+                audioToggle.classList.add('audio-playing');
+            } else {
+                audioIcon.className = 'fas fa-play';
+                audioToggle.classList.remove('audio-playing');
+            }
+        }
+
+        // Sistema de Accordion Simples
+        function toggleAccordion(element) {
+            const item = element.parentElement;
+            const isOpen = item.classList.contains('active');
+
+            // Fecha todos (opcional, para abrir um de cada vez)
+            document.querySelectorAll('.accordion-item').forEach(el => el.classList.remove('active'));
+
+            // Alterna a classe de icones e do item atual
+            document.querySelectorAll('.accordion-header i').forEach(icon => icon.className = 'fas fa-chevron-down');
+
+            if (!isOpen) {
+                item.classList.add('active');
+                element.querySelector('i').className = 'fas fa-chevron-up';
+            }
+        }
+
+        // Fake RSVP Feedback
+        document.getElementById('rsvp-btn').addEventListener('click', () => {
+            alert('Presença confirmada digitalmente! (Funcionalidade de Banco de Dados conectada ao Painel Admin)');
+        });
+
+        // Carregar nome do visitante via JWT Token Custom (Semelhante a Referência)
+        // Isso lê o parâmetro ?token=NomeDoConvidado na URL. E se não houver, deixa "Convidado(a) Especial".
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            // Num sistema real, vc mandaria o token pra API (JWT decrypt). Aqui faremos uma demonstração simples usando base64 ou texto claro
+            if (token) {
+                try {
+                    // Try decoding base64 if it's sent as base64, else just decode URI
+                    const decoded = token.includes('.') ? "Membro Exclusivo" : decodeURIComponent(escape(atob(token)));
+                    guestNameStr.textContent = decoded;
+                } catch (e) {
+                    guestNameStr.textContent = token; // Fallback
+                }
+            } else {
+                guestNameStr.textContent = "Convidado(a) Especial";
+            }
+        });
+    </script>
+</body>
+
+</html>

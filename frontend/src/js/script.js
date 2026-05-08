@@ -932,6 +932,7 @@ function initializeAccessibility() {
 // Service worker is below
 
 // ===== SERVICE WORKER REGISTRATION =====
+/* 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
         navigator.serviceWorker.register('/sw.js')
@@ -943,6 +944,7 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+*/
 
 
 

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convites Admin | Painel de Controlo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/admin_invitation/css/jobie-admin.css?v=6">
+    <style>
+        body { opacity: 0; transition: opacity 0.3s ease; }
+    </style>
+    <!-- Immediate Auth Guard -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js?v=21"></script>
+    <script>
+        (async () => {
+            if (!window.supabaseClient) {
+                const url = "https://eahrqlfdixqjwuygdkip.supabase.co";
+                const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVhaHJxbGZkaXhxand1eWdka2lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2Nzg5OTgsImV4cCI6MjA4NTI1NDk5OH0.6_J6lN2BGluF8tcSIxX-BwN8sv69gN6oNhVqzoIsYxU";
+                window.supabaseClient = supabase.createClient(url, key);
+            }
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) window.location.href = '/admin_invitation/index.html';
+        })();
+    </script>
+</head>
+<body>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-logo">D</div>
+            <div class="brand-name">Divinos</div>
+        </div>
+        <nav class="nav-menu">
+            <a onclick="switchTab('dashboard')" class="nav-item active" id="nav-dashboard"><i class="fas fa-home"></i> Dashboard</a>
+            <div class="nav-section-label">Gestão</div>
+            <a onclick="switchTab('orders')" class="nav-item" id="nav-orders"><i class="fas fa-shopping-bag"></i> Pedidos <span id="orders-badge" class="badge" style="display:none;">0</span></a>
+            <a onclick="switchTab('invitations')" class="nav-item" id="nav-invitations"><i class="fas fa-envelope"></i> Convites</a>
+            <a onclick="switchTab('plans')" class="nav-item" id="nav-plans"><i class="fas fa-layer-group"></i> Planos</a>
+            <a onclick="switchTab('moderation')" class="nav-item" id="nav-moderation"><i class="fas fa-shield-alt"></i> Moderação</a>
+            <a onclick="switchTab('moderation')" class="nav-item" id="nav-moderation"><i class="fas fa-shield-alt"></i> Moderação</a>
+            <div class="nav-section-label">Landing Page</div>
+            <a onclick="switchTab('lp-editor')" class="nav-item" id="nav-lp-editor"><i class="fas fa-edit"></i> Editor Site</a>
+            <a onclick="switchTab('lp-faq')" class="nav-item" id="nav-lp-faq"><i class="fas fa-question-circle"></i> FAQ</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Sair do Painel</button>
+        </div>
+    </aside>
+
+    <div class="main-wrapper">
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <h1 id="page-title">Dashboard</h1>
+            </div>
+            <div class="topbar-search"><input type="text" placeholder="Pesquisar..." id="global-search"><i class="fas fa-search"></i></div>
+            <div class="header-actions">
+                <div class="icon-badge"><i class="fas fa-comment-alt"></i><span class="badge">18</span></div>
+                <div class="icon-badge"><i class="fas fa-bell"></i><span class="badge">52</span></div>
+                <div class="header-user">
+                    <div class="user-info">
+                        <span class="user-name" id="admin-name">Administrador</span>
+                        <span class="user-role">Super Admin</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- TAB: DASHBOARD -->
+            <section id="dashboard" class="section active">
+                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="stat-info"><h3 id="stat-total-orders-count">0</h3><p>Total Pedidos</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-envelope-open"></i></div>
+                        <div class="stat-info"><h3 id="stat-total-invitations">0</h3><p>Convites Ativos</p></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+                        <div class="stat-info"><h3 id="stat-total-plans">0</h3><p>Planos</p></div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="profile-column">
+                        <div class="card profile-card">
+                            <div class="profile-avatar"><img src="https://i.pravatar.cc/150?u=admin" alt="Admin"><span class="online-status"></span></div>
+                            <h3>Administrador</h3><p>Divinos Graffic</p>
+                            <div class="profile-stats">
+                                <div class="profile-stat-item active"><div class="circle">85%</div><span>Vendas</span></div>
+                                <div class="profile-stat-item"><div class="circle">12%</div><span>Pendentes</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-column">
+                        <div class="card">
+                            <div class="card-header"><h3>Estatísticas</h3></div>
+                            <div style="height:300px;"><canvas id="invitationsChart"></canvas></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header"><h3>Atividades Recentes</h3></div>
+                            <div class="table-container">
+                                <table>
+                                    <thead><tr><th>Cliente</th><th>Data</th><th>Estado</th><th>Ações</th></tr></thead>
+                                    <tbody id="dashboard-invitations-list"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: PEDIDOS -->
+            <section id="orders" class="section">
+                <div class="card">
+                    <div class="card-header"><h3>Pedidos</h3><button class="btn btn-secondary btn-sm" onclick="loadOrders()">Atualizar</button></div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>#</th><th>Noivos</th><th>Plano</th><th>Estado</th><th>Ações</th></tr></thead>
+                            <tbody id="orders-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: CONVITES -->
+            <section id="invitations" class="section">
+                <div class="card">
+                    <div class="card-header"><h3>Convites</h3><button class="btn btn-primary" onclick="showModal('invitationModal')">Novo Convite</button></div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Cliente</th><th>Slug</th><th>Estado</th><th>Ações</th></tr></thead>
+                            <tbody id="invitations-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: PLANOS -->
+            <section id="plans" class="section">
+                <div class="card">
+                    <div class="card-header"><h3>Planos</h3><button class="btn btn-primary" onclick="showModal('planModal')">Novo Plano</button></div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Nome</th><th>Preço</th><th>Ações</th></tr></thead>
+                            <tbody id="plans-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- TAB: MODERAÇÃO -->
+            <section id="moderation" class="section">
+                <div class="card">
+                    <div class="card-header"><h3>Mensagens</h3></div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Autor</th><th>Mensagem</th><th>Ações</th></tr></thead>
+                            <tbody id="guestbook-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: LP EDITOR -->
+            <section id="lp-editor" class="section">
+                <div class="card">
+                    <div class="card-header"><h3>Configurações Site</h3><button class="btn btn-primary" onclick="saveLandingPageSettings()">Guardar</button></div>
+                    <form id="lp-hero-form">
+                        <div class="form-group"><label class="form-label">Título Hero</label><input type="text" id="lp-hero-title" class="form-control" name="inv_lp_hero_title"></div>
+                        <div class="form-group"><label class="form-label">Subtítulo Hero</label><textarea id="lp-hero-subtitle" class="form-control" rows="3" name="inv_lp_hero_subtitle"></textarea></div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- TAB: LP FAQ -->
+            <section id="lp-faq" class="section">
+                <div class="card">
+                    <div class="card-header"><h3>FAQ</h3><button class="btn btn-primary" onclick="showModal('faqModal')">Nova Pergunta</button></div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Pergunta</th><th>Resposta</th><th>Ações</th></tr></thead>
+                            <tbody id="faq-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAIS -->
+    
+    <div class="modal-overlay" id="invitationModal">
+        <div class="modal-box" style="max-width:700px;">
+            <div class="modal-header"><h3>Novo Convite</h3><button class="modal-close" onclick="hideModal('invitationModal')">&times;</button></div>
+            <form id="invitation-form">
+                <input type="hidden" id="inv-id">
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Cliente *</label><input type="text" id="inv-customer-name" class="form-control" required></div>
+                    <div class="form-group"><label class="form-label">Slug *</label><input type="text" id="inv-slug" class="form-control" required></div>
+                    <div class="form-group"><label class="form-label">Plano</label><select id="inv-plan-id" class="form-control"></select></div>
+                    <div class="form-group"><label class="form-label">Data</label><input type="date" id="inv-event-date" class="form-control"></div>
+                </div>
+                <div class="form-group" style="margin-top:1rem;">
+                    <label class="form-label">Tipo Editor</label>
+                    <select id="inv-editor-type" class="form-control" onchange="toggleCodeEditor()">
+                        <option value="template">Template</option>
+                        <option value="manual">Manual (HTML)</option>
+                    </select>
+                </div>
+                <div id="code-editor-container" style="display:none; margin-top:1rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                        <label>HTML Personalizado</label>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="showModal('aiGeneratorModal')"><i class="fas fa-magic"></i> Gerar IA</button>
+                    </div>
+                    <textarea id="inv-custom-html" class="form-control" rows="10" style="font-family:monospace; background:#111; color:#eee;"></textarea>
+                </div>
+                <div style="display:flex;gap:0.75rem;margin-top:1.5rem;justify-content:flex-end;"><button type="button" class="btn btn-secondary" onclick="hideModal('invitationModal')">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="aiGeneratorModal">
+        <div class="modal-box">
+            <div class="modal-header"><h3>IA Gerador</h3><button class="modal-close" onclick="hideModal('aiGeneratorModal')">&times;</button></div>
+            <form id="ai-generator-form">
+                <div class="form-group"><label class="form-label">Descrição</label><textarea id="ai-prompt" class="form-control" rows="4"></textarea></div>
+                <div class="form-group"><label class="form-label">Cor</label><input type="color" id="ai-color" class="form-control" value="#4C1D95"></div>
+                <div id="ai-loading" style="display:none; color:var(--jobie-primary);"><i class="fas fa-spinner fa-spin"></i> Gerando...</div>
+                <div style="display:flex;gap:0.75rem;margin-top:1.5rem;justify-content:flex-end;"><button type="button" class="btn btn-secondary" onclick="hideModal('aiGeneratorModal')">Cancelar</button><button type="submit" id="btn-generate-ai" class="btn btn-primary">Gerar</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="inviteLinksModal">
+        <div class="modal-box" style="text-align:center;">
+            <div class="modal-header"><h3>Links Gerados</h3><button class="modal-close" onclick="hideModal('inviteLinksModal')">&times;</button></div>
+            <div style="background:#f3f4f6; padding:1.5rem; border-radius:12px; margin-bottom:1rem;">
+                <label class="form-label">Código Acesso</label>
+                <div id="generated-access-code" style="font-size:1.5rem; font-weight:700; letter-spacing:3px;"></div>
+            </div>
+            <div class="form-group" style="text-align:left;"><label class="form-label">Link Público</label><input type="text" id="generated-guest-link" readonly class="form-control"></div>
+            <div class="form-group" style="text-align:left;"><label class="form-label">Link Noivos</label><input type="text" id="generated-couple-link" readonly class="form-control"></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="sendLinksViaWhatsApp()"><i class="fab fa-whatsapp"></i> Enviar WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- Modais restantes seguem o mesmo padrão simplificado -->
+    <div class="modal-overlay" id="orderDetailModal"><div class="modal-box"><div class="modal-header"><h3>Pedido</h3><button class="modal-close" onclick="hideModal('orderDetailModal')">&times;</button></div><div id="order-detail-body"></div></div></div>
+    <div class="modal-overlay" id="planModal"><div class="modal-box"><div class="modal-header"><h3>Plano</h3><button class="modal-close" onclick="hideModal('planModal')">&times;</button></div><form id="plan-form"><input type="hidden" id="plan-id"><div class="form-group"><label class="form-label">Nome</label><input type="text" id="plan-name" class="form-control"></div><div style="display:flex;gap:0.75rem;margin-top:1.5rem;"><button type="submit" class="btn btn-primary">Guardar</button></div></form></div></div>
+
+    <script src="/admin_invitation/js/app.js?v=56"></script>
+</body>
+</html>

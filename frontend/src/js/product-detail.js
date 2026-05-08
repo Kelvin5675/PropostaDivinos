@@ -2,8 +2,9 @@
  * PRODUCT DETAIL PAGE FUNCTIONALITY
  * Carrega e renderiza dados de um produto específico
  */
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:8000/api/v1'
+const h = window.location.hostname;
+const API_BASE_URL = h === 'localhost' || h === '127.0.0.1' || h.startsWith('192.') || h.startsWith('10.')
+    ? `http://${h}:8000/api/v1`
     : 'https://api.divinos.com/v1'; // Ajustar URL de produção no futuro
 
 let productId = null; // Global scope for access in functions
@@ -139,7 +140,7 @@ function renderProductDetails(product) {
         whatsappBtn.onclick = (e) => {
             e.preventDefault();
             const message = `Olá, gostaria de comprar: ${product.title}`;
-            window.open(`https://wa.me/258828800311?text=${encodeURIComponent(message)}`, '_blank');
+            window.location.href = `https://wa.me/258828800311?text=${encodeURIComponent(message)}`;
         };
     }
 
@@ -152,8 +153,35 @@ function renderProductDetails(product) {
             buyNowBtn.style.display = 'flex'; // Exibir se ativo
             buyNowBtn.onclick = (e) => {
                 e.preventDefault();
-                // Redirecionar para Checkout com ID do produto
-                window.location.href = `../pages/checkout.html?product_id=${product.id}`;
+                
+                // Pegar quantidade e tamanho selecionado
+                const qtyInput = document.getElementById('product-quantity');
+                const quantity = parseInt(qtyInput ? qtyInput.value : 1) || 1;
+                
+                const cartItem = {
+                    id: product.id,
+                    title: product.title,
+                    price: product.price,
+                    image_url: product.image_url,
+                    qty: quantity,
+                    size: typeof selectedSize !== 'undefined' ? (selectedSize || null) : null
+                };
+
+                // Adicionar ao carrinho local storage antes de redirecionar
+                const saved = localStorage.getItem('divinos_cart');
+                let currentCart = saved ? JSON.parse(saved) : [];
+                
+                const existsId = currentCart.findIndex(item => item.id == product.id && item.size == cartItem.size);
+                if (existsId >= 0) {
+                    currentCart[existsId].qty = (currentCart[existsId].qty || currentCart[existsId].quantity || 1) + quantity;
+                } else {
+                    currentCart.push(cartItem);
+                }
+                
+                localStorage.setItem('divinos_cart', JSON.stringify(currentCart));
+
+                // Redirecionar para Checkout
+                window.location.href = '../pages/checkout.html';
             };
         } else {
             buyNowBtn.style.display = 'none'; // Ocultar se inativo

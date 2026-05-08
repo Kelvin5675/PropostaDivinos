@@ -5,10 +5,15 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 
-// Middlewares de Segurança
 app.use(helmet());
 app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
 app.use(express.json());
+
+// Log de Requisições para Debug
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
 
 // Limitar Requisições (Antispam)
 const limiter = rateLimit({
@@ -25,6 +30,7 @@ app.get('/api/health', (req, res) => {
 // Outras rotas importadas
 app.use('/api/v1/products', require('./src/routes/products'));
 app.use('/api/v1/invitations', require('./src/routes/invitations'));
+app.use('/api/v1/live', require('./src/routes/live'));
 
 // Rota 404
 app.use((req, res) => {

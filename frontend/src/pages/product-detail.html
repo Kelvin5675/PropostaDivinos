@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes do Produto - Divinos Graffic</title>
-    <link rel="stylesheet" href="../css/style.css?v=13">
-    <link rel="stylesheet" href="../css/cart.css?v=13">
-    <link rel="stylesheet" href="../css/product-detail.css?v=2">
-    <link rel="stylesheet" href="../css/product-reviews.css?v=1">
-    <link rel="stylesheet" href="../css/premium-preloader.css?v=12">
-    <link rel="shortcut icon" href="../images/Logo Official 2019 E 2024Cor caregada.png" type="image/x-icon">
+    <link rel="stylesheet" href="/css/style.css?v=13">
+    <link rel="stylesheet" href="/css/cart.css?v=13">
+    <link rel="stylesheet" href="/css/product-detail.css?v=2">
+    <link rel="stylesheet" href="/css/product-reviews.css?v=1">
+    <link rel="stylesheet" href="/css/premium-preloader.css?v=12">
+    <link rel="shortcut icon" href="/assets/images/logo-official.png" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&display=swap" rel="stylesheet">
@@ -34,8 +34,8 @@
         <nav class="navbar">
             <div class="nav-container">
                 <div class="nav-logo">
-                    <a href="../index.html"><img src="../images/Logo Official 2019 E 2024Cor caregada.png"
-                            alt="Logo Gráfica Divinos" class="logo-img"></a>
+                    <a href="/index.html"><img src="/assets/images/logo-official.png" alt="Logo Gráfica Divinos"
+                            class="logo-img"></a>
                 </div>
                 <ul class="nav-menu" id="nav-menu">
                     <li class="nav-item">
@@ -57,7 +57,11 @@
                         <a href="about.html" class="nav-link" data-pt="Sobre Nós" data-en="About Us">Sobre Nós</a>
                     </li>
                     <li class="nav-item">
-                        <a href="contact.html" class="nav-link" data-pt="Contato" data-en="Contact">Contato</a>
+                        <a href="/pages/contact.html" class="nav-link" data-pt="Contato" data-en="Contact">Contato</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/convites-digitais.html" class="nav-link" data-pt="Convites Digitais"
+                            data-en="Digital Invitations">Convites Digitais</a>
                     </li>
                 </ul>
                 <div class="nav-extras">
@@ -106,9 +110,11 @@
                 <!-- Left: Gallery Carousel -->
                 <div class="product-gallery">
                     <div class="main-image-container">
-                        <button class="gallery-arrow gallery-prev" id="gallery-prev"><i class="fas fa-chevron-left"></i></button>
+                        <button class="gallery-arrow gallery-prev" id="gallery-prev"><i
+                                class="fas fa-chevron-left"></i></button>
                         <img id="main-product-image" src="../images/placeholder.jpg" alt="Produto">
-                        <button class="gallery-arrow gallery-next" id="gallery-next"><i class="fas fa-chevron-right"></i></button>
+                        <button class="gallery-arrow gallery-next" id="gallery-next"><i
+                                class="fas fa-chevron-right"></i></button>
                     </div>
                     <div class="gallery-dots" id="gallery-dots">
                         <!-- Dots serão carregados via JS -->
@@ -373,18 +379,18 @@
                 <span>Total Estimado:</span>
                 <span id="cart-total-value">0 MT</span>
             </div>
-            <button class="checkout-btn" onclick="checkoutWhatsApp()">
-                <i class="fab fa-whatsapp"></i> Finalizar Pedido
-            </button>
+            <a href="/pages/checkout.html" class="checkout-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fas fa-credit-card"></i> Finalizar Pedido
+            </a>
         </div>
     </div>
 
     <!-- Scripts -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="../js/supabase-config.js?v=13"></script>
-    <script src="../js/product-detail.js?v=2"></script>
-    <script src="../js/script.js?v=13"></script>
-    <script src="../js/cart.js?v=13"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js?v=13"></script>
+    <script src="/js/product-detail.js?v=2"></script>
+    <script src="/js/script.js?v=13"></script>
+    <script src="/js/cart.js?v=13"></script>
 </body>
 
 </html>

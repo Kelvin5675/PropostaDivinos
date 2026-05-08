@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Divinos Admin | Painel de Controle</title>
+    <link rel="shortcut icon" href="/assets/images/logo-official.png" type="image/x-icon">
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -19,7 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/admin.css?v=10">
+    <link rel="stylesheet" href="/admin/css/admin.css?v=11">
     <style>
         /* Novos estilos para os filtros de pedidos */
         .order-filter-btn {
@@ -153,6 +154,37 @@
         .nav-item {
             cursor: pointer;
         }
+
+        .pulse-green {
+            background-color: #10b981 !important;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+
+        .pulse-red {
+            background-color: #ef4444 !important;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
     </style>
 </head>
 
@@ -255,6 +287,18 @@
                         <p>Visitas Totais</p>
                     </div>
                 </div>
+                <div class="stat-card" style="border: 2px solid #10b981; background: rgba(16, 185, 129, 0.05);">
+                    <div class="stat-icon green" style="background: #10b981; color: white;">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 style="color: #059669; display: flex; align-items: center; gap: 10px;">
+                            <span id="online-count">0</span>
+                            <span id="status-dot" class="status-dot"></span>
+                        </h3>
+                        <p style="color: #059669; font-weight: 600;">Visitantes Online</p>
+                    </div>
+                </div>
                 <div class="stat-card">
                     <div class="stat-icon green"><i class="fas fa-box"></i></div>
                     <div class="stat-info">
@@ -279,8 +323,13 @@
             </div>
 
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Desempenho de Visitantes</h3>
+                <div class="chart-header">
+                    <h3 class="card-title">Fluxo de Visitantes</h3>
+                    <div class="chart-period-selector">
+                        <button class="period-btn active" onclick="navigateChart('visitors', -1)"><i class="fas fa-chevron-left"></i></button>
+                        <input type="date" id="visitors-date-picker" onchange="jumpToDate('visitors', this.value)" style="border: 1px solid #ddd; border-radius: 4px; padding: 2px 5px; font-size: 0.8rem;">
+                        <button class="period-btn active" onclick="navigateChart('visitors', 1)"><i class="fas fa-chevron-right"></i></button>
+                    </div>
                 </div>
                 <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
                     <canvas id="visitorsChart"></canvas>
@@ -452,7 +501,7 @@
                                 <div class="form-group">
                                     <label style="font-weight: 600; display: block; margin-bottom: 8px;">Categoria
                                         *</label>
-                                    <select id="prod-category" class="form-control"
+                                    <select id="prod-category" class="form-control" onchange="handleCategoryChange(this.value)"
                                         style="width: 100%; border: 1px solid #ddd; padding: 10px; border-radius: 6px;">
                                         <option value="">Selecione...</option>
                                         <!-- Dynamic categories via JS -->
@@ -638,6 +687,11 @@
                     style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #eee; padding: 1.5rem;">
                     <h3 class="card-title" style="margin: 0;"><i class="fas fa-shopping-bag"></i> Pedidos do Website
                     </h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-danger btn-sm" onclick="resetAllOrders()">
+                            <i class="fas fa-trash-alt"></i> Resetar Todo o Histórico
+                        </button>
+                    </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                         <div class="search-box-admin" style="position: relative; min-width: 250px;">
                             <i class="fas fa-search"
@@ -708,18 +762,18 @@
                     <!-- Gráfico de Vendas -->
                     <div
                         style="background: white; border-radius: 16px; border: 1px solid #eee; padding: 20px; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div class="chart-header" style="justify-content: flex-start; gap: 20px;">
                             <h4 style="margin: 0; color: #2c3e50; font-weight: 600;"><i class="fas fa-chart-line"
                                     style="color: #6366f1; margin-right: 8px;"></i> Desempenho de Vendas</h4>
-                            <div class="chart-period-selector"
-                                style="display: flex; gap: 5px; background: #f8f9fa; padding: 3px; border-radius: 8px;">
-                                <button class="period-btn active" data-period="daily"
-                                    onclick="changeChartPeriod('daily', this)">Diário</button>
-                                <button class="period-btn" data-period="weekly"
-                                    onclick="changeChartPeriod('weekly', this)">Semanal</button>
-                                <button class="period-btn" data-period="monthly"
-                                    onclick="changeChartPeriod('monthly', this)">Mensal</button>
+                            <div class="chart-period-selector">
+                                <button class="period-btn active" onclick="changeChartPeriod('daily', this)">Dia</button>
+                                <button class="period-btn" onclick="changeChartPeriod('weekly', this)">Semana</button>
+                                <button class="period-btn" onclick="changeChartPeriod('monthly', this)">Mês</button>
+                            </div>
+                            <div class="chart-period-selector" style="margin-left: auto;">
+                                <button class="period-btn" onclick="navigateChart('sales', -1)"><i class="fas fa-chevron-left"></i> Anterior</button>
+                                <input type="date" id="sales-date-picker" onchange="jumpToDate('sales', this.value)" style="border: 1px solid #ddd; border-bottom: 2px solid var(--primary-color); padding: 5px; font-size: 0.9rem;">
+                                <button class="period-btn" onclick="navigateChart('sales', 1)">Próximo <i class="fas fa-chevron-right"></i></button>
                             </div>
                         </div>
                         <div style="height: 300px; position: relative;">
@@ -738,7 +792,7 @@
                                 <th>Total</th>
                                 <th>Canal</th>
                                 <th>Status</th>
-                                <th>Ações</th>
+                                <th style="text-align: right;">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="orders-table-body">
@@ -1298,7 +1352,7 @@
                         </div>
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <span id="2fa-status" style="font-weight: 600; color: #e63946;">DESATIVADO</span>
-                            <button id="toggle-2fa-btn" class="btn btn-secondary">Ativar</button>
+                            <button id="toggle-2fa-btn" class="btn btn-secondary" onclick="toggle2FA()">Ativar</button>
                         </div>
                     </div>
 
@@ -1353,13 +1407,6 @@
         </div>
         </section>
 
-        <!-- PLACEHOLDER FOR ORDERS (In future) -->
-        <section id="orders" class="section">
-            <div class="card">
-                <h2>Em Breve</h2>
-                <p>Gestão de pedidos recebidos pelo site.</p>
-            </div>
-        </section>
 
     </main>
 
@@ -1447,6 +1494,8 @@
         </div>
     </div>
 
+
+
     <!-- Notification Toast -->
     <div id="toast" class="notification">
         <i class="fas fa-check-circle"></i>
@@ -1466,16 +1515,21 @@
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(5px);
             transition: all 0.3s;
+            overflow-y: auto;
+            /* Permite scroll no modal */
+            padding: 40px 15px;
         }
 
         .modal-content {
             background: white;
-            margin: 5% auto;
+            margin: 0 auto;
             padding: 30px;
             border-radius: 20px;
             width: 90%;
+            max-width: 700px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
             animation: slideDown 0.4s ease-out;
+            position: relative;
         }
 
         @keyframes slideDown {
@@ -1490,21 +1544,51 @@
             }
         }
 
-        .table-container::-webkit-scrollbar {
-            height: 8px;
+        /* Scrol Personalizado Premium para Modais e Tabelas */
+        .modal::-webkit-scrollbar,
+        .table-container::-webkit-scrollbar,
+        textarea::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
 
-        .table-container::-webkit-scrollbar-thumb {
-            background: #ccc;
+        .modal::-webkit-scrollbar-track,
+        .table-container::-webkit-scrollbar-track,
+        textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .modal::-webkit-scrollbar-thumb,
+        .table-container::-webkit-scrollbar-thumb,
+        textarea::-webkit-scrollbar-thumb {
+            background: #457b9d;
+            /* var(--secondary-color) */
             border-radius: 10px;
+        }
+
+        .modal::-webkit-scrollbar-thumb:hover,
+        .table-container::-webkit-scrollbar-thumb:hover,
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #1d3557;
+            /* var(--primary-color) */
+        }
+
+        /* Firefox Support */
+        .modal,
+        .table-container,
+        textarea {
+            scrollbar-width: thin;
+            scrollbar-color: #457b9d transparent;
         }
     </style>
 
+
+
     <!-- Scripts -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="../js/supabase-config.js?v=20"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="../js/app.js?v=20"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js?v=21"></script>
+
+    <script src="js/app.js?v=24"></script>
 </body>
 
 </html>

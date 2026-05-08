@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Divinos Admin | Acesso Premium</title>
-    <link rel="shortcut icon" href="../images/Logo Official 2019 E 2024Cor caregada.png" type="image/x-icon">
+    <link rel="shortcut icon" href="/assets/images/logo-official.png" type="image/x-icon">
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Syne:wght@600;700&display=swap"
         rel="stylesheet">
@@ -270,7 +270,7 @@
     <div class="login-container">
         <div class="login-card">
             <div class="logo-wrapper">
-                <img src="../images/Logo Official 2019 E 2024Cor caregada.png" alt="Logo">
+                <img src="/assets/images/logo-official.png" alt="Logo">
             </div>
             <h1>Painel de Controle</h1>
             <p class="subtitle">Acesse para gerenciar sua loja digital</p>
@@ -327,9 +327,9 @@
     </div>
 
     <!-- Supabase & Data Loader -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="../js/supabase-config.js?v=11"></script>
-    <script src="../js/data-loader.js?v=11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js?v=21"></script>
+    <script src="/js/data-loader.js?v=21"></script>
 
     <!-- TOTP Library for 2FA -->
     <script src="https://unpkg.com/@otplib/preset-browser@^12.0.0/buffer.js"></script>
@@ -368,6 +368,7 @@
 
                     if (mfaSet && mfaSet.value === 'true') {
                         // Trocar para etapa 2
+                        sessionStorage.setItem('admin_2fa_pending', 'true');
                         step1.style.display = 'none';
                         step2.style.display = 'block';
                         backBtn.style.display = 'flex';
@@ -376,6 +377,7 @@
                         document.getElementById('2fa-code').focus();
                     } else {
                         // Sem 2FA, entra direto
+                        sessionStorage.removeItem('admin_2fa_pending');
                         window.location.href = '/admin/dashboard.html';
                     }
                 } catch (err) {
@@ -408,8 +410,10 @@
                         throw new Error("Erro de carregamento da proteção 2FA. Recarregue a página.");
                     }
 
-                    const isValid = lib.authenticator.check(code, secret);
+                    // Aumentar janela para 2 (30s antes/depois) para compensar drift de horário
+                    const isValid = lib.authenticator.check(code, secret, { window: 2 });
                     if (isValid) {
+                        sessionStorage.removeItem('admin_2fa_pending');
                         window.location.href = '/admin/dashboard.html';
                     } else {
                         throw new Error("Código 2FA incorreto ou expirado.");
@@ -435,8 +439,12 @@
         async function checkSession() {
             if (!window.supabaseClient) return;
             const { data: { session } } = await window.supabaseClient.auth.getSession();
-            if (session) {
-                // Se já tem sessão de uma aba aberta, manda pro dashboard
+            
+            // SECURITY FIX: Só redireciona se tiver sessão E NÃO estiver pendente de 2FA
+            const is2FAPending = sessionStorage.getItem('admin_2fa_pending') === 'true';
+            
+            if (session && !is2FAPending) {
+                // Se já tem sessão de uma aba aberta e passou pelo 2FA (ou não precisa), manda pro dashboard
                 window.location.href = '/admin/dashboard.html';
             }
         }

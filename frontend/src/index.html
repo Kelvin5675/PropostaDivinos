@@ -6,16 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Divinos Graffic</title>
 
-    <!-- CSS Modular por Responsividade -->
-    <link rel="stylesheet" href="css/style.css?v=15">
-    <link rel="stylesheet" media="(max-width: 767px)" href="css/breakpoints/mobile.css">
-    <link rel="stylesheet" media="(min-width: 768px) and (max-width: 1023px)" href="css/breakpoints/tablet.css">
-    <link rel="stylesheet" media="(min-width: 1024px)" href="css/breakpoints/desktop.css">
+    <!-- Teste Interno -->
+    <style>
+        body {
+            background-color: #f0f0f0 !important;
+        }
+    </style>
 
-    <link rel="stylesheet" href="css/cart.css?v=12">
-    <link rel="stylesheet" href="css/premium-preloader.css?v=12">
-    <link rel="stylesheet" href="css/new-product-cards.css?v=1">
-    <link rel="shortcut icon" href="assets/images/Logo Official 2019 E 2024Cor caregada.png" type="image/x-icon">
+    <!-- CSS Modular por Responsividade -->
+    <link rel="stylesheet" href="/css/style.css?v=16">
+    <link rel="stylesheet" media="(max-width: 767px)" href="/css/breakpoints/mobile.css">
+    <link rel="stylesheet" media="(min-width: 768px) and (max-width: 1023px)" href="/css/breakpoints/tablet.css">
+    <link rel="stylesheet" media="(min-width: 1024px)" href="/css/breakpoints/desktop.css">
+
+    <link rel="stylesheet" href="/css/cart.css?v=12">
+    <link rel="stylesheet" href="/css/premium-preloader.css?v=12">
+    <link rel="stylesheet" href="/css/new-product-cards.css?v=1">
+    <link rel="shortcut icon" href="/assets/images/logo-official.png" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&display=swap" rel="stylesheet">
@@ -38,8 +45,8 @@
         <nav class="navbar">
             <div class="nav-container">
                 <div class="nav-logo">
-                    <a href="#home"> <img src="assets/images/Logo Official 2019 E 2024Cor caregada.png"
-                            alt="Logo Gráfica Divinos" class="logo-img"></a>
+                    <a href="#home"> <img src="/assets/images/logo-official.png" alt="Logo Gráfica Divinos"
+                            class="logo-img"></a>
                 </div>
 
                 <ul class="nav-menu" id="nav-menu">
@@ -60,7 +67,11 @@
                         <a href="pages/about.html" class="nav-link" data-pt="Sobre Nós" data-en="About Us">Sobre Nós</a>
                     </li>
                     <li class="nav-item">
-                        <a href="pages/contact.html" class="nav-link" data-pt="Contato" data-en="Contact">Contato</a>
+                        <a href="/pages/contact.html" class="nav-link" data-pt="Contato" data-en="Contact">Contato</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pages/convites-digitais.html" class="nav-link" data-pt="Convites Digitais"
+                            data-en="Digital Invitations">Convites Digitais</a>
                     </li>
 
                 </ul>
@@ -435,9 +446,9 @@
                 <span>Total Estimado:</span>
                 <span id="cart-total-value">0 MT</span>
             </div>
-            <button class="checkout-btn" onclick="checkoutWhatsApp()">
-                <i class="fab fa-whatsapp"></i> Finalizar Pedido
-            </button>
+            <a href="/pages/checkout.html" class="checkout-btn" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fas fa-credit-card"></i> Finalizar Pedido
+            </a>
         </div>
     </div>
 
@@ -468,9 +479,9 @@
     </div>
 
     <!-- Supabase & Data Loader -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js?v=12"></script>
-    <script src="js/data-loader.js?v=14"></script>
+    <script src="js/data-loader.js?v=15"></script>
     <script src="js/script.js?v=12"></script>
     <script src="js/cart.js?v=12"></script>
 

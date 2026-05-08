@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convite Digital | Divinos</title>
+    <style>
+        body, html { margin:0; padding:0; width:100%; height:100%; }
+        #loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #FCFBF7;
+            color: #C5A059;
+            font-family: 'Georgia', serif;
+        }
+        .heart { font-size: 3rem; animation: pulse 1.5s infinite ease-in-out; }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        #error-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #FCFBF7;
+            color: #4A4A4A;
+            font-family: Georgia, serif;
+            text-align: center;
+            padding: 2rem;
+        }
+        #error-screen h1 { color: #C5A059; font-size: 2rem; margin-bottom: 1rem; }
+        #error-screen p { max-width: 400px; color: #A1A1A1; line-height: 1.7; }
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="heart">♡</div>
+        <p style="margin-top:1rem; font-size:1rem; letter-spacing:2px;">A carregar o convite...</p>
+    </div>
+    <div id="error-screen">
+        <h1>Convite não encontrado</h1>
+        <p>Este convite pode ter sido removido ou o link está incorreto. Verifique com quem lhe enviou.</p>
+    </div>
+
+    <script>
+        (function () {
+            // Extract slug from URL — supports /invitation/?slug=name OR /invitation/name
+            let slug = new URLSearchParams(window.location.search).get('slug');
+
+            if (!slug) {
+                const pathParts = window.location.pathname.split('/').filter(Boolean);
+                if (pathParts.length >= 2 && pathParts[0] === 'invitation') {
+                    slug = pathParts[1];
+                }
+            }
+
+            if (!slug) {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('error-screen').style.display = 'flex';
+                return;
+            }
+
+            // Redirect to the new luxury template with the same slug
+            window.location.replace('/pages/convite.html?slug=' + encodeURIComponent(slug));
+        })();
+    </script>
+</body>
+</html>

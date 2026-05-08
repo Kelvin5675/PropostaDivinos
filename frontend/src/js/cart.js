@@ -120,8 +120,10 @@ function renderCart() {
         `;
     } else {
         cart.forEach((item, index) => {
-            // Price parsing (assuming "500 MT")
-            const priceNum = parseFloat(item.price.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+            // Price parsing (Improved to handle "1.200,00 MT" or "1.200 MT")
+            // We remove dots (thousands) and replace comma with dot (decimal)
+            let rawPrice = String(item.price).replace(/\./g, '').replace(',', '.');
+            const priceNum = parseFloat(rawPrice.replace(/[^\d.]/g, '')) || 0;
             totalPrice += priceNum * item.qty;
 
             const div = document.createElement('div');
@@ -214,7 +216,9 @@ async function checkoutWhatsApp() {
     let total = 0;
 
     const orderItems = cart.map(item => {
-        const priceNum = parseFloat(String(item.price).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+        // Price parsing (Improved to handle "1.200,00 MT" or "1.200 MT")
+        let rawPrice = String(item.price).replace(/\./g, '').replace(',', '.');
+        const priceNum = parseFloat(rawPrice.replace(/[^\d.]/g, '')) || 0;
         const subtotal = priceNum * item.qty;
         total += subtotal;
 
@@ -268,7 +272,7 @@ async function checkoutWhatsApp() {
     // Send via WhatsApp
     const phone = "258848800311";
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
+    window.location.href = url;
 
     // Clear cart after order
     clearCart();

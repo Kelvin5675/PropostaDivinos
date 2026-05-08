@@ -1,0 +1,807 @@
+/* ============================================
+   LANDING PAGE CONVITES DIGITAIS
+   CSS ISOLADO - Não afeta o resto do site
+   ============================================ */
+
+/* ---- Importar fontes premium ---- */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ---- Reset específico da landing ---- */
+.lp-convites *,
+.lp-convites *::before,
+.lp-convites *::after {
+    box-sizing: border-box;
+}
+
+/* ============================================
+   NAVBAR TOTALMENTE TRANSPARENTE (apenas nesta página)
+============================================ */
+.header {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    transition: background 0.4s ease !important;
+}
+
+/* Ao fazer scroll: ligeiramente visível */
+.header.scrolled {
+    background: rgba(15, 5, 35, 0.6) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(192, 132, 252, 0.1) !important;
+}
+
+/* Links brancos sobre fundo escuro */
+.header .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.header .nav-link:hover,
+.header .nav-link.active {
+    color: #c084fc !important;
+}
+
+/* Logo bem visível */
+.header .logo-img {
+    filter: brightness(1.15);
+}
+
+/* ============================================
+   HERO SECTION
+============================================ */
+.lp-hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #0f0523 0%, #1a0942 50%, #0d0520 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 8rem 0 5rem;
+}
+
+/* Fundo de gradiente animado */
+.lp-hero::before {
+    content: '';
+    position: absolute;
+    width: 80vw;
+    height: 80vw;
+    top: -30%;
+    left: -20%;
+    background: radial-gradient(circle, rgba(109,40,217,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulse-bg 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.lp-hero::after {
+    content: '';
+    position: absolute;
+    width: 60vw;
+    height: 60vw;
+    bottom: -20%;
+    right: -10%;
+    background: radial-gradient(circle, rgba(244,63,94,0.1) 0%, transparent 60%);
+    border-radius: 50%;
+    animation: pulse-bg 10s ease-in-out infinite reverse;
+    pointer-events: none;
+}
+
+@keyframes pulse-bg {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.6; }
+}
+
+/* Partículas flutuantes */
+.lp-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.lp-particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: float-particle 12s ease-in-out infinite;
+}
+
+@keyframes float-particle {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+    33% { transform: translateY(-30px) rotate(120deg); opacity: 0.3; }
+    66% { transform: translateY(15px) rotate(240deg); opacity: 0.7; }
+}
+
+.lp-hero-container {
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 4rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* ---- Lado esquerdo: texto ---- */
+.lp-hero-content {
+    padding-left: 0;
+    color: white;
+}
+
+.lp-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(109,40,217,0.2);
+    border: 1px solid rgba(192,132,252,0.4);
+    color: #c084fc;
+    border-radius: 50px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+
+.lp-hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.lp-hero-title .accent {
+    color: #c084fc;
+    font-style: italic;
+}
+
+.lp-hero-desc {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: rgba(226,212,245,0.8);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    max-width: 480px;
+}
+
+.lp-hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.lp-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #6d28d9, #a855f7);
+    color: white;
+    padding: 0.9rem 2rem;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: 0.3s;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(109,40,217,0.4);
+}
+
+.lp-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(109,40,217,0.5);
+}
+
+.lp-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: rgba(226,212,245,0.9);
+    padding: 0.9rem 2rem;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: 0.3s;
+    border: 1px solid rgba(192,132,252,0.4);
+    cursor: pointer;
+}
+
+.lp-btn-secondary:hover {
+    background: rgba(109,40,217,0.15);
+    border-color: #c084fc;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.lp-hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(109,40,217,0.25);
+    flex-wrap: wrap;
+}
+
+.lp-stat {
+    text-align: center;
+}
+
+.lp-stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #c084fc;
+    display: block;
+}
+
+.lp-stat-label {
+    font-size: 0.75rem;
+    color: rgba(226,212,245,0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ---- Lado direito: mockup de celular ---- */
+.lp-hero-mockup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Glow atrás do mockup */
+.lp-mockup-glow {
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(circle, rgba(109,40,217,0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulse-bg 4s ease-in-out infinite;
+    z-index: 0;
+}
+
+.lp-phone-mockup {
+    position: relative;
+    z-index: 1;
+    animation: float-phone 4s ease-in-out infinite;
+}
+
+@keyframes float-phone {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-16px) rotate(2deg); }
+}
+
+/* Estrutura do mockup do telemóvel */
+.lp-phone-frame {
+    width: 230px;
+    height: 470px;
+    background: linear-gradient(150deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 40px;
+    padding: 10px;
+    position: relative;
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.6),
+        0 0 0 2px rgba(109,40,217,0.5),
+        0 0 0 4px rgba(109,40,217,0.15),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* Notch do telemóvel */
+.lp-phone-notch {
+    width: 100px;
+    height: 22px;
+    background: #0f0523;
+    border-radius: 0 0 16px 16px;
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.lp-phone-notch::before {
+    content: '';
+    width: 10px; height: 10px;
+    background: #1a1a2e;
+    border-radius: 50%;
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.8), 0 0 4px rgba(99,102,241,0.4);
+}
+
+/* Tela do telemóvel */
+.lp-phone-screen {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    border-radius: 34px;
+    overflow: hidden;
+    position: relative;
+}
+
+.lp-phone-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Placeholder quando não há vídeo */
+.lp-phone-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1f0940, #3b0764);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: rgba(192,132,252,0.7);
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    padding: 2rem;
+}
+
+.lp-phone-placeholder .icon {
+    font-size: 3rem;
+    opacity: 0.5;
+}
+
+.lp-phone-placeholder p {
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+/* Botão lateral do telemóvel */
+.lp-phone-btn {
+    position: absolute;
+    right: -3px;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
+}
+
+.lp-phone-btn.vol-up { top: 100px; width: 4px; height: 30px; }
+.lp-phone-btn.vol-down { top: 140px; width: 4px; height: 40px; }
+
+.lp-phone-btn-left {
+    position: absolute;
+    left: -3px;
+    border-radius: 3px 0 0 3px;
+    background: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
+    top: 120px;
+    width: 4px;
+    height: 60px;
+}
+
+/* Reflexo de luz no ecrã */
+.lp-phone-screen::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 40%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+    border-radius: 34px 34px 0 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ============================================
+   FEATURES SECTION
+============================================ */
+.lp-features {
+    padding: 6rem 0;
+    background: #0f0523;
+    position: relative;
+}
+
+.lp-features::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(109,40,217,0.5), transparent);
+}
+
+.lp-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.lp-section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.lp-section-label {
+    display: inline-block;
+    color: #c084fc;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+}
+
+.lp-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+.lp-section-desc {
+    font-family: 'Poppins', sans-serif;
+    color: rgba(226,212,245,0.6);
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.lp-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.lp-feature-card {
+    background: rgba(28, 9, 66, 0.6);
+    border: 1px solid rgba(109,40,217,0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: 0.3s;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.lp-feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--feat-color, #6d28d9), transparent);
+    border-radius: 20px 20px 0 0;
+}
+
+.lp-feature-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(109,40,217,0.5);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(109,40,217,0.15);
+}
+
+.lp-feature-icon {
+    font-size: 2.2rem;
+    margin-bottom: 1.25rem;
+    display: block;
+}
+
+.lp-feature-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.lp-feature-desc {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(226,212,245,0.6);
+    line-height: 1.6;
+}
+
+/* ============================================
+   PLANOS SECTION
+============================================ */
+.lp-plans {
+    padding: 6rem 0;
+    background: linear-gradient(180deg, #0f0523 0%, #160838 100%);
+}
+
+.lp-plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.lp-plan-card {
+    background: rgba(28, 9, 66, 0.7);
+    border: 1px solid rgba(109,40,217,0.2);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.lp-plan-card.featured {
+    border-color: #6d28d9;
+    box-shadow: 0 0 40px rgba(109,40,217,0.25), 0 20px 60px rgba(0,0,0,0.4);
+    transform: scale(1.03);
+}
+
+.lp-plan-card.featured::before {
+    content: '⭐ Mais Popular';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    background: linear-gradient(135deg, #6d28d9, #a855f7);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 18px;
+    border-radius: 0 0 12px 12px;
+    letter-spacing: 0.5px;
+    font-family: 'Poppins', sans-serif;
+    white-space: nowrap;
+}
+
+.lp-plan-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.lp-plan-desc {
+    font-size: 0.83rem;
+    color: rgba(226,212,245,0.6);
+    margin-bottom: 1.5rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.lp-plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin-bottom: 2rem;
+}
+
+.lp-plan-price .currency {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: rgba(226,212,245,0.7);
+    font-weight: 500;
+    margin-top: 0.3rem;
+}
+
+.lp-plan-price .amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+}
+
+.lp-plan-features {
+    list-style: none;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0;
+}
+
+.lp-plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(226,212,245,0.85);
+}
+
+.lp-plan-features li::before {
+    content: '✓';
+    width: 20px;
+    height: 20px;
+    background: rgba(109,40,217,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #c084fc;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.lp-plan-btn {
+    width: 100%;
+    padding: 0.9rem;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: 0.3s;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+}
+
+.lp-plan-btn.primary {
+    background: linear-gradient(135deg, #6d28d9, #a855f7);
+    color: white;
+    box-shadow: 0 4px 15px rgba(109,40,217,0.3);
+}
+
+.lp-plan-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(109,40,217,0.4);
+}
+
+.lp-plan-btn.secondary {
+    background: rgba(109,40,217,0.1);
+    color: #c084fc;
+    border: 1px solid rgba(109,40,217,0.3);
+}
+
+.lp-plan-btn.secondary:hover {
+    background: rgba(109,40,217,0.2);
+    color: white;
+}
+
+/* ============================================
+   FAQ SECTION
+============================================ */
+.lp-faq-section {
+    padding: 6rem 0;
+    background: #0f0523;
+}
+
+.lp-faq-list {
+    max-width: 750px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.lp-faq-item {
+    background: rgba(28, 9, 66, 0.6);
+    border: 1px solid rgba(109,40,217,0.2);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.lp-faq-item.open {
+    border-color: rgba(109,40,217,0.5);
+}
+
+.lp-faq-question {
+    padding: 1.2rem 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: white;
+    user-select: none;
+    gap: 1rem;
+}
+
+.lp-faq-question .arrow {
+    flex-shrink: 0;
+    color: #c084fc;
+    transition: transform 0.3s;
+    font-size: 0.9rem;
+}
+
+.lp-faq-item.open .arrow {
+    transform: rotate(180deg);
+}
+
+.lp-faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    color: rgba(226,212,245,0.7);
+    line-height: 1.7;
+    padding: 0 1.5rem;
+}
+
+.lp-faq-item.open .lp-faq-answer {
+    max-height: 500px;
+    padding: 0 1.5rem 1.2rem;
+}
+
+/* ============================================
+   CTA SECTION
+============================================ */
+.lp-cta {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, #160838 0%, #1a0533 100%);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.lp-cta::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(109,40,217,0.2) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.lp-cta-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.lp-cta-desc {
+    font-family: 'Poppins', sans-serif;
+    color: rgba(226,212,245,0.7);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+}
+
+.lp-cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+/* ============================================
+   RESPONSIVIDADE
+============================================ */
+@media (max-width: 900px) {
+    .lp-hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 3rem;
+    }
+    .lp-hero-content { order: 2; }
+    .lp-hero-mockup  { order: 1; }
+    .lp-hero-buttons { justify-content: center; }
+    .lp-hero-stats   { justify-content: center; }
+    .lp-hero-desc    { margin: 0 auto 2.5rem; }
+    .lp-phone-frame  { width: 240px; height: 480px; }
+}
+
+@media (max-width: 600px) {
+    .lp-hero { padding: 7rem 0 4rem; }
+    .lp-hero-title { font-size: 1.9rem; }
+    .lp-phone-frame { width: 200px; height: 400px; }
+    .lp-plan-card.featured { transform: none; }
+    .lp-features-grid { grid-template-columns: 1fr; }
+    .lp-plans-grid { grid-template-columns: 1fr; }
+}

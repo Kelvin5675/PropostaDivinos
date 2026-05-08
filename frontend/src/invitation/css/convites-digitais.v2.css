@@ -1,0 +1,850 @@
+/* ============================================
+   LP CONVITES DIGITAIS (V2)
+   Estilos isolados (escopo: body.lp-convites)
+   Objetivo: replicar o look & feel da referência
+   (layout editorial, painel roxo, cards flutuantes)
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+body.lp-convites {
+  --lp-bg: #f6f4ff;
+  --lp-ink: #12122a;
+  --lp-muted: rgba(18, 18, 42, 0.62);
+  --lp-border: rgba(18, 18, 42, 0.10);
+  --lp-card: rgba(255, 255, 255, 0.78);
+  --lp-card-solid: #ffffff;
+
+  --lp-purple-0: #f2ecff;
+  --lp-purple-1: #e7dcff;
+  --lp-purple-2: #cdb6ff;
+  --lp-purple-3: #9a86ff;
+  --lp-purple-4: #6b5cff;
+  --lp-purple-5: #4b39ff;
+
+  --lp-pink: #ff4fd8;
+  --lp-blue: #3a7bff;
+
+  --lp-radius-lg: 28px;
+  --lp-radius-md: 18px;
+  --lp-radius-sm: 14px;
+
+  --lp-shadow-soft: 0 18px 50px rgba(33, 20, 76, 0.12);
+  --lp-shadow-card: 0 12px 30px rgba(33, 20, 76, 0.12);
+  --lp-shadow-float: 0 22px 60px rgba(33, 20, 76, 0.18);
+
+  background: var(--lp-bg) !important;
+  color: var(--lp-ink);
+}
+
+/* Tipografia apenas para a LP */
+body.lp-convites .lp {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, Segoe UI, sans-serif;
+}
+
+body.lp-convites .lp h1,
+body.lp-convites .lp h2,
+body.lp-convites .lp h3 {
+  font-family: "Syne", system-ui, -apple-system, Segoe UI, sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--lp-ink);
+}
+
+/* Container base */
+body.lp-convites .lp-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 22px;
+}
+
+/* Evitar que o CSS antigo da LP (sales.css) interfira */
+body.lp-convites .lp-hero,
+body.lp-convites .lp-features,
+body.lp-convites .lp-plans,
+body.lp-convites .lp-faq-section,
+body.lp-convites .lp-cta {
+  background: transparent;
+}
+
+/* Navbar: manter estrutura atual, mas deixar “clean” na LP */
+body.lp-convites .header {
+  background: rgba(246, 244, 255, 0.2) !important;
+  border-bottom: 1px solid rgba(18, 18, 42, 0.06) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(14px) !important;
+}
+body.lp-convites .header.scrolled {
+  background: rgba(246, 244, 255, 0.86) !important;
+  border-bottom: 1px solid rgba(18, 18, 42, 0.10) !important;
+  box-shadow: 0 10px 30px rgba(33, 20, 76, 0.08) !important;
+}
+
+body.lp-convites .header .nav-link {
+  color: rgba(18, 18, 42, 0.8) !important;
+}
+body.lp-convites .header .nav-link:hover,
+body.lp-convites .header .nav-link.active {
+  color: var(--lp-purple-5) !important;
+}
+
+/* ============================================
+   HERO (layout referência)
+============================================ */
+body.lp-convites .lp-hero {
+  padding: 140px 0 68px;
+  position: relative;
+  overflow: hidden;
+}
+
+body.lp-convites .lp-hero::before {
+  content: "";
+  position: absolute;
+  inset: -40% -20% auto -20%;
+  height: 520px;
+  background: radial-gradient(900px 420px at 20% 40%, rgba(75, 57, 255, 0.15), transparent 55%),
+              radial-gradient(700px 360px at 60% 10%, rgba(255, 79, 216, 0.12), transparent 55%);
+  pointer-events: none;
+}
+
+body.lp-convites .lp-hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 34px;
+  align-items: center;
+}
+
+body.lp-convites .lp-hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(18, 18, 42, 0.08);
+  box-shadow: 0 10px 30px rgba(33, 20, 76, 0.08);
+  font-size: 0.9rem;
+  color: rgba(18, 18, 42, 0.72);
+}
+
+body.lp-convites .lp-hero-title {
+  font-size: clamp(2.5rem, 4.4vw, 3.6rem);
+  line-height: 1.02;
+  margin: 18px 0 16px;
+}
+
+body.lp-convites .lp-hero-title .accent {
+  background: linear-gradient(90deg, var(--lp-purple-5), var(--lp-pink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+body.lp-convites .lp-hero-desc {
+  color: var(--lp-muted);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  max-width: 560px;
+  margin-bottom: 22px;
+}
+
+body.lp-convites .lp-hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+body.lp-convites .lp-btn-primary,
+body.lp-convites .lp-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.98rem;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+body.lp-convites .lp-btn-primary {
+  color: #fff;
+  background: linear-gradient(135deg, var(--lp-purple-5), #8a7bff);
+  box-shadow: 0 14px 40px rgba(75, 57, 255, 0.22);
+}
+body.lp-convites .lp-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 60px rgba(75, 57, 255, 0.28);
+}
+
+body.lp-convites .lp-btn-secondary {
+  color: rgba(18, 18, 42, 0.82);
+  background: rgba(255, 255, 255, 0.68);
+  border-color: rgba(18, 18, 42, 0.10);
+  box-shadow: 0 10px 26px rgba(33, 20, 76, 0.08);
+}
+body.lp-convites .lp-btn-secondary:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+body.lp-convites .lp-hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+body.lp-convites .lp-metric {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(18, 18, 42, 0.08);
+  border-radius: 16px;
+  padding: 14px 14px;
+  box-shadow: 0 12px 30px rgba(33, 20, 76, 0.08);
+}
+body.lp-convites .lp-metric strong {
+  display: block;
+  font-size: 1.15rem;
+  color: rgba(18, 18, 42, 0.92);
+}
+body.lp-convites .lp-metric span {
+  display: block;
+  font-size: 0.82rem;
+  color: rgba(18, 18, 42, 0.60);
+  margin-top: 4px;
+}
+
+/* Painel roxo (coluna direita) */
+body.lp-convites .lp-hero-panel {
+  position: relative;
+  border-radius: var(--lp-radius-lg);
+  overflow: hidden;
+  min-height: 520px;
+  box-shadow: var(--lp-shadow-soft);
+  background:
+    radial-gradient(1400px 520px at 20% 10%, rgba(255, 255, 255, 0.25), transparent 55%),
+    linear-gradient(135deg, #7367ff 0%, #6a50ff 40%, #6b2cff 100%);
+}
+
+body.lp-convites .lp-hero-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px 460px at 110% 20%, rgba(255, 79, 216, 0.25), transparent 55%),
+    radial-gradient(700px 360px at 20% 120%, rgba(58, 123, 255, 0.25), transparent 55%);
+  pointer-events: none;
+}
+
+/* Mockup (mantemos vídeo existente) */
+body.lp-convites .lp-phone-wrap {
+  position: absolute;
+  right: 46px;
+  top: 46px;
+  width: 260px;
+  height: 520px;
+  border-radius: 44px;
+  padding: 10px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: var(--lp-shadow-float);
+  backdrop-filter: blur(14px);
+  z-index: 2;
+  transform: rotate(-6deg);
+}
+
+body.lp-convites .lp-phone {
+  width: 100%;
+  height: 100%;
+  border-radius: 36px;
+  background: rgba(10, 7, 26, 0.82);
+  overflow: hidden;
+  position: relative;
+}
+
+body.lp-convites .lp-phone video,
+body.lp-convites .lp-phone .lp-phone-placeholder {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+body.lp-convites .lp-phone .lp-phone-placeholder {
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.86);
+  text-align: center;
+  font-weight: 700;
+  padding: 18px;
+  background:
+    radial-gradient(500px 260px at 30% 20%, rgba(255, 255, 255, 0.18), transparent 60%),
+    linear-gradient(135deg, rgba(10, 7, 26, 0.75), rgba(10, 7, 26, 0.95));
+}
+
+/* Cards flutuantes decorativos (como referência) */
+body.lp-convites .lp-floats {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+body.lp-convites .lp-float-card {
+  position: absolute;
+  border-radius: 18px;
+  padding: 14px 14px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow: 0 16px 46px rgba(21, 14, 56, 0.22);
+  backdrop-filter: blur(14px);
+  color: rgba(18, 18, 42, 0.88);
+  min-width: 190px;
+  max-width: 240px;
+}
+
+body.lp-convites .lp-float-card .t {
+  font-weight: 800;
+  font-size: 0.92rem;
+  letter-spacing: -0.01em;
+}
+body.lp-convites .lp-float-card .s {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: rgba(18, 18, 42, 0.62);
+  line-height: 1.35;
+}
+
+body.lp-convites .lp-float-1 { left: 36px; top: 78px; transform: rotate(6deg); }
+body.lp-convites .lp-float-2 { left: 56px; bottom: 66px; transform: rotate(-4deg); }
+body.lp-convites .lp-float-3 { right: 320px; top: 210px; transform: rotate(3deg); min-width: 210px; }
+
+/* Animação “saindo do celular” (lenta, infinita) */
+@keyframes lp-float-out {
+  0%   { opacity: 0; transform: translate(var(--from-x), var(--from-y)) scale(0.98) rotate(var(--rot)); filter: blur(2px); }
+  12%  { opacity: 1; transform: translate(calc(var(--from-x) * 0.35), calc(var(--from-y) * 0.35)) scale(1) rotate(var(--rot)); filter: blur(0px); }
+  55%  { opacity: 1; transform: translate(0px, 0px) scale(1) rotate(var(--rot)); filter: blur(0px); }
+  76%  { opacity: 0; transform: translate(calc(var(--to-x) * 0.55), calc(var(--to-y) * 0.55)) scale(1.01) rotate(var(--rot)); filter: blur(1px); }
+  100% { opacity: 0; transform: translate(var(--to-x), var(--to-y)) scale(1.01) rotate(var(--rot)); filter: blur(2px); }
+}
+
+body.lp-convites .lp-hero-panel .lp-float-card {
+  animation: lp-float-out 9.5s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform, opacity, filter;
+}
+
+body.lp-convites .lp-hero-panel .lp-float-1 {
+  --rot: 6deg;
+  --from-x: 160px;
+  --from-y: 110px;
+  --to-x: -40px;
+  --to-y: -18px;
+  animation-delay: 0s;
+}
+
+body.lp-convites .lp-hero-panel .lp-float-3 {
+  --rot: 3deg;
+  --from-x: 120px;
+  --from-y: 40px;
+  --to-x: -26px;
+  --to-y: -10px;
+  animation-delay: 1.6s;
+}
+
+body.lp-convites .lp-hero-panel .lp-float-2 {
+  --rot: -4deg;
+  --from-x: 140px;
+  --from-y: 220px;
+  --to-x: -34px;
+  --to-y: 18px;
+  animation-delay: 3.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.lp-convites .lp-hero-panel .lp-float-card { animation: none; opacity: 1; filter: none; }
+}
+
+/* ============================================
+   SEÇÕES (look clean + cards suaves)
+============================================ */
+body.lp-convites .lp-section {
+  padding: 64px 0;
+}
+
+body.lp-convites .lp-section-purple {
+  padding-top: 32px;
+}
+
+body.lp-convites .lp-section-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: end;
+  margin-bottom: 26px;
+}
+
+body.lp-convites .lp-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(18, 18, 42, 0.58);
+}
+
+body.lp-convites .lp-section-title {
+  font-size: clamp(1.7rem, 3.1vw, 2.2rem);
+  margin: 10px 0 0;
+}
+
+body.lp-convites .lp-section-desc {
+  margin: 10px 0 0;
+  color: var(--lp-muted);
+  line-height: 1.75;
+  max-width: 64ch;
+}
+
+body.lp-convites .lp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+body.lp-convites .lp-card {
+  background: var(--lp-card);
+  border: 1px solid var(--lp-border);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: var(--lp-shadow-card);
+}
+
+/* faixa roxa como na referência */
+body.lp-convites .lp-section.lp-section-purple {
+  position: relative;
+}
+
+body.lp-convites .lp-section.lp-section-purple::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: min(1120px, 100% - 32px);
+  height: 220px;
+  border-radius: 32px;
+  background:
+    radial-gradient(600px 260px at 15% 0%, rgba(255, 255, 255, 0.25), transparent 60%),
+    linear-gradient(135deg, #7367ff 0%, #6a50ff 40%, #6b2cff 100%);
+  box-shadow: var(--lp-shadow-soft);
+  z-index: 0;
+}
+
+body.lp-convites .lp-section.lp-section-purple .lp-container {
+  position: relative;
+  z-index: 1;
+}
+
+body.lp-convites .lp-section.lp-section-purple .lp-grid .lp-card {
+  background: #ffffff;
+  border-color: rgba(18, 18, 42, 0.06);
+}
+
+body.lp-convites .lp-card h3 {
+  font-size: 1.05rem;
+  margin: 10px 0 8px;
+}
+body.lp-convites .lp-card p {
+  margin: 0;
+  color: var(--lp-muted);
+  line-height: 1.65;
+}
+
+body.lp-convites .lp-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(75, 57, 255, 0.14), rgba(255, 79, 216, 0.12));
+  border: 1px solid rgba(18, 18, 42, 0.08);
+  color: rgba(18, 18, 42, 0.86);
+  font-weight: 800;
+}
+
+/* Planos: cards maiores e destaque central */
+body.lp-convites .lp-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+/* ============================================
+   COMO FUNCIONA (layout com 2º mockup)
+============================================ */
+body.lp-convites .lp-how .lp-section-head {
+  margin-bottom: 20px;
+}
+
+body.lp-convites .lp-how-grid {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 26px;
+  align-items: start;
+}
+
+body.lp-convites .lp-how-panel {
+  position: relative;
+  border-radius: var(--lp-radius-lg);
+  min-height: 520px;
+  overflow: hidden;
+  box-shadow: var(--lp-shadow-soft);
+  background:
+    radial-gradient(900px 340px at 10% 20%, rgba(255, 255, 255, 0.20), transparent 55%),
+    radial-gradient(800px 320px at 90% 80%, rgba(255, 79, 216, 0.18), transparent 55%),
+    linear-gradient(135deg, #7367ff 0%, #6a50ff 40%, #6b2cff 100%);
+}
+
+body.lp-convites .lp-how-phone-wrap {
+  position: absolute;
+  left: 42px;
+  bottom: 38px;
+  width: 250px;
+  height: 500px;
+  border-radius: 44px;
+  padding: 10px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: var(--lp-shadow-float);
+  backdrop-filter: blur(14px);
+  transform: rotate(8deg);
+}
+
+body.lp-convites .lp-how-floats {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+body.lp-convites .lp-how-bubble {
+  position: absolute;
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  box-shadow: 0 16px 46px rgba(21, 14, 56, 0.22);
+  backdrop-filter: blur(14px);
+  color: rgba(18, 18, 42, 0.88);
+  min-width: 200px;
+  max-width: 260px;
+}
+
+body.lp-convites .lp-how-bubble .t {
+  font-weight: 900;
+  font-size: 0.94rem;
+  letter-spacing: -0.01em;
+}
+body.lp-convites .lp-how-bubble .s {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: rgba(18, 18, 42, 0.62);
+  line-height: 1.35;
+}
+
+body.lp-convites .lp-how-b1 { right: 34px; top: 62px; transform: rotate(-3deg); }
+body.lp-convites .lp-how-b2 { right: 60px; top: 206px; transform: rotate(4deg); }
+body.lp-convites .lp-how-b3 { right: 28px; bottom: 66px; transform: rotate(-2deg); }
+
+@keyframes lp-how-bubble {
+  0%   { opacity: 0; transform: translate(40px, 18px) scale(0.98) rotate(var(--rot)); filter: blur(2px); }
+  14%  { opacity: 1; transform: translate(0px, 0px) scale(1) rotate(var(--rot)); filter: blur(0px); }
+  66%  { opacity: 1; transform: translate(0px, 0px) scale(1) rotate(var(--rot)); filter: blur(0px); }
+  84%  { opacity: 0; transform: translate(-26px, -10px) scale(1.01) rotate(var(--rot)); filter: blur(2px); }
+  100% { opacity: 0; transform: translate(-38px, -18px) scale(1.01) rotate(var(--rot)); filter: blur(2px); }
+}
+
+body.lp-convites .lp-how-bubble { animation: lp-how-bubble 10.5s ease-in-out infinite; }
+body.lp-convites .lp-how-b1 { --rot: -3deg; animation-delay: 0.2s; }
+body.lp-convites .lp-how-b2 { --rot: 4deg; animation-delay: 2.1s; }
+body.lp-convites .lp-how-b3 { --rot: -2deg; animation-delay: 4.0s; }
+
+body.lp-convites .lp-how-steps {
+  display: grid;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+body.lp-convites .lp-how-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(18, 18, 42, 0.10);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 12px 30px rgba(33, 20, 76, 0.10);
+}
+
+body.lp-convites .lp-how-step-num {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: rgba(18, 18, 42, 0.86);
+  background: linear-gradient(135deg, rgba(75, 57, 255, 0.14), rgba(255, 79, 216, 0.12));
+  border: 1px solid rgba(18, 18, 42, 0.08);
+}
+
+body.lp-convites .lp-how-step-title {
+  font-family: "Syne", system-ui, -apple-system, Segoe UI, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: rgba(18, 18, 42, 0.92);
+}
+body.lp-convites .lp-how-step-desc {
+  margin-top: 6px;
+  color: rgba(18, 18, 42, 0.62);
+  line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+  body.lp-convites .lp-how-grid { grid-template-columns: 1fr; }
+  body.lp-convites .lp-how-panel { min-height: 560px; }
+  body.lp-convites .lp-how-phone-wrap { left: 50%; transform: translateX(-50%) rotate(8deg); }
+}
+
+@media (max-width: 640px) {
+  body.lp-convites .lp-how-panel { min-height: 520px; }
+  body.lp-convites .lp-how-phone-wrap { width: 240px; height: 500px; bottom: 30px; }
+  body.lp-convites .lp-how-b2 { right: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.lp-convites .lp-how-bubble { animation: none; opacity: 1; filter: none; }
+}
+
+body.lp-convites .lp-plan-card {
+  background: var(--lp-card-solid);
+  border: 1px solid rgba(18, 18, 42, 0.10);
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: var(--lp-shadow-card);
+  position: relative;
+  overflow: hidden;
+}
+
+body.lp-convites .lp-plan-card.featured {
+  border-color: rgba(75, 57, 255, 0.35);
+  box-shadow: 0 22px 60px rgba(75, 57, 255, 0.18);
+  transform: translateY(-8px);
+}
+
+body.lp-convites .lp-plan-card.featured::before {
+  content: "Mais Popular";
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--lp-purple-5), #8a7bff);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.75rem;
+}
+
+body.lp-convites .lp-plan-name { margin: 0 0 8px; font-size: 1.15rem; }
+body.lp-convites .lp-plan-desc { margin: 0 0 14px; color: var(--lp-muted); }
+
+body.lp-convites .lp-plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+body.lp-convites .lp-plan-price .currency {
+  font-weight: 800;
+  color: rgba(18, 18, 42, 0.55);
+}
+body.lp-convites .lp-plan-price .amount {
+  font-family: "Syne", system-ui, -apple-system, Segoe UI, sans-serif;
+  font-size: 2.6rem;
+  letter-spacing: -0.03em;
+}
+
+body.lp-convites .lp-plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: grid;
+  gap: 10px;
+}
+body.lp-convites .lp-plan-features li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: rgba(18, 18, 42, 0.76);
+}
+body.lp-convites .lp-plan-features li::before {
+  content: "✓";
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  background: rgba(75, 57, 255, 0.12);
+  color: var(--lp-purple-5);
+  font-weight: 900;
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+body.lp-convites .lp-plan-btn {
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 800;
+  border: 1px solid rgba(18, 18, 42, 0.10);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+body.lp-convites .lp-plan-btn.primary {
+  color: #fff;
+  background: linear-gradient(135deg, var(--lp-purple-5), #8a7bff);
+  border-color: transparent;
+  box-shadow: 0 14px 40px rgba(75, 57, 255, 0.20);
+}
+body.lp-convites .lp-plan-btn.secondary {
+  color: rgba(18, 18, 42, 0.80);
+  background: rgba(246, 244, 255, 0.6);
+}
+body.lp-convites .lp-plan-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 55px rgba(33, 20, 76, 0.14);
+}
+
+/* FAQ */
+body.lp-convites .lp-faq-list {
+  max-width: 860px;
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+}
+body.lp-convites .lp-faq-item {
+  background: rgba(255, 255, 255, 0.80);
+  border: 1px solid rgba(18, 18, 42, 0.10);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(33, 20, 76, 0.10);
+}
+body.lp-convites .lp-faq-question {
+  padding: 16px 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  font-weight: 800;
+  color: rgba(18, 18, 42, 0.9);
+}
+body.lp-convites .lp-faq-question .arrow { color: rgba(18, 18, 42, 0.6); transition: transform 0.25s ease; }
+body.lp-convites .lp-faq-item.open .arrow { transform: rotate(180deg); }
+body.lp-convites .lp-faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, padding 0.25s ease;
+  padding: 0 18px;
+  color: rgba(18, 18, 42, 0.68);
+  line-height: 1.75;
+}
+body.lp-convites .lp-faq-item.open .lp-faq-answer {
+  max-height: 520px;
+  padding: 0 18px 16px;
+}
+
+/* CTA final (faixa roxa) */
+body.lp-convites .lp-cta {
+  padding: 60px 0 80px;
+}
+body.lp-convites .lp-cta-box {
+  border-radius: var(--lp-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--lp-shadow-soft);
+  background:
+    radial-gradient(900px 340px at 10% 20%, rgba(255, 255, 255, 0.26), transparent 55%),
+    radial-gradient(700px 300px at 90% 70%, rgba(255, 79, 216, 0.18), transparent 55%),
+    linear-gradient(135deg, #7367ff 0%, #6a50ff 40%, #6b2cff 100%);
+  color: rgba(255, 255, 255, 0.92);
+}
+body.lp-convites .lp-cta-inner {
+  padding: 38px 28px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+body.lp-convites .lp-cta-title {
+  margin: 0 0 10px;
+  color: #fff;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+}
+body.lp-convites .lp-cta-desc {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.7;
+  max-width: 62ch;
+}
+body.lp-convites .lp-cta-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+body.lp-convites .lp-cta-actions .lp-btn-secondary {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ============================================
+   Responsividade
+============================================ */
+@media (max-width: 1024px) {
+  body.lp-convites .lp-hero-grid { grid-template-columns: 1fr; }
+  body.lp-convites .lp-hero-panel { min-height: 560px; }
+  body.lp-convites .lp-phone-wrap { right: 28px; top: 38px; transform: rotate(-4deg); }
+  body.lp-convites .lp-float-3 { right: 28px; top: 330px; }
+  body.lp-convites .lp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body.lp-convites .lp-plans-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body.lp-convites .lp-section-head { grid-template-columns: 1fr; }
+  body.lp-convites .lp-cta-inner { grid-template-columns: 1fr; }
+  body.lp-convites .lp-cta-actions { justify-content: flex-start; }
+}
+
+@media (max-width: 640px) {
+  body.lp-convites .lp-hero { padding: 118px 0 52px; }
+  body.lp-convites .lp-hero-metrics { grid-template-columns: 1fr; }
+  body.lp-convites .lp-hero-panel { min-height: 520px; }
+  body.lp-convites .lp-phone-wrap {
+    position: absolute;
+    left: 50%;
+    top: 32px;
+    right: auto;
+    transform: translateX(-50%) rotate(-6deg);
+    width: 240px;
+    height: 500px;
+  }
+  body.lp-convites .lp-float-1 { left: 16px; top: 34px; }
+  body.lp-convites .lp-float-2 { left: 16px; bottom: 24px; }
+  body.lp-convites .lp-float-3 { display: none; }
+  body.lp-convites .lp-grid { grid-template-columns: 1fr; }
+  body.lp-convites .lp-plans-grid { grid-template-columns: 1fr; }
+  body.lp-convites .lp-plan-card.featured { transform: none; }
+}
+
