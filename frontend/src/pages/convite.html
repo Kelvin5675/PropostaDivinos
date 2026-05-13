@@ -1120,7 +1120,7 @@ async function loadInvitation(slug) {
 
         const { data, error } = await sb
             .from('invitations')
-            .select('*')
+            .select('*, details:invitations_details(*)')
             .eq('slug', slug)
             .single();
 
@@ -1179,8 +1179,14 @@ function hideLoader() {
 function populateStaticData() {
     logDebug('Populando dados estáticos...');
     try {
-        const coupleName = (invData.bride_name && invData.groom_name)
-            ? `${invData.bride_name} & ${invData.groom_name}`
+        // Tentar pegar dados da raiz ou da tabela de detalhes
+        const det = invData.details && invData.details[0] ? invData.details[0] : (invData.details || {});
+        
+        const bride = invData.bride_name || det.bride_name;
+        const groom = invData.groom_name || det.groom_name;
+
+        const coupleName = (bride && groom)
+            ? `${bride} & ${groom}`
             : (invData.customer_name || invData.title || 'Os Noivos');
 
         logDebug('Nomes do casal: ' + coupleName);
@@ -1269,14 +1275,15 @@ function populateStaticData() {
         }
 
         // Location & Map
-        if (invData.event_location) {
+        const eventLoc = invData.event_location || det.location || det.event_location;
+        if (eventLoc) {
             const detailLoc = document.getElementById('detail-location');
-            if (detailLoc) detailLoc.textContent = invData.event_location;
+            if (detailLoc) detailLoc.textContent = eventLoc;
             
             const mapContainer = document.getElementById('map-container');
             if (mapContainer) {
-                logDebug('Renderizando mapa para: ' + invData.event_location);
-                const encodedLoc = encodeURIComponent(invData.event_location);
+                logDebug('Renderizando mapa para: ' + eventLoc);
+                const encodedLoc = encodeURIComponent(eventLoc);
                 mapContainer.innerHTML = `
                     <iframe 
                         width="100%" 
@@ -1296,23 +1303,26 @@ function populateStaticData() {
         }
 
         // Dress code
-        if (invData.dress_code) {
+        const dress = invData.dress_code || det.dress_code;
+        if (dress) {
             const dressEl = document.getElementById('detail-dresscode');
-            if (dressEl) dressEl.textContent = invData.dress_code;
+            if (dressEl) dressEl.textContent = dress;
         }
 
         // Love message
-        if (invData.couple_message) {
+        const cMsg = invData.couple_message || det.couple_message || det.message;
+        if (cMsg) {
             const msgEl = document.getElementById('love-message');
-            if (msgEl) msgEl.textContent = `"${invData.couple_message}"`;
+            if (msgEl) msgEl.textContent = `"${cMsg}"`;
         }
 
         // Music
-        if (invData.music_url && invData.music_url.trim() !== '') {
-            logDebug('Música detectada: ' + invData.music_url);
+        const musicUrl = invData.music_url || det.music_url;
+        if (musicUrl && musicUrl.trim() !== '') {
+            logDebug('Música detectada: ' + musicUrl);
             const audio = document.getElementById('wedding-audio');
             if (audio) {
-                audio.src = invData.music_url;
+                audio.src = musicUrl;
                 audio.load();
             }
             const mBtn = document.getElementById('music-btn');
@@ -1340,18 +1350,24 @@ function buildGallery() {
     if (!track) return;
     track.innerHTML = '';
 
+    const det = invData.details && invData.details[0] ? invData.details[0] : (invData.details || {});
     let images = [];
 
     // Use cover first
-    if (invData.cover_photo_url) {
-        logDebug('Cover Photo: ' + invData.cover_photo_url);
-        images.push(invData.cover_photo_url);
+    const coverUrl = invData.cover_photo_url || det.cover_photo_url || det.image_url;
+    if (coverUrl) {
+        logDebug('Cover Photo detectada: ' + coverUrl);
+        images.push(coverUrl);
+        
+        // Atualizar também a foto de fundo do Hero se existir
+        const heroBg = document.getElementById('hero-bg');
+        if (heroBg) heroBg.src = coverUrl;
     }
 
     // Gallery urls from DB
-    if (invData.gallery_urls) {
-        let gallery = invData.gallery_urls;
-        logDebug('Gallery raw: ' + JSON.stringify(gallery));
+    let gallery = invData.gallery_urls || det.gallery_urls || det.gallery;
+    if (gallery) {
+        logDebug('Gallery detectada');
         
         if (typeof gallery === 'string') {
             try {
