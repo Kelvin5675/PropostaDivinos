@@ -22,6 +22,11 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Rota raiz para monitoramento (UptimeRobot/Render)
+app.get('/', (req, res) => {
+    res.status(200).send('Divinos Graffic API is running.');
+});
+
 // Registo de Rotas Base API
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'OK', message: 'API Divinos Graffic Operacional' });
