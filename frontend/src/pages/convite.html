@@ -1094,6 +1094,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(currentSearch);
     const slug = params.get('slug');
 
+    // Definir API_BASE_URL se não existir (mesma lógica do data-loader.js)
+    const _h = window.location.hostname;
+    window.API_BASE_URL = _h === 'localhost' || _h === '127.0.0.1' || _h.startsWith('192.') || _h.startsWith('10.')
+        ? `http://${_h}:8000/api/v1`
+        : 'https://divinos-backend.onrender.com/api/v1';
+
     if (!slug) {
         logDebug('ERRO: Slug não encontrado na URL');
         const envTitle = document.getElementById('env-couple-names');
@@ -1108,30 +1114,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadInvitation(slug) {
-    logDebug('Iniciando loadInvitation para: ' + slug);
+    logDebug('Iniciando loadInvitation via Backend: ' + slug);
     
     try {
-        const sb = window.supabaseClient;
-        if (!sb) {
-            logDebug('ERRO: SupabaseClient não inicializado!');
-            throw new Error('Supabase não iniciado');
-        }
-        logDebug('SupabaseClient OK');
-
-        const { data, error } = await sb
-            .from('invitations')
-            .select('*, details:invitations_details(*)')
-            .eq('slug', slug)
-            .single();
-
-        if (error) {
-            logDebug('Erro Supabase: ' + error.message);
-            console.error('Erro de fetch do Supabase:', error);
+        const res = await fetch(`${window.API_BASE_URL}/invitations/public/${slug}`);
+        
+        if (!res.ok) {
+            logDebug('Erro na resposta do Servidor: ' + res.status);
+            throw new Error('Falha ao buscar convite no servidor');
         }
 
-        if (data) logDebug('Dados recebidos com sucesso');
-
-        if (error || !data) {
+        const data = await res.json();
+        logDebug('Dados recebidos do Backend com sucesso');
             const envTitle = document.getElementById('env-couple-names');
             if (envTitle) envTitle.textContent = 'Convite não encontrado';
             
