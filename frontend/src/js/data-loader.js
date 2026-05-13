@@ -6,7 +6,7 @@
 const _hostname = window.location.hostname;
 const API_BASE_URL = _hostname === 'localhost' || _hostname === '127.0.0.1' || _hostname.startsWith('192.') || _hostname.startsWith('10.')
     ? `http://${_hostname}:8000/api/v1`
-    : 'https://api.divinos.com/v1'; // Ajustar URL de produção no futuro
+    : 'https://divinos-backend.onrender.com/api/v1';
 window.API_BASE_URL = API_BASE_URL;
 
 document.addEventListener('DOMContentLoaded', async () => {

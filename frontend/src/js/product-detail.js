@@ -5,7 +5,7 @@
 const h = window.location.hostname;
 const API_BASE_URL = h === 'localhost' || h === '127.0.0.1' || h.startsWith('192.') || h.startsWith('10.')
     ? `http://${h}:8000/api/v1`
-    : 'https://api.divinos.com/v1'; // Ajustar URL de produção no futuro
+    : 'https://divinos-backend.onrender.com/api/v1';
 
 let productId = null; // Global scope for access in functions
 let selectedSize = null; // Selected size for products with size options

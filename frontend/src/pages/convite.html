@@ -1830,7 +1830,11 @@ async function connectToLiveStream() {
         let participantName = "Convidado";
         
         const host = window.location.hostname;
-        const res = await fetch(`http://${host}:8000/api/v1/live/token`, {
+        const api_url = (host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.')) 
+            ? `http://${host}:8000/api/v1` 
+            : 'https://divinos-backend.onrender.com/api/v1';
+
+        const res = await fetch(`${api_url}/live/token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ roomName: invitationId, participantName: participantName, isPublisher: false })

@@ -6,7 +6,7 @@ let visitorsDate = new Date();
 let salesDate = new Date();
 const API_BASE_URL = (window.location.protocol === 'http:' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.')))
     ? `http://${window.location.hostname}:8000/api/v1`
-    : 'https://api.divinos.com/v1';
+    : 'https://divinos-backend.onrender.com/api/v1';
 
 console.log('App initialization...', { hostname: window.location.hostname, API_BASE_URL });
 
