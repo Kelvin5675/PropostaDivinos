@@ -16,30 +16,52 @@ const getPlans = async (req, res) => {
 const getPublicInvitation = async (req, res) => {
     try {
         const { slug } = req.params;
-        const { data, error } = await supabase
+        
+        // 1. Busca o convite principal
+        const { data: invitation, error: invError } = await supabase
             .from('invitations')
-            .select(`
-                *,
-                plan:invitation_plans(*),
-                details:invitations_details(*),
-                sections:invitations_sections(*),
-                messages:invitations_messages(*)
-            `)
+            .select(`*, plan:invitation_plans(*)`)
             .eq('slug', slug)
-            .eq('status', 'active')
             .single();
 
-        if (error) throw error;
-        if (!data) return res.status(404).json({ message: 'Convite não encontrado ou inativo.' });
-
-        // Ordenar seções se existirem
-        if (data.sections) {
-            data.sections.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+        if (invError || !invitation) {
+            return res.status(404).json({ message: 'Convite não encontrado.' });
         }
 
-        res.status(200).json(data);
+        // 2. Busca Detalhes (separado para não quebrar tudo se falhar)
+        const { data: details } = await supabase
+            .from('invitations_details')
+            .select('*')
+            .eq('invitation_id', invitation.id)
+            .single();
+
+        // 3. Busca Seções
+        const { data: sections } = await supabase
+            .from('invitations_sections')
+            .select('*')
+            .eq('invitation_id', invitation.id)
+            .order('sort_order', { ascending: true });
+
+        // 4. Busca Mensagens
+        const { data: messages } = await supabase
+            .from('invitations_rsvp')
+            .select('guest_name, message, created_at')
+            .eq('invitation_id', invitation.id)
+            .not('message', 'is', null)
+            .order('created_at', { ascending: false });
+
+        // Monta o objeto final
+        const finalData = {
+            ...invitation,
+            details: details || {},
+            sections: sections || [],
+            messages: messages || []
+        };
+
+        res.status(200).json(finalData);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('ERRO NO GET_PUBLIC_INVITATION:', error);
+        res.status(500).json({ error: 'Erro interno ao processar convite' });
     }
 };
 

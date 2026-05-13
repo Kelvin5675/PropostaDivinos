@@ -1168,7 +1168,8 @@ async function loadInvitation(slug) {
 
     } catch (e) {
         console.error('Erro ao carregar convite:', e);
-        document.getElementById('env-couple-names').textContent = 'Erro ao carregar';
+        const envTitle = document.getElementById('env-couple-names');
+        if (envTitle) envTitle.textContent = 'Erro ao carregar';
         hideLoader();
     }
 }
