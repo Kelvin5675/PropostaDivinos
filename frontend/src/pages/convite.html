@@ -47,6 +47,14 @@
     <!-- LiveKit Client SDK -->
     <script src="https://cdn.jsdelivr.net/npm/livekit-client@2/dist/livekit-client.umd.min.js"></script>
 
+    <!-- WhatsApp / Social Media Preview (Open Graph) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" id="meta-title" content="Convite de Casamento | Divinos Graffic">
+    <meta property="og:description" id="meta-description" content="Temos o prazer de convidar você para celebrar este momento especial connosco.">
+    <meta property="og:image" id="meta-image" content="https://proposta-divinos.vercel.app/images/og-default.jpg">
+    <meta property="og:url" content="https://proposta-divinos.vercel.app">
+    <meta name="twitter:card" content="summary_large_image">
+
     <style>
         /* ── RESET & BASE ── */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1126,6 +1134,8 @@ async function loadInvitation(slug) {
 
         const data = await res.json();
         logDebug('Dados recebidos do Backend com sucesso');
+
+        if (!data) {
             const envTitle = document.getElementById('env-couple-names');
             if (envTitle) envTitle.textContent = 'Convite não encontrado';
             
@@ -1328,8 +1338,18 @@ function populateStaticData() {
             logDebug('Nenhuma música configurada');
         }
 
-        // Page title
-        document.title = `${coupleName} | Convite de Casamento`;
+        // Page title & Social Meta
+        const pTitle = `${coupleName} | Convite de Casamento`;
+        document.title = pTitle;
+        
+        // Dynamic Social Meta
+        const metaTitle = document.getElementById('meta-title');
+        const metaDesc = document.getElementById('meta-description');
+        const metaImg = document.getElementById('meta-image');
+        
+        if (metaTitle) metaTitle.setAttribute('content', pTitle);
+        if (metaDesc) metaDesc.setAttribute('content', `Celebre o amor de ${coupleName} connosco no dia ${invData.event_date ? new Date(invData.event_date).toLocaleDateString('pt-PT') : ''}.`);
+        if (metaImg && coverUrl) metaImg.setAttribute('content', coverUrl);
 
     } catch (globalErr) {
         logDebug('Erro Global em populateStaticData: ' + globalErr.message);
