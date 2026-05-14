@@ -153,7 +153,6 @@
             width: 50.5%; /* Pequena sobreposição no meio */
             height: 100%;
             background: #fdf5e6;
-            background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
             z-index: 5;
             transition: transform 1.8s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
@@ -177,26 +176,35 @@
             box-shadow: inset 10px 0 20px rgba(0,0,0,0.02);
         }
 
-        /* Padrão Floral Dourado */
-        .floral-pattern {
+        /* Ramos Florais em SVG (Código Puro) */
+        .floral-ornament {
             position: absolute;
-            width: 100%; height: 100%;
-            background-image: url('../assets/images/envelope-floral.png');
-            background-size: cover;
-            background-repeat: no-repeat;
-            opacity: 0.9; /* Mais visível como na referência */
+            width: 300px;
+            height: auto;
+            opacity: 0.8;
             pointer-events: none;
+            z-index: 1;
         }
 
-        .flap-left .floral-pattern {
-            left: -20%; /* Ajuste para as flores saírem da borda lateral */
-            background-position: left center;
+        .flap-left .floral-ornament {
+            left: -50px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-10deg);
         }
 
-        .flap-right .floral-pattern {
-            right: -20%;
-            background-position: right center;
-            transform: scaleX(-1); /* Espelhar para o outro lado */
+        .flap-right .floral-ornament {
+            right: -50px;
+            top: 50%;
+            transform: translateY(-50%) rotate(10deg) scaleX(-1);
+        }
+
+        .floral-svg {
+            width: 100%;
+            fill: none;
+            stroke: #D4AF37; /* Gold */
+            stroke-width: 1;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         /* Wax Seal Central */
@@ -210,14 +218,26 @@
         }
 
         .wax-seal {
-            width: 150px; height: 150px; /* Maior como na referência */
-            background-image: url('../assets/images/envelope-seal.png');
-            background-size: contain;
-            background-repeat: no-repeat;
+            width: 140px; height: 140px;
+            background: radial-gradient(circle at 30% 30%, #D4AF37 0%, #B8860B 100%);
+            border-radius: 48% 52% 50% 50% / 51% 49% 51% 49%; /* Forma orgânica irregular */
             display: flex; align-items: center; justify-content: center;
-            filter: drop-shadow(0 15px 35px rgba(0,0,0,0.4));
-            animation: pulse-seal 2.5s infinite ease-in-out;
+            box-shadow: 
+                0 15px 35px rgba(0,0,0,0.3),
+                inset 0 4px 10px rgba(255,255,255,0.4),
+                inset 0 -10px 20px rgba(0,0,0,0.2);
             position: relative;
+            animation: pulse-seal 2.5s infinite ease-in-out;
+            border: 3px solid rgba(0,0,0,0.05);
+        }
+
+        .wax-seal::before {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            pointer-events: none;
         }
 
         .seal-initials {
@@ -939,10 +959,50 @@
 <!-- ═══════════ ENVELOPE SCREEN (Pinterest Premium Replica) ═══════════ -->
 <div id="envelope-screen">
     <div class="flap-left envelope-flap">
-        <div class="floral-pattern"></div>
+        <div class="floral-ornament">
+            <svg class="floral-svg" viewBox="0 0 100 200">
+                <!-- Ramo Principal -->
+                <path d="M50,190 C55,160 45,130 50,100 C55,70 45,40 50,10" />
+                <!-- Ramos Laterais -->
+                <path d="M48,160 C30,150 15,130 10,110" />
+                <path d="M52,150 C70,140 85,120 90,100" />
+                <path d="M48,120 C35,110 20,90 15,70" />
+                <path d="M52,110 C75,100 90,80 95,60" />
+                <path d="M49,80 C40,70 30,50 28,30" />
+                <!-- Folhas/Pétalas -->
+                <ellipse cx="10" cy="110" rx="2" ry="4" fill="#D4AF37" transform="rotate(-30 10 110)" />
+                <ellipse cx="90" cy="100" rx="2" ry="4" fill="#D4AF37" transform="rotate(30 90 100)" />
+                <ellipse cx="15" cy="70" rx="1.5" ry="3" fill="#D4AF37" transform="rotate(-20 15 70)" />
+                <ellipse cx="95" cy="60" rx="1.5" ry="3" fill="#D4AF37" transform="rotate(20 95 60)" />
+                <ellipse cx="28" cy="30" rx="1" ry="2" fill="#D4AF37" transform="rotate(-10 28 30)" />
+                <!-- Pequenos detalhes de brilho -->
+                <circle cx="50" cy="140" r="0.8" fill="#B8860B" />
+                <circle cx="50" cy="90" r="0.8" fill="#B8860B" />
+            </svg>
+        </div>
     </div>
     <div class="flap-right envelope-flap">
-        <div class="floral-pattern"></div>
+        <div class="floral-ornament">
+            <svg class="floral-svg" viewBox="0 0 100 200">
+                <!-- Ramo Principal -->
+                <path d="M50,190 C55,160 45,130 50,100 C55,70 45,40 50,10" />
+                <!-- Ramos Laterais -->
+                <path d="M48,160 C30,150 15,130 10,110" />
+                <path d="M52,150 C70,140 85,120 90,100" />
+                <path d="M48,120 C35,110 20,90 15,70" />
+                <path d="M52,110 C75,100 90,80 95,60" />
+                <path d="M49,80 C40,70 30,50 28,30" />
+                <!-- Folhas/Pétalas -->
+                <ellipse cx="10" cy="110" rx="2" ry="4" fill="#D4AF37" transform="rotate(-30 10 110)" />
+                <ellipse cx="90" cy="100" rx="2" ry="4" fill="#D4AF37" transform="rotate(30 90 100)" />
+                <ellipse cx="15" cy="70" rx="1.5" ry="3" fill="#D4AF37" transform="rotate(-20 15 70)" />
+                <ellipse cx="95" cy="60" rx="1.5" ry="3" fill="#D4AF37" transform="rotate(20 95 60)" />
+                <ellipse cx="28" cy="30" rx="1" ry="2" fill="#D4AF37" transform="rotate(-10 28 30)" />
+                <!-- Pequenos detalhes de brilho -->
+                <circle cx="50" cy="140" r="0.8" fill="#B8860B" />
+                <circle cx="50" cy="90" r="0.8" fill="#B8860B" />
+            </svg>
+        </div>
     </div>
 
     <div class="envelope-seal-container" onclick="openInvitation()">
