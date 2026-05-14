@@ -71,7 +71,7 @@ const getInvitationMetaPage = async (req, res) => {
         const { slug } = req.params;
         const { data: invitation, error } = await supabase
             .from('invitations')
-            .select('title, customer_name, event_date, cover_photo_url')
+            .select('title, customer_name, bride_name, groom_name, event_date, cover_photo_url')
             .eq('slug', slug)
             .single();
         
@@ -79,14 +79,21 @@ const getInvitationMetaPage = async (req, res) => {
             return res.status(404).send('Convite não encontrado.');
         }
 
-        const title = invitation.title || invitation.customer_name || 'Convite de Casamento';
-        const cover = invitation.cover_photo_url || 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&q=80&w=2000';
+        // Formatar Título: "Convite de Casamento de Lasmi e Jalimo"
+        const bride = invitation.bride_name || '';
+        const groom = invitation.groom_name || '';
+        const couple = (bride && groom) ? `${bride} e ${groom}` : (invitation.customer_name || 'os Noivos');
+        const title = `Convite de Casamento de ${couple}`;
+        
+        const cover = invitation.cover_photo_url || 'https://divinos.vercel.app/assets/images/og-default.jpg';
         
         let desc = 'Convidamos-te para celebrar connosco este momento especial.';
         if (invitation.event_date) {
             const dObj = new Date(invitation.event_date);
             if (!isNaN(dObj.getTime())) {
-                desc = `Celebre o amor connosco no dia ${dObj.toLocaleDateString('pt-PT')}.`;
+                const dateOptions = { day: '2-digit', month: 'long', year: 'numeric' };
+                const formattedDate = dObj.toLocaleDateString('pt-PT', dateOptions);
+                desc = `Celebre o amor connosco no dia ${formattedDate}.`;
             }
         }
         
