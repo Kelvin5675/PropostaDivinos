@@ -134,7 +134,7 @@
             <!-- TAB: CONVITES -->
             <section id="invitations" class="section">
                 <div class="card">
-                    <div class="card-header"><h3>Convites</h3><button class="btn btn-primary" onclick="showModal('invitationModal')">Novo Convite</button></div>
+            <div class="card-header"><h3>Convites</h3><button class="btn btn-primary" onclick="createNewInvitation()">Novo Convite</button></div>
                     <div class="table-container">
                         <table>
                             <thead><tr><th>Cliente</th><th>Slug</th><th>Estado</th><th>Ações</th></tr></thead>
@@ -201,16 +201,40 @@
     <!-- MODAIS -->
     
     <div class="modal-overlay" id="invitationModal">
-        <div class="modal-box" style="max-width:700px;">
-            <div class="modal-header"><h3>Novo Convite</h3><button class="modal-close" onclick="hideModal('invitationModal')">&times;</button></div>
+        <div class="modal-box" style="max-width:700px; max-height:90vh; overflow-y:auto;">
+            <div class="modal-header"><h3>Convite</h3><button class="modal-close" onclick="hideModal('invitationModal')">&times;</button></div>
             <form id="invitation-form">
                 <input type="hidden" id="inv-id">
+                
+                <h4 style="margin-bottom:0.5rem; color:var(--jobie-primary);">Informação Básica</h4>
                 <div class="form-grid">
                     <div class="form-group"><label class="form-label">Cliente *</label><input type="text" id="inv-customer-name" class="form-control" required></div>
-                    <div class="form-group"><label class="form-label">Slug *</label><input type="text" id="inv-slug" class="form-control" required></div>
+                    <div class="form-group"><label class="form-label">Slug * (Link)</label><input type="text" id="inv-slug" class="form-control" required></div>
                     <div class="form-group"><label class="form-label">Plano</label><select id="inv-plan-id" class="form-control"></select></div>
-                    <div class="form-group"><label class="form-label">Data</label><input type="date" id="inv-event-date" class="form-control"></div>
+                    <div class="form-group"><label class="form-label">Data Evento</label><input type="date" id="inv-event-date" class="form-control"></div>
                 </div>
+
+                <hr style="margin:1.5rem 0; border:none; border-top:1px solid #ddd;">
+                <h4 style="margin-bottom:0.5rem; color:var(--jobie-primary);">Configurações do Casal</h4>
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Nome da Noiva</label><input type="text" id="inv-bride-name" class="form-control" placeholder="Ex: Lasmi"></div>
+                    <div class="form-group"><label class="form-label">Nome do Noivo</label><input type="text" id="inv-groom-name" class="form-control" placeholder="Ex: Jalimo"></div>
+                    <div class="form-group"><label class="form-label">Pais da Noiva</label><input type="text" id="inv-bride-parents" class="form-control" placeholder="Ex: João e Maria (Em memória)"></div>
+                    <div class="form-group"><label class="form-label">Pais do Noivo</label><input type="text" id="inv-groom-parents" class="form-control" placeholder="Ex: Carlos e Ana"></div>
+                    <div class="form-group"><label class="form-label">Local</label><input type="text" id="inv-event-location" class="form-control" placeholder="Ex: Quinta de Santo António"></div>
+                    <div class="form-group"><label class="form-label">Hora</label><input type="time" id="inv-event-time" class="form-control"></div>
+                </div>
+                <div class="form-group" style="margin-top:1rem;">
+                    <label class="form-label">Mensagem do Casal (Amor)</label>
+                    <textarea id="inv-couple-message" class="form-control" rows="2" placeholder="O amor é o nosso bem maior..."></textarea>
+                </div>
+                <div class="form-grid" style="margin-top:1rem;">
+                    <div class="form-group"><label class="form-label">Link Foto de Capa (Drive/Imgur)</label><input type="url" id="inv-cover-photo-url" class="form-control" placeholder="https://..."></div>
+                    <div class="form-group"><label class="form-label">Link Música Fundo (MP3)</label><input type="url" id="inv-music-url" class="form-control" placeholder="https://..."></div>
+                </div>
+
+                <hr style="margin:1.5rem 0; border:none; border-top:1px solid #ddd;">
+                <h4 style="margin-bottom:0.5rem; color:var(--jobie-primary);">Avançado</h4>
                 <div class="form-group" style="margin-top:1rem;">
                     <label class="form-label">Tipo Editor</label>
                     <select id="inv-editor-type" class="form-control" onchange="toggleCodeEditor()">

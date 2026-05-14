@@ -925,6 +925,10 @@
         <div class="hero-gradient"></div>
         <div class="hero-text">
             <p class="reveal hero-eyebrow">Salve esta Data</p>
+            <div id="parents-section" class="reveal delay-100" style="display:none; text-align:center; font-size:clamp(0.8rem, 2vw, 1.1rem); color:#fff; font-weight:300; margin-bottom:1.5rem; line-height:1.6; text-shadow:0 2px 4px rgba(0,0,0,0.5);">
+                <div id="hero-bride-parents" style="margin-bottom:0.3rem;"></div>
+                <div id="hero-groom-parents"></div>
+            </div>
             <h1 class="reveal delay-200 hero-names font-serif" id="hero-couple-names">A & B</h1>
             <div class="reveal delay-400 hero-divider"></div>
             <p class="reveal delay-500 hero-date" id="hero-date"></p>
@@ -1222,6 +1226,25 @@ function populateStaticData() {
         
         const footerNames = document.getElementById('footer-couple-names');
         if (footerNames) footerNames.textContent = coupleName;
+
+        // Pais
+        const brideParents = invData.bride_parents || det.bride_parents;
+        const groomParents = invData.groom_parents || det.groom_parents;
+
+        if (brideParents || groomParents) {
+            const parentsSection = document.getElementById('parents-section');
+            if (parentsSection) {
+                parentsSection.style.display = 'block';
+                const eyebrow = document.querySelector('.hero-eyebrow');
+                if (eyebrow) eyebrow.innerHTML = 'Com a bênção de Deus e<br>de nossos pais';
+                
+                const bParentsEl = document.getElementById('hero-bride-parents');
+                if (bParentsEl && brideParents) bParentsEl.textContent = brideParents;
+                
+                const gParentsEl = document.getElementById('hero-groom-parents');
+                if (gParentsEl && groomParents) gParentsEl.textContent = groomParents;
+            }
+        }
 
         // Hero image
         if (invData.cover_photo_url) {

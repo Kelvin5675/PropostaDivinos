@@ -370,12 +370,31 @@ async function editInvitation(id) {
     if (!inv) return;
     await populatePlanSelects();
     document.getElementById('inv-id').value = inv.id;
-    document.getElementById('inv-customer-name').value = inv.customer_name;
-    document.getElementById('inv-slug').value = inv.slug;
+    document.getElementById('inv-customer-name').value = inv.customer_name || '';
+    document.getElementById('inv-slug').value = inv.slug || '';
     document.getElementById('inv-plan-id').value = inv.plan_id || '';
     document.getElementById('inv-event-date').value = inv.event_date || '';
+    
+    document.getElementById('inv-bride-name').value = inv.bride_name || '';
+    document.getElementById('inv-groom-name').value = inv.groom_name || '';
+    document.getElementById('inv-bride-parents').value = inv.bride_parents || '';
+    document.getElementById('inv-groom-parents').value = inv.groom_parents || '';
+    document.getElementById('inv-event-location').value = inv.event_location || '';
+    document.getElementById('inv-event-time').value = inv.event_time || '';
+    document.getElementById('inv-couple-message').value = inv.couple_message || '';
+    document.getElementById('inv-cover-photo-url').value = inv.cover_photo_url || '';
+    document.getElementById('inv-music-url').value = inv.music_url || '';
+
     document.getElementById('inv-editor-type').value = inv.editor_type || 'template';
     document.getElementById('inv-custom-html').value = inv.custom_html || '';
+    toggleCodeEditor();
+    showModal('invitationModal');
+}
+
+window.createNewInvitation = async function() {
+    await populatePlanSelects();
+    document.getElementById('invitation-form').reset();
+    document.getElementById('inv-id').value = '';
     toggleCodeEditor();
     showModal('invitationModal');
 }
@@ -383,7 +402,51 @@ async function editInvitation(id) {
 function setupForms() {
     document.getElementById('invitation-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        // Save logic implementation would go here
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+        try {
+            const id = document.getElementById('inv-id').value;
+            const data = {
+                customer_name: document.getElementById('inv-customer-name').value,
+                slug: document.getElementById('inv-slug').value,
+                plan_id: document.getElementById('inv-plan-id').value || null,
+                event_date: document.getElementById('inv-event-date').value || null,
+                bride_name: document.getElementById('inv-bride-name').value || null,
+                groom_name: document.getElementById('inv-groom-name').value || null,
+                bride_parents: document.getElementById('inv-bride-parents').value || null,
+                groom_parents: document.getElementById('inv-groom-parents').value || null,
+                event_location: document.getElementById('inv-event-location').value || null,
+                event_time: document.getElementById('inv-event-time').value || null,
+                couple_message: document.getElementById('inv-couple-message').value || null,
+                cover_photo_url: document.getElementById('inv-cover-photo-url').value || null,
+                music_url: document.getElementById('inv-music-url').value || null,
+                editor_type: document.getElementById('inv-editor-type').value,
+                custom_html: document.getElementById('inv-custom-html').value || null
+            };
+
+            if (id) {
+                const { error } = await sbClient.from('invitations').update(data).eq('id', id);
+                if (error) throw error;
+            } else {
+                const pwd = Math.random().toString(36).slice(-8).toUpperCase();
+                data.couple_password = pwd;
+                data.status = 'active';
+                data.is_public = true;
+                data.guest_link = `${window.location.origin}/invitation/index.html?slug=${data.slug}`;
+                const { error } = await sbClient.from('invitations').insert([data]);
+                if (error) throw error;
+            }
+
+            hideModal('invitationModal');
+            loadInvitations();
+        } catch (error) {
+            alert('Erro ao guardar: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Guardar';
+        }
     });
 }
 
