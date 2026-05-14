@@ -1478,13 +1478,23 @@ function populateStaticData() {
         const alignDesktop = invData.cover_align_desktop !== undefined && invData.cover_align_desktop !== null ? invData.cover_align_desktop : 50;
         const alignMobile = invData.cover_align_mobile !== undefined && invData.cover_align_mobile !== null ? invData.cover_align_mobile : 50;
         
+        logDebug(`Alinhamento detectado - Desktop: ${alignDesktop}%, Mobile: ${alignMobile}%`);
+        
         const style = document.createElement('style');
+        style.id = 'dynamic-hero-align';
         style.innerHTML = `
-            #hero-bg { object-position: 50% ${alignDesktop}%; }
+            #hero-bg { 
+                object-position: 50% ${alignDesktop}% !important; 
+            }
             @media (max-width: 768px) {
-                #hero-bg { object-position: 50% ${alignMobile}%; }
+                #hero-bg { 
+                    object-position: 50% ${alignMobile}% !important; 
+                }
             }
         `;
+        // Remover estilo anterior se houver
+        const oldStyle = document.getElementById('dynamic-hero-align');
+        if (oldStyle) oldStyle.remove();
         document.head.appendChild(style);
 
     } catch (globalErr) {

@@ -373,7 +373,21 @@ async function editInvitation(id) {
     document.getElementById('inv-customer-name').value = inv.customer_name || '';
     document.getElementById('inv-slug').value = inv.slug || '';
     document.getElementById('inv-plan-id').value = inv.plan_id || '';
-    document.getElementById('inv-event-date').value = inv.event_date || '';
+    
+    // Formatar data para YYYY-MM-DD (necessário para <input type="date">)
+    if (inv.event_date) {
+        const dateObj = new Date(inv.event_date);
+        if (!isNaN(dateObj)) {
+            const yyyy = dateObj.getFullYear();
+            const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const dd = String(dateObj.getDate()).padStart(2, '0');
+            document.getElementById('inv-event-date').value = `${yyyy}-${mm}-${dd}`;
+        } else {
+            document.getElementById('inv-event-date').value = '';
+        }
+    } else {
+        document.getElementById('inv-event-date').value = '';
+    }
     
     document.getElementById('inv-bride-name').value = inv.bride_name || '';
     document.getElementById('inv-groom-name').value = inv.groom_name || '';
@@ -497,8 +511,8 @@ function setupForms() {
                 event_time: document.getElementById('inv-event-time').value || null,
                 couple_message: document.getElementById('inv-couple-message').value || null,
                 cover_photo_url: coverUrl || null,
-                cover_align_desktop: document.getElementById('inv-align-desktop').value || 50,
-                cover_align_mobile: document.getElementById('inv-align-mobile').value || 50,
+                cover_align_desktop: parseInt(document.getElementById('inv-align-desktop').value) || 50,
+                cover_align_mobile: parseInt(document.getElementById('inv-align-mobile').value) || 50,
                 music_url: musicUrl || null,
                 gallery_urls: finalGallery,
                 editor_type: document.getElementById('inv-editor-type').value,
