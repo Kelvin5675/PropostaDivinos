@@ -51,8 +51,8 @@
     <meta property="og:type" content="website">
     <meta property="og:title" id="meta-title" content="Convite de Casamento | Divinos Graffic">
     <meta property="og:description" id="meta-description" content="Temos o prazer de convidar você para celebrar este momento especial connosco.">
-    <meta property="og:image" id="meta-image" content="https://proposta-divinos.vercel.app/images/og-default.jpg">
-    <meta property="og:url" content="https://proposta-divinos.vercel.app">
+    <meta property="og:image" id="meta-image" content="https://divinos.vercel.app/images/og-default.jpg">
+    <meta property="og:url" content="https://divinos.vercel.app">
     <meta name="twitter:card" content="summary_large_image">
 
     <style>
@@ -570,13 +570,21 @@
 
         .details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
+            justify-content: center;
+        }
+
+        .mini-map-container {
+            width: 100%;
+            margin-top: 1.5rem;
+            border-radius: 20px;
+            overflow: hidden;
         }
 
         .detail-card {
             background: var(--white);
-            padding: 3rem 2.5rem;
+            padding: 3rem 2rem;
             border-radius: 40px;
             box-shadow: 0 5px 20px rgba(0,0,0,.05);
             border: 1px solid #f0ece0;
@@ -585,11 +593,19 @@
             flex-direction: column;
             align-items: center;
             transition: box-shadow .4s ease, transform .4s ease;
+            height: 100%;
+            min-height: 450px;
         }
+
         @media (max-width: 768px) {
             .detail-card {
-                padding: 1.5rem 1rem;
-                border-radius: 25px;
+                padding: 2.5rem 1.5rem;
+                border-radius: 30px;
+                min-height: auto;
+            }
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
         }
 
@@ -1071,15 +1087,36 @@
                 <p class="detail-main" id="detail-date">—</p>
                 <p class="detail-sub" id="detail-time"></p>
             </div>
-            <div class="detail-card reveal delay-200">
+            
+            <!-- IGREJA -->
+            <div id="card-church" class="detail-card reveal delay-100" style="display:none;">
+                <div class="detail-icon">
+                    <i class="fas fa-church"></i>
+                </div>
+                <h3 class="detail-title font-serif">Cerimônia Religiosa</h3>
+                <p class="detail-main" id="detail-church-location">—</p>
+                <div id="church-map-container" class="mini-map-container"></div>
+            </div>
+
+            <!-- REGISTRO CIVIL -->
+            <div id="card-civil" class="detail-card reveal delay-200" style="display:none;">
+                <div class="detail-icon">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <h3 class="detail-title font-serif">Registro Civil</h3>
+                <p class="detail-main" id="detail-civil-location">—</p>
+                <div id="civil-map-container" class="mini-map-container"></div>
+            </div>
+
+            <div class="detail-card reveal delay-300">
                 <div class="detail-icon">
                     <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-9.5 11.25S1.5 17.642 1.5 10.5a9 9 0 1118 0z"/></svg>
                 </div>
-                <h3 class="detail-title font-serif">Onde</h3>
+                <h3 class="detail-title font-serif">Recepção</h3>
                 <p class="detail-main" id="detail-location">—</p>
-                <div id="map-container" style="width: 100%; margin-top: 1rem;"></div>
-                <p class="detail-sub"></p>
+                <div id="map-container" class="mini-map-container"></div>
             </div>
+
             <div class="detail-card reveal delay-400">
                 <div class="detail-icon">
                     <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
@@ -1390,33 +1427,60 @@ function populateStaticData() {
             if (detailTime) detailTime.textContent = `Às ${invData.event_time} Horas`;
         }
 
-        // Location & Map
+        // Location & Map (Recepção)
         const eventLoc = invData.event_location || det.location || det.event_location;
         if (eventLoc) {
             const detailLoc = document.getElementById('detail-location');
             if (detailLoc) detailLoc.textContent = eventLoc;
-            
-            const mapContainer = document.getElementById('map-container');
-            if (mapContainer) {
-                logDebug('Renderizando mapa para: ' + eventLoc);
-                const encodedLoc = encodeURIComponent(eventLoc);
-                mapContainer.innerHTML = `
-                    <iframe 
-                        width="100%" 
-                        height="350" 
-                        frameborder="0" 
-                        style="border:0; border-radius:15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);" 
-                        src="https://maps.google.com/maps?q=${encodedLoc}&t=&z=15&ie=UTF8&iwloc=&output=embed" 
-                        allowfullscreen>
-                    </iframe>
-                    <div style="text-align:center; margin-top:1.5rem;">
-                        <a href="https://www.google.com/maps/search/?api=1&query=${encodedLoc}" target="_blank" class="btn-rsvp" style="text-decoration:none; display:inline-block; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); backdrop-filter:blur(10px); color:white;">
-                            <i class="fas fa-map-marker-alt" style="margin-right:8px;"></i> Abrir no Google Maps
-                        </a>
-                    </div>
-                `;
-            }
+            renderMap('map-container', eventLoc);
         }
+
+        // Igreja (Opcional)
+        const churchLoc = invData.church_location || det.church_location;
+        if (churchLoc) {
+            const cardChurch = document.getElementById('card-church');
+            if (cardChurch) cardChurch.style.display = 'flex';
+            const detailChurchLoc = document.getElementById('detail-church-location');
+            if (detailChurchLoc) detailChurchLoc.textContent = churchLoc;
+            renderMap('church-map-container', churchLoc);
+        }
+
+        // Registro Civil (Opcional)
+        const civilLoc = invData.civil_location || det.civil_location;
+        if (civilLoc) {
+            const cardCivil = document.getElementById('card-civil');
+            if (cardCivil) cardCivil.style.display = 'flex';
+            const detailCivilLoc = document.getElementById('detail-civil-location');
+            if (detailCivilLoc) detailCivilLoc.textContent = civilLoc;
+            renderMap('civil-map-container', civilLoc);
+        }
+    } catch (e) {
+        logDebug('Erro em populateStaticData: ' + e.message);
+    }
+}
+
+function renderMap(containerId, location) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    logDebug('Renderizando mapa em ' + containerId + ' para: ' + location);
+    const encodedLoc = encodeURIComponent(location);
+    container.innerHTML = `
+        <iframe 
+            width="100%" 
+            height="250" 
+            frameborder="0" 
+            style="border:0; border-radius:15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);" 
+            src="https://maps.google.com/maps?q=${encodedLoc}&t=&z=15&ie=UTF8&iwloc=&output=embed" 
+            allowfullscreen>
+        </iframe>
+        <div style="text-align:center; margin-top:1.2rem;">
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodedLoc}" target="_blank" class="btn-rsvp" style="text-decoration:none; display:inline-block; padding: 0.8rem 1.5rem; font-size: 0.85rem;">
+                <i class="fas fa-map-marker-alt" style="margin-right:8px;"></i> Ver no Mapa
+            </a>
+        </div>
+    `;
+}
 
         // Dress code
         const dress = invData.dress_code || det.dress_code;

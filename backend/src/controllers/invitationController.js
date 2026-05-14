@@ -90,7 +90,7 @@ const getInvitationMetaPage = async (req, res) => {
             }
         }
         
-        const targetUrl = `https://proposta-divinos.vercel.app/pages/convite?slug=${slug}`;
+        const targetUrl = `https://divinos.vercel.app/pages/convite?slug=${slug}`;
 
         const html = `<!DOCTYPE html>
 <html lang="pt">
@@ -103,7 +103,7 @@ const getInvitationMetaPage = async (req, res) => {
     <meta property="og:image" content="${cover}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:url" content="https://proposta-divinos.vercel.app/c/${slug}">
+    <meta property="og:url" content="https://divinos.vercel.app/c/${slug}">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="${cover}">

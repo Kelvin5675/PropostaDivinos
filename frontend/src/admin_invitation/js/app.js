@@ -395,6 +395,8 @@ async function editInvitation(id) {
     document.getElementById('inv-groom-parents').value = inv.groom_parents || '';
     document.getElementById('inv-event-location').value = inv.event_location || '';
     document.getElementById('inv-event-time').value = inv.event_time || '';
+    document.getElementById('inv-church-location').value = inv.church_location || '';
+    document.getElementById('inv-civil-location').value = inv.civil_location || '';
     document.getElementById('inv-couple-message').value = inv.couple_message || '';
     
     document.getElementById('inv-cover-photo-url').value = inv.cover_photo_url || '';
@@ -509,6 +511,8 @@ function setupForms() {
                 groom_parents: document.getElementById('inv-groom-parents').value || null,
                 event_location: document.getElementById('inv-event-location').value || null,
                 event_time: document.getElementById('inv-event-time').value || null,
+                church_location: document.getElementById('inv-church-location').value || null,
+                civil_location: document.getElementById('inv-civil-location').value || null,
                 couple_message: document.getElementById('inv-couple-message').value || null,
                 cover_photo_url: coverUrl || null,
                 cover_align_desktop: document.getElementById('inv-align-desktop').value !== "" ? parseInt(document.getElementById('inv-align-desktop').value) : 50,
@@ -529,7 +533,7 @@ function setupForms() {
                 data.couple_password = pwd;
                 data.status = 'active';
                 data.is_public = true;
-                data.guest_link = `https://proposta-divinos.vercel.app/c/${data.slug}`;
+                data.guest_link = `https://divinos.vercel.app/c/${data.slug}`;
                 const { error } = await sbClient.from('invitations').insert([data]);
                 if (error) throw error;
             }
