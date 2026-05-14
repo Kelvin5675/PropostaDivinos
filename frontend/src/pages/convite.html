@@ -1454,33 +1454,7 @@ function populateStaticData() {
             if (detailCivilLoc) detailCivilLoc.textContent = civilLoc;
             renderMap('civil-map-container', civilLoc);
         }
-    } catch (e) {
-        logDebug('Erro em populateStaticData: ' + e.message);
-    }
-}
 
-function renderMap(containerId, location) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    logDebug('Renderizando mapa em ' + containerId + ' para: ' + location);
-    const encodedLoc = encodeURIComponent(location);
-    container.innerHTML = `
-        <iframe 
-            width="100%" 
-            height="250" 
-            frameborder="0" 
-            style="border:0; border-radius:15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);" 
-            src="https://maps.google.com/maps?q=${encodedLoc}&t=&z=15&ie=UTF8&iwloc=&output=embed" 
-            allowfullscreen>
-        </iframe>
-        <div style="text-align:center; margin-top:1.2rem;">
-            <a href="https://www.google.com/maps/search/?api=1&query=${encodedLoc}" target="_blank" class="btn-rsvp" style="text-decoration:none; display:inline-block; padding: 0.8rem 1.5rem; font-size: 0.85rem;">
-                <i class="fas fa-map-marker-alt" style="margin-right:8px;"></i> Ver no Mapa
-            </a>
-        </div>
-    `;
-}
 
         // Dress code
         const dress = invData.dress_code || det.dress_code;
@@ -1557,6 +1531,29 @@ function renderMap(containerId, location) {
         logDebug('Erro Global em populateStaticData: ' + globalErr.message);
         console.error(globalErr);
     }
+}
+
+function renderMap(containerId, location) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    logDebug('Renderizando mapa em ' + containerId + ' para: ' + location);
+    const encodedLoc = encodeURIComponent(location);
+    container.innerHTML = `
+        <iframe 
+            width="100%" 
+            height="250" 
+            frameborder="0" 
+            style="border:0; border-radius:15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);" 
+            src="https://maps.google.com/maps?q=${encodedLoc}&t=&z=15&ie=UTF8&iwloc=&output=embed" 
+            allowfullscreen>
+        </iframe>
+        <div style="text-align:center; margin-top:1.2rem;">
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodedLoc}" target="_blank" class="btn-rsvp" style="text-decoration:none; display:inline-block; padding: 0.8rem 1.5rem; font-size: 0.85rem;">
+                <i class="fas fa-map-marker-alt" style="margin-right:8px;"></i> Ver no Mapa
+            </a>
+        </div>
+    `;
 }
 
 // ═══════════ GALLERY ═══════════
