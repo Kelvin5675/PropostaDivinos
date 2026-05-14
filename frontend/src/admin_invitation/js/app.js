@@ -519,6 +519,8 @@ function setupForms() {
                 custom_html: document.getElementById('inv-custom-html').value || null
             };
 
+            console.log('DEBUG SALVAMENTO:', data);
+
             if (id) {
                 const { error } = await sbClient.from('invitations').update(data).eq('id', id);
                 if (error) throw error;
