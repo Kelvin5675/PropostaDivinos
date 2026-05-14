@@ -103,35 +103,52 @@ const getInvitationMetaPage = async (req, res) => {
 <html lang="pt">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
     <meta name="description" content="${desc}">
+    
+    <!-- Open Graph / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://divinos.vercel.app/c/${slug}">
     <meta property="og:title" content="${title}">
     <meta property="og:description" content="${desc}">
     <meta property="og:image" content="${cover}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:url" content="https://divinos.vercel.app/c/${slug}">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="${cover}">
     
-    <script>
-        window.location.replace("${targetUrl}");
-    </script>
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${title}">
+    <meta name="twitter:description" content="${desc}">
+    <meta name="twitter:image" content="${cover}">
+
+    <!-- Redirecionamento Automático -->
+    <meta http-equiv="refresh" content="0;url=${targetUrl}">
+    
     <style>
-        body { background:#111; color:#fff; font-family:sans-serif; text-align:center; padding-top:20vh; margin:0; }
-        .spinner { width:40px; height:40px; border:3px solid rgba(255,255,255,0.3); border-radius:50%; border-top-color:#C5A059; animation:spin 1s ease-in-out infinite; margin:0 auto 1rem; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        body { background: #fff; color: #333; font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+        .loading-box { padding: 2rem; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid #C5A059; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        p { font-size: 1.1rem; color: #666; }
+        a { color: #C5A059; text-decoration: none; font-weight: 500; margin-top: 1rem; display: block; }
     </style>
 </head>
 <body>
-    <div class="spinner"></div>
-    <p>A redirecionar para o convite de ${title}...</p>
-    <a href="${targetUrl}" style="color:#C5A059; text-decoration:none; font-size:0.9rem; margin-top:2rem; display:inline-block;">Clique aqui se não for redirecionado</a>
+    <div class="loading-box">
+        <div class="spinner"></div>
+        <p>A abrir o convite de <strong>${couple}</strong>...</p>
+        <a href="${targetUrl}">Clique aqui se não for redirecionado</a>
+    </div>
+    
+    <script>
+        window.location.href = "${targetUrl}";
+    </script>
 </body>
 </html>`;
 
-        res.send(html);
+        res.setHeader('Content-Type', 'text/html');
+        res.status(200).send(html);
     } catch (e) {
         console.error('Erro Meta Page:', e);
         res.status(500).send('Erro interno do servidor.');

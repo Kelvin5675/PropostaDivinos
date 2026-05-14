@@ -5,7 +5,12 @@ const rateLimit = require('express-rate-limit');
 
 const app = express();
 
-app.use(helmet());
+// Configurar Helmet de forma mais flexível para permitir redirecionamentos e metatags
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false
+}));
+
 app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
 app.use(express.json());
 
