@@ -382,8 +382,15 @@ async function editInvitation(id) {
     document.getElementById('inv-event-location').value = inv.event_location || '';
     document.getElementById('inv-event-time').value = inv.event_time || '';
     document.getElementById('inv-couple-message').value = inv.couple_message || '';
+    
     document.getElementById('inv-cover-photo-url').value = inv.cover_photo_url || '';
+    document.getElementById('inv-cover-file').value = '';
+    
     document.getElementById('inv-music-url').value = inv.music_url || '';
+    document.getElementById('inv-music-file').value = '';
+    
+    document.getElementById('inv-gallery-urls').value = (inv.gallery_urls && Array.isArray(inv.gallery_urls)) ? inv.gallery_urls.join(', ') : '';
+    document.getElementById('inv-gallery-files').value = '';
 
     document.getElementById('inv-editor-type').value = inv.editor_type || 'template';
     document.getElementById('inv-custom-html').value = inv.custom_html || '';
@@ -395,6 +402,9 @@ window.createNewInvitation = async function() {
     await populatePlanSelects();
     document.getElementById('invitation-form').reset();
     document.getElementById('inv-id').value = '';
+    document.getElementById('inv-cover-file').value = '';
+    document.getElementById('inv-music-file').value = '';
+    document.getElementById('inv-gallery-files').value = '';
     toggleCodeEditor();
     showModal('invitationModal');
 }
@@ -408,9 +418,58 @@ function setupForms() {
 
         try {
             const id = document.getElementById('inv-id').value;
+            const slug = document.getElementById('inv-slug').value;
+
+            // Função helper para upload
+            async function uploadFile(file, folder) {
+                const ext = file.name.split('.').pop();
+                const path = `${folder}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+                const { error: uploadError } = await sbClient.storage.from('invitations').upload(path, file);
+                if (uploadError) {
+                    if (uploadError.message.toLowerCase().includes('bucket')) {
+                        throw new Error("O bucket 'invitations' não existe! Por favor crie um Storage Bucket público chamado 'invitations' no Supabase.");
+                    }
+                    throw uploadError;
+                }
+                const { data } = sbClient.storage.from('invitations').getPublicUrl(path);
+                return data.publicUrl;
+            }
+
+            let coverUrl = document.getElementById('inv-cover-photo-url').value;
+            const coverFile = document.getElementById('inv-cover-file').files[0];
+            if (coverFile) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar capa...';
+                coverUrl = await uploadFile(coverFile, slug);
+            }
+
+            let musicUrl = document.getElementById('inv-music-url').value;
+            const musicFile = document.getElementById('inv-music-file').files[0];
+            if (musicFile) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar música...';
+                musicUrl = await uploadFile(musicFile, slug);
+            }
+
+            let galleryUrlsText = document.getElementById('inv-gallery-urls').value;
+            let finalGallery = null;
+            const galleryFiles = document.getElementById('inv-gallery-files').files;
+            
+            if (galleryFiles && galleryFiles.length > 0) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar galeria...';
+                let urls = [];
+                for (let i = 0; i < galleryFiles.length; i++) {
+                    const gUrl = await uploadFile(galleryFiles[i], `${slug}/gallery`);
+                    urls.push(gUrl);
+                }
+                finalGallery = urls;
+            } else if (galleryUrlsText) {
+                finalGallery = galleryUrlsText.split(',').map(s => s.trim()).filter(Boolean);
+            }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A guardar dados...';
+
             const data = {
                 customer_name: document.getElementById('inv-customer-name').value,
-                slug: document.getElementById('inv-slug').value,
+                slug: slug,
                 plan_id: document.getElementById('inv-plan-id').value || null,
                 event_date: document.getElementById('inv-event-date').value || null,
                 bride_name: document.getElementById('inv-bride-name').value || null,
@@ -420,8 +479,9 @@ function setupForms() {
                 event_location: document.getElementById('inv-event-location').value || null,
                 event_time: document.getElementById('inv-event-time').value || null,
                 couple_message: document.getElementById('inv-couple-message').value || null,
-                cover_photo_url: document.getElementById('inv-cover-photo-url').value || null,
-                music_url: document.getElementById('inv-music-url').value || null,
+                cover_photo_url: coverUrl || null,
+                music_url: musicUrl || null,
+                gallery_urls: finalGallery,
                 editor_type: document.getElementById('inv-editor-type').value,
                 custom_html: document.getElementById('inv-custom-html').value || null
             };

@@ -228,9 +228,27 @@
                     <label class="form-label">Mensagem do Casal (Amor)</label>
                     <textarea id="inv-couple-message" class="form-control" rows="2" placeholder="O amor é o nosso bem maior..."></textarea>
                 </div>
-                <div class="form-grid" style="margin-top:1rem;">
-                    <div class="form-group"><label class="form-label">Link Foto de Capa (Drive/Imgur)</label><input type="url" id="inv-cover-photo-url" class="form-control" placeholder="https://..."></div>
-                    <div class="form-group"><label class="form-label">Link Música Fundo (MP3)</label><input type="url" id="inv-music-url" class="form-control" placeholder="https://..."></div>
+                <hr style="margin:1.5rem 0; border:none; border-top:1px solid #ddd;">
+                <h4 style="margin-bottom:0.5rem; color:var(--jobie-primary);">Mídia (Upload)</h4>
+                <p style="font-size:0.8rem; color:#666; margin-bottom:1rem;">Faça upload dos ficheiros do seu computador ou cole os links diretamente.</p>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Foto de Capa</label>
+                        <input type="file" id="inv-cover-file" class="form-control" accept="image/*" style="margin-bottom:0.5rem;">
+                        <input type="url" id="inv-cover-photo-url" class="form-control" placeholder="Ou cole o link aqui...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Música de Fundo (MP3)</label>
+                        <input type="file" id="inv-music-file" class="form-control" accept="audio/*" style="margin-bottom:0.5rem;">
+                        <input type="url" id="inv-music-url" class="form-control" placeholder="Ou cole o link aqui...">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top:1rem;">
+                    <label class="form-label">Fotos da Galeria (Nossos Momentos)</label>
+                    <input type="file" id="inv-gallery-files" class="form-control" accept="image/*" multiple style="margin-bottom:0.5rem;">
+                    <input type="text" id="inv-gallery-urls" class="form-control" placeholder="Ou cole links separados por vírgula...">
+                    <small style="color:#666; display:block; margin-top:0.3rem;">Pode selecionar várias fotos ao mesmo tempo para o carrossel.</small>
                 </div>
 
                 <hr style="margin:1.5rem 0; border:none; border-top:1px solid #ddd;">
