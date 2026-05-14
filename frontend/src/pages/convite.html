@@ -1472,7 +1472,7 @@ function populateStaticData() {
         
         if (metaTitle) metaTitle.setAttribute('content', pTitle);
         if (metaDesc) metaDesc.setAttribute('content', `Celebre o amor de ${coupleName} connosco no dia ${invData.event_date ? new Date(invData.event_date).toLocaleDateString('pt-PT') : ''}.`);
-        if (metaImg && coverUrl) metaImg.setAttribute('content', coverUrl);
+        if (metaImg && invData.cover_photo_url) metaImg.setAttribute('content', invData.cover_photo_url);
 
         // Position Image (Dynamic Enquadramento)
         const alignDesktop = invData.cover_align_desktop !== undefined && invData.cover_align_desktop !== null ? invData.cover_align_desktop : 50;
