@@ -386,6 +386,23 @@ async function editInvitation(id) {
     document.getElementById('inv-cover-photo-url').value = inv.cover_photo_url || '';
     document.getElementById('inv-cover-file').value = '';
     
+    document.getElementById('inv-align-desktop').value = inv.cover_align_desktop || 50;
+    document.getElementById('val-desktop').textContent = (inv.cover_align_desktop || 50) + '%';
+    document.getElementById('inv-align-mobile').value = inv.cover_align_mobile || 50;
+    document.getElementById('val-mobile').textContent = (inv.cover_align_mobile || 50) + '%';
+
+    // Preview
+    setTimeout(() => {
+        const previewImg = document.getElementById('cover-preview-img');
+        if(inv.cover_photo_url) {
+            previewImg.src = inv.cover_photo_url;
+            previewImg.style.opacity = 1;
+        } else {
+            previewImg.style.opacity = 0;
+        }
+        document.getElementById('btn-preview-desktop').click();
+    }, 100);
+
     document.getElementById('inv-music-url').value = inv.music_url || '';
     document.getElementById('inv-music-file').value = '';
     
@@ -480,6 +497,8 @@ function setupForms() {
                 event_time: document.getElementById('inv-event-time').value || null,
                 couple_message: document.getElementById('inv-couple-message').value || null,
                 cover_photo_url: coverUrl || null,
+                cover_align_desktop: document.getElementById('inv-align-desktop').value || 50,
+                cover_align_mobile: document.getElementById('inv-align-mobile').value || 50,
                 music_url: musicUrl || null,
                 gallery_urls: finalGallery,
                 editor_type: document.getElementById('inv-editor-type').value,
@@ -518,6 +537,88 @@ function setupRealtimeListeners() {
     }).subscribe();
 }
 
+function setupCoverPreview() {
+    const urlInput = document.getElementById('inv-cover-photo-url');
+    const fileInput = document.getElementById('inv-cover-file');
+    const previewImg = document.getElementById('cover-preview-img');
+    const previewBox = document.getElementById('cover-preview-box');
+    
+    const sliderDesktop = document.getElementById('inv-align-desktop');
+    const sliderMobile = document.getElementById('inv-align-mobile');
+    const valDesktop = document.getElementById('val-desktop');
+    const valMobile = document.getElementById('val-mobile');
+    
+    const btnDesktop = document.getElementById('btn-preview-desktop');
+    const btnMobile = document.getElementById('btn-preview-mobile');
+    
+    let isMobileView = false;
+
+    function updatePreviewImage() {
+        if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                previewImg.style.opacity = 1;
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        } else if (urlInput.value) {
+            previewImg.src = urlInput.value;
+            previewImg.style.opacity = 1;
+        } else {
+            previewImg.style.opacity = 0;
+        }
+    }
+
+    function updateObjectPosition() {
+        if (isMobileView) {
+            previewImg.style.objectPosition = `50% ${sliderMobile.value}%`;
+        } else {
+            previewImg.style.objectPosition = `50% ${sliderDesktop.value}%`;
+        }
+    }
+
+    urlInput.addEventListener('input', updatePreviewImage);
+    fileInput.addEventListener('change', updatePreviewImage);
+
+    sliderDesktop.addEventListener('input', (e) => {
+        valDesktop.textContent = e.target.value + '%';
+        updateObjectPosition();
+    });
+
+    sliderMobile.addEventListener('input', (e) => {
+        valMobile.textContent = e.target.value + '%';
+        updateObjectPosition();
+    });
+
+    btnDesktop.addEventListener('click', () => {
+        isMobileView = false;
+        btnDesktop.className = 'btn btn-primary';
+        btnMobile.className = 'btn btn-light';
+        btnMobile.style.border = '1px solid #ddd';
+        document.getElementById('slider-container-desktop').style.display = 'block';
+        document.getElementById('slider-container-mobile').style.display = 'none';
+        
+        previewBox.style.height = '200px';
+        previewBox.style.width = '100%';
+        updateObjectPosition();
+    });
+
+    btnMobile.addEventListener('click', () => {
+        isMobileView = true;
+        btnMobile.className = 'btn btn-primary';
+        btnDesktop.className = 'btn btn-light';
+        btnDesktop.style.border = '1px solid #ddd';
+        document.getElementById('slider-container-mobile').style.display = 'block';
+        document.getElementById('slider-container-desktop').style.display = 'none';
+        
+        previewBox.style.height = '350px';
+        previewBox.style.width = '200px';
+        previewBox.style.margin = '0 auto';
+        updateObjectPosition();
+    });
+}
+
+
 function toggleCodeEditor() {
     const type = document.getElementById('inv-editor-type').value;
     const editor = document.getElementById('code-editor-container');
@@ -528,6 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     setupForms();
     setupGlobalSearch();
+    setupCoverPreview();
 });
 
 // EXPORTS

@@ -140,11 +140,18 @@
         #envelope-screen {
             height: 100vh; width: 100%;
             display: flex; align-items: center; justify-content: center;
-            background: #F2EFE9;
+            background: radial-gradient(circle at center, #f5f1e9 0%, #e0d8c8 100%);
             perspective: 2000px;
             overflow: hidden;
             position: fixed; inset: 0; z-index: 1000;
             transition: opacity 1.5s ease, visibility 1.5s ease;
+        }
+        #envelope-screen::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            opacity: 0.3;
+            pointer-events: none;
         }
         #envelope-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
@@ -153,9 +160,11 @@
             width: 320px;
             height: 480px;
             background: #fff; /* Base do convite */
+            background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
             box-shadow: 0 50px 100px rgba(0,0,0,0.12);
             transform-style: preserve-3d;
             transition: transform 1.5s cubic-bezier(.4, 0, .2, 1);
+            border-radius: 2px;
         }
 
         /* The Green Partial Cover (Left side) */
@@ -165,10 +174,12 @@
             width: 65%;
             height: 100%;
             background: #94A684; /* Sage Green */
+            background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
             z-index: 4;
             box-shadow: 5px 0 15px rgba(0,0,0,0.05);
             transition: transform 1.5s cubic-bezier(.4, 0, .2, 1), opacity 1s ease;
             transform-origin: left;
+            border-radius: 2px 0 0 2px;
         }
 
         /* Decoration: Double Cord (Fio Duplo) */
@@ -182,32 +193,45 @@
         }
         .cord-line {
             position: absolute;
-            width: 100%; height: 2px;
-            background: #6B5E51;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            width: 100%; height: 4px;
+            background: repeating-linear-gradient(
+                45deg,
+                #6B5E51,
+                #6B5E51 5px,
+                #8B7E71 5px,
+                #8B7E71 10px
+            );
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            border-radius: 4px;
         }
-        .cord-line.top { top: 0; }
-        .cord-line.bottom { bottom: 0; }
+        .cord-line.top { top: -3px; }
+        .cord-line.bottom { bottom: -3px; }
 
         /* Hanging Tag */
         .envelope-tag {
             position: absolute;
-            top: 10px; left: 20%;
-            width: 35px; height: 55px;
+            top: 55%; left: 15%;
+            width: 40px; height: 60px;
             background: #fff;
-            border: 1px solid #eee;
-            z-index: 5;
-            transform: rotate(-5deg);
+            background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
+            border: 1px solid #ddd;
+            z-index: 7;
+            transform: translateY(-50%) rotate(-10deg);
             display: flex; align-items: center; justify-content: center;
             font-size: 8px; font-weight: 700; color: #94A684;
             text-transform: uppercase; letter-spacing: 0.1em;
-            box-shadow: 2px 5px 10px rgba(0,0,0,0.05);
+            box-shadow: 3px 5px 15px rgba(0,0,0,0.1);
             transition: all 0.8s ease;
         }
         .envelope-tag::before {
             content: ''; position: absolute; top: 5px; left: 50%;
             transform: translateX(-50%); width: 4px; height: 4px;
             background: #eee; border-radius: 50%;
+        }
+        .envelope-tag::after {
+            content: ''; position: absolute; top: -10px; left: 50%;
+            width: 1px; height: 10px; background: #6B5E51;
+            transform: translateX(-50%);
         }
 
         /* Right Side Info (Visible on the white part) */
@@ -235,17 +259,55 @@
             position: absolute;
             top: 55%; left: 65%;
             transform: translate(-50%, -50%);
-            width: 60px; height: 60px;
-            background: linear-gradient(135deg, #A6864A, #8B6B38);
+            width: 70px; height: 70px;
+            background: radial-gradient(circle at 30% 30%, #A6864A, #8B6B38);
             border-radius: 50%;
             z-index: 10;
             display: flex; align-items: center; justify-content: center;
-            color: #fff; cursor: pointer;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-            transition: all 0.5s ease;
+            color: rgba(255,255,255,0.9); cursor: pointer;
+            box-shadow: 
+                0 10px 20px rgba(0,0,0,0.3), 
+                inset 0 2px 5px rgba(255,255,255,0.3),
+                inset -2px -5px 10px rgba(0,0,0,0.2);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: pulse 2s infinite ease-in-out;
+            border: 2px solid rgba(0,0,0,0.05);
         }
-        .envelope-seal:active { transform: translate(-50%, -50%) scale(0.9); }
-        .envelope-seal i { font-size: 1.2rem; }
+        .envelope-seal:hover { transform: translate(-50%, -50%) scale(1.1); }
+        .envelope-seal:active { transform: translate(-50%, -50%) scale(0.95); }
+        .envelope-seal i { font-size: 1.5rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+        .envelope-cover-green::after {
+            content: '';
+            position: absolute; inset: 0;
+            box-shadow: inset -5px 0 15px rgba(0,0,0,0.1);
+            pointer-events: none;
+        }
+
+        .seal-instruction {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: #8B6B38;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0.9;
+            background: rgba(255,255,255,0.7);
+            padding: 4px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            animation: floatText 2s infinite ease-in-out;
+        }
+
+        @keyframes floatText {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, -5px); }
+        }
 
         /* The Letter (Full Content Inside/Behind) */
         .envelope-letter {
@@ -345,10 +407,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-end;
             text-align: center;
             color: #fff;
             padding: 2rem;
+            padding-bottom: 12vh;
         }
 
         .hero-eyebrow {
@@ -399,6 +462,22 @@
             font-style: italic;
             color: #7A7A7A;
             font-weight: 300;
+        }
+
+        .parents-flex {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 1.5rem;
+            color: var(--text);
+        }
+        @media (max-width: 600px) {
+            .parents-flex {
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+            }
+            .parents-flex > div { text-align: center !important; }
         }
 
         /* ── GALLERY CAROUSEL ── */
@@ -881,8 +960,9 @@
             </button>
         </div>
         
-        <!-- Seal (Triggers animation) -->
-        <div class="envelope-seal" id="envelope-seal" onclick="startOpeningSequence()">
+        <!-- Wax Seal -->
+        <div class="envelope-seal" onclick="openInvitation()">
+            <div class="seal-instruction">Clique para abrir</div>
             <i class="fas fa-heart"></i>
         </div>
     </div>
@@ -935,26 +1015,26 @@
     <section id="love-section">
         <h2 class="reveal love-title font-serif">O Nosso Amor</h2>
         
+        <p class="reveal delay-200 love-text" id="love-message" style="margin-bottom:4rem;">
+            "Há momentos que são mágicos, e o nosso encontro foi um deles. Queremos que você faça parte do capítulo mais importante da nossa história."
+        </p>
+
         <!-- PARENTS SECTION -->
-        <div id="parents-section" class="reveal delay-100" style="display:none; text-align:center; margin:3rem auto 4rem auto; font-family:'Montserrat', sans-serif; max-width:800px; padding:0 2rem;">
+        <div id="parents-section" class="reveal delay-300" style="display:none; text-align:center; margin:0 auto; font-family:'Montserrat', sans-serif; max-width:800px; padding:0 1rem;">
             <p style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.3em; color:var(--muted); margin-bottom:2rem; font-weight:700;">Com a bênção de Deus e de nossos pais</p>
             
-            <div style="display:flex; justify-content:center; align-items:center; gap:2rem; flex-wrap:wrap; color:var(--text);">
-                <div style="text-align:right; flex:1; min-width:140px;">
+            <div class="parents-flex">
+                <div style="text-align:right; flex:1;">
                     <div id="hero-bride-parents" style="font-size:0.95rem; line-height:1.8; color:#555;"></div>
                 </div>
                 
-                <div style="font-size:1.5rem; color:var(--gold); font-family:'Playfair Display', serif; padding:0 1rem;">&amp;</div>
+                <div style="font-size:1.5rem; color:var(--gold); font-family:'Playfair Display', serif; display:flex; align-items:center;">&amp;</div>
                 
-                <div style="text-align:left; flex:1; min-width:140px;">
+                <div style="text-align:left; flex:1;">
                     <div id="hero-groom-parents" style="font-size:0.95rem; line-height:1.8; color:#555;"></div>
                 </div>
             </div>
         </div>
-
-        <p class="reveal delay-200 love-text" id="love-message">
-            "Há momentos que são mágicos, e o nosso encontro foi um deles. Queremos que você faça parte do capítulo mais importante da nossa história."
-        </p>
     </section>
 
     <!-- GALLERY CAROUSEL -->
@@ -1393,6 +1473,19 @@ function populateStaticData() {
         if (metaTitle) metaTitle.setAttribute('content', pTitle);
         if (metaDesc) metaDesc.setAttribute('content', `Celebre o amor de ${coupleName} connosco no dia ${invData.event_date ? new Date(invData.event_date).toLocaleDateString('pt-PT') : ''}.`);
         if (metaImg && coverUrl) metaImg.setAttribute('content', coverUrl);
+
+        // Position Image (Dynamic Enquadramento)
+        const alignDesktop = invData.cover_align_desktop !== undefined && invData.cover_align_desktop !== null ? invData.cover_align_desktop : 50;
+        const alignMobile = invData.cover_align_mobile !== undefined && invData.cover_align_mobile !== null ? invData.cover_align_mobile : 50;
+        
+        const style = document.createElement('style');
+        style.innerHTML = `
+            #hero-bg { object-position: 50% ${alignDesktop}%; }
+            @media (max-width: 768px) {
+                #hero-bg { object-position: 50% ${alignMobile}%; }
+            }
+        `;
+        document.head.appendChild(style);
 
     } catch (globalErr) {
         logDebug('Erro Global em populateStaticData: ' + globalErr.message);
