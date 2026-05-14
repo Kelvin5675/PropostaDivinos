@@ -138,192 +138,130 @@
 
         /* ── ENVELOPE PINTEREST EXACT REPLICA (Vertical) ── */
         #envelope-screen {
-            height: 100vh; width: 100%;
+            position: fixed; inset: 0;
+            z-index: 1000;
+            background: #fdf5e6; /* Creme/Bege */
             display: flex; align-items: center; justify-content: center;
-            background: radial-gradient(circle at center, #f5f1e9 0%, #e0d8c8 100%);
-            perspective: 2000px;
             overflow: hidden;
-            position: fixed; inset: 0; z-index: 1000;
-            transition: opacity 1.5s ease, visibility 1.5s ease;
-        }
-        #envelope-screen::before {
-            content: '';
-            position: absolute; inset: 0;
-            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            opacity: 0.3;
-            pointer-events: none;
+            transition: opacity 1s ease, visibility 1s ease;
         }
         #envelope-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-        .envelope-wrapper {
-            position: relative;
-            width: 320px;
-            height: 480px;
-            background: #fff; /* Base do convite */
-            background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
-            box-shadow: 0 50px 100px rgba(0,0,0,0.12);
-            transform-style: preserve-3d;
-            transition: transform 1.5s cubic-bezier(.4, 0, .2, 1);
-            border-radius: 2px;
-        }
-
-        /* The Green Partial Cover (Left side) */
-        .envelope-cover-green {
+        .envelope-flap {
             position: absolute;
-            top: 0; left: 0;
-            width: 65%;
+            top: 0;
+            width: 50.5%; /* Pequena sobreposição no meio */
             height: 100%;
-            background: #94A684; /* Sage Green */
+            background: #fdf5e6;
             background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
-            z-index: 4;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.05);
-            transition: transform 1.5s cubic-bezier(.4, 0, .2, 1), opacity 1s ease;
+            z-index: 5;
+            transition: transform 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .flap-left {
+            left: 0;
+            border-right: 1px solid rgba(0,0,0,0.05);
             transform-origin: left;
-            border-radius: 2px 0 0 2px;
+            justify-content: flex-end;
         }
 
-        /* Decoration: Double Cord (Fio Duplo) */
-        .envelope-cord-system {
-            position: absolute;
-            top: 55%; left: -5%; width: 110%;
-            height: 12px;
-            z-index: 6;
-            pointer-events: none;
-            transition: all 0.8s ease;
-        }
-        .cord-line {
-            position: absolute;
-            width: 100%; height: 4px;
-            background: repeating-linear-gradient(
-                45deg,
-                #6B5E51,
-                #6B5E51 5px,
-                #8B7E71 5px,
-                #8B7E71 10px
-            );
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-            border-radius: 4px;
-        }
-        .cord-line.top { top: -3px; }
-        .cord-line.bottom { bottom: -3px; }
-
-        /* Hanging Tag */
-        .envelope-tag {
-            position: absolute;
-            top: 55%; left: 15%;
-            width: 40px; height: 60px;
-            background: #fff;
-            background-image: url('https://www.transparenttextures.com/patterns/handmade-paper.png');
-            border: 1px solid #ddd;
-            z-index: 7;
-            transform: translateY(-50%) rotate(-10deg);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 8px; font-weight: 700; color: #94A684;
-            text-transform: uppercase; letter-spacing: 0.1em;
-            box-shadow: 3px 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.8s ease;
-        }
-        .envelope-tag::before {
-            content: ''; position: absolute; top: 5px; left: 50%;
-            transform: translateX(-50%); width: 4px; height: 4px;
-            background: #eee; border-radius: 50%;
-        }
-        .envelope-tag::after {
-            content: ''; position: absolute; top: -10px; left: 50%;
-            width: 1px; height: 10px; background: #6B5E51;
-            transform: translateX(-50%);
+        .flap-right {
+            right: 0;
+            border-left: 1px solid rgba(0,0,0,0.05);
+            transform-origin: right;
+            justify-content: flex-start;
         }
 
-        /* Right Side Info (Visible on the white part) */
-        .envelope-right-info {
+        /* Padrão Floral Dourado */
+        .floral-pattern {
             position: absolute;
-            top: 15%; right: 5%;
-            width: 30%;
-            text-align: right;
-            z-index: 2;
+            width: 100%; height: 100%;
+            background-image: url('file:///C:/Users/user/.gemini/antigravity/brain/8861c17c-f73e-4e93-9d92-c03b235f3947/floral_wedding_pattern_1778769753651.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.6;
             pointer-events: none;
         }
-        .env-initial {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5rem; color: #94A684;
-            font-style: italic; opacity: 0.8;
-            line-height: 1; margin-bottom: 1rem;
-        }
-        .env-date-small {
-            font-size: 0.65rem; color: #94A684;
-            letter-spacing: 0.2em; font-weight: 600;
+
+        .flap-left .floral-pattern {
+            left: 0;
+            background-position: left center;
+            transform: scaleX(-1); /* Espelhar para as laterais */
         }
 
-        /* Wax Seal */
-        .envelope-seal {
+        .flap-right .floral-pattern {
+            right: 0;
+            background-position: right center;
+        }
+
+        /* Wax Seal Central */
+        .envelope-seal-container {
             position: absolute;
-            top: 55%; left: 65%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 70px; height: 70px;
-            background: radial-gradient(circle at 30% 30%, #A6864A, #8B6B38);
-            border-radius: 50%;
             z-index: 10;
-            display: flex; align-items: center; justify-content: center;
-            color: rgba(255,255,255,0.9); cursor: pointer;
-            box-shadow: 
-                0 10px 20px rgba(0,0,0,0.3), 
-                inset 0 2px 5px rgba(255,255,255,0.3),
-                inset -2px -5px 10px rgba(0,0,0,0.2);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: pulse 2s infinite ease-in-out;
-            border: 2px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.5s ease;
         }
-        .envelope-seal:hover { transform: translate(-50%, -50%) scale(1.1); }
-        .envelope-seal:active { transform: translate(-50%, -50%) scale(0.95); }
-        .envelope-seal i { font-size: 1.5rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 
-        .envelope-cover-green::after {
-            content: '';
-            position: absolute; inset: 0;
-            box-shadow: inset -5px 0 15px rgba(0,0,0,0.1);
-            pointer-events: none;
+        .wax-seal {
+            width: 120px; height: 120px;
+            background-image: url('file:///C:/Users/user/.gemini/antigravity/brain/8861c17c-f73e-4e93-9d92-c03b235f3947/gold_wax_seal_base_1778769945316.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            display: flex; align-items: center; justify-content: center;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+            animation: pulse-seal 2s infinite ease-in-out;
+            position: relative;
+        }
+
+        .seal-initials {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: rgba(60, 40, 10, 0.7);
+            font-weight: 700;
+            font-style: italic;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.2);
+            transform: translateY(-2px);
         }
 
         .seal-instruction {
             position: absolute;
-            top: -45px;
+            bottom: -50px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: #8B6B38;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
+            letter-spacing: 0.2em;
             white-space: nowrap;
-            pointer-events: none;
-            opacity: 0.9;
-            background: rgba(255,255,255,0.7);
-            padding: 4px 10px;
-            border-radius: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             animation: floatText 2s infinite ease-in-out;
         }
 
+        @keyframes pulse-seal {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         @keyframes floatText {
-            0%, 100% { transform: translate(-50%, 0); }
-            50% { transform: translate(-50%, -5px); }
+            0%, 100% { transform: translate(-50%, 0); opacity: 0.6; }
+            50% { transform: translate(-50%, -10px); opacity: 1; }
         }
 
-        /* The Letter (Full Content Inside/Behind) */
-        .envelope-letter {
+        /* Animação de Abertura */
+        .envelope-open .flap-left { transform: translateX(-100%); }
+        .envelope-open .flap-right { transform: translateX(100%); }
+        .envelope-open .envelope-seal-container { opacity: 0; transform: translate(-50%, -50%) scale(0.5); pointer-events: none; }
+        
+        .envelope-content-reveal {
             position: absolute; inset: 0;
-            background: #fff; z-index: 1;
-            padding: 3rem 1.5rem;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 1s ease;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1;
         }
-
-        /* ANIMATION STATES */
-        .envelope-open .envelope-cover-green { transform: rotateY(-110deg); opacity: 0.2; }
-        .envelope-open .envelope-cord-system { opacity: 0; transform: translateY(50px); }
-        .envelope-open .envelope-tag { opacity: 0; transform: translateY(40px) rotate(20deg); }
-        .envelope-open .envelope-seal { opacity: 0; transform: translate(-50%, 0%) scale(0); }
-        .envelope-open .envelope-letter { opacity: 1; }
 
         .open-invitation-btn {
             background: #94A684; color: #fff; border: none;
@@ -995,41 +933,20 @@
     <svg id="music-icon-pause" fill="currentColor" viewBox="0 0 20 20" style="display:none;"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
 </button>
 
-<!-- ═══════════ ENVELOPE SCREEN ═══════════ -->
+<!-- ═══════════ ENVELOPE SCREEN (Pinterest Premium Replica) ═══════════ -->
 <div id="envelope-screen">
-    <div class="envelope-wrapper" id="envelope-wrapper">
-        <!-- Background/Base Invitation (White part visible on right) -->
-        <div class="envelope-right-info">
-            <div class="env-initial" id="env-initial-letter">A</div>
-            <div class="env-date-small" id="env-date-exact">13.11.2025</div>
-        </div>
+    <div class="flap-left envelope-flap">
+        <div class="floral-pattern"></div>
+    </div>
+    <div class="flap-right envelope-flap">
+        <div class="floral-pattern"></div>
+    </div>
 
-        <!-- The Green Cover (Left Layer) -->
-        <div class="envelope-cover-green">
-            <!-- Cord System on top of Green -->
-            <div class="envelope-cord-system">
-                <div class="cord-line top"></div>
-                <div class="cord-line bottom"></div>
-                <!-- Mini Tag -->
-                <div class="envelope-tag">CONVITE</div>
-            </div>
+    <div class="envelope-seal-container" onclick="openInvitation()">
+        <div class="wax-seal">
+            <span class="seal-initials" id="env-seal-initials">L&J</span>
         </div>
-
-        <!-- Hidden Letter (Visible after opening) -->
-        <div class="envelope-letter" id="envelope-letter">
-            <h1 class="envelope-names-mini font-serif" id="env-couple-names-inner" style="font-size: 2.2rem; color: #94A684;">Kelly & Eddy</h1>
-            <div style="width: 40px; height: 1px; background: #94A684; margin: 1.5rem 0; opacity: 0.3;"></div>
-            <p class="envelope-msg-mini" style="font-size: 0.8rem; color: #666; max-width: 200px;">Aguardamos por si para celebrar o nosso amor eterno.</p>
-            <button class="open-invitation-btn" onclick="startOpeningSequence()">
-                Abrir Convite
-            </button>
-        </div>
-        
-        <!-- Wax Seal -->
-        <div class="envelope-seal" onclick="openInvitation()">
-            <div class="seal-instruction">Clique para abrir</div>
-            <i class="fas fa-heart"></i>
-        </div>
+        <div class="seal-instruction">Clique para abrir</div>
     </div>
 </div>
 
@@ -1359,24 +1276,11 @@ function populateStaticData() {
 
         logDebug('Nomes do casal: ' + coupleName);
 
-        // Envelope screen (Pinterest Exact Replica)
-        const envNamesInner = document.getElementById('env-couple-names-inner');
-        if (envNamesInner) envNamesInner.textContent = coupleName;
-
-        const envInitial = document.getElementById('env-initial-letter');
-        if (envInitial && coupleName) {
-            envInitial.textContent = coupleName.charAt(0).toUpperCase();
-        }
-        
-        const envDateExact = document.getElementById('env-date-exact');
-        if (envDateExact && invData.event_date) {
-            const d = new Date(invData.event_date);
-            if (!isNaN(d)) {
-                const day = String(d.getDate()).padStart(2, '0');
-                const month = String(d.getMonth() + 1).padStart(2, '0');
-                const year = d.getFullYear();
-                envDateExact.textContent = `${day}.${month}.${year}`;
-            }
+        // Envelope initials for seal
+        if (bride && groom) {
+            const initials = `${bride.charAt(0).toUpperCase()}&${groom.charAt(0).toUpperCase()}`;
+            const sealInitials = document.getElementById('env-seal-initials');
+            if (sealInitials) sealInitials.textContent = initials;
         }
 
         // Hero
@@ -1701,50 +1605,43 @@ document.getElementById('music-btn').addEventListener('click', () => {
     isMusicPlaying = !isMusicPlaying;
 });
 
-// ═══════════ OPEN INVITATION ═══════════
-function startOpeningSequence() {
+// ═══════════ OPEN INVITATION (Gatefold Sequence) ═══════════
+function openInvitation() {
     if (isOpen) return;
     
-    logDebug('Iniciando sequência de abertura...');
-    const wrapper = document.getElementById('envelope-wrapper');
-    const seal = document.getElementById('envelope-seal');
+    logDebug('Iniciando sequência de abertura Gatefold...');
+    const screen = document.getElementById('envelope-screen');
     
-    // Step 1: Add open class (Triggers flap rotation and letter lift)
-    wrapper.classList.add('envelope-open');
+    // Passo 1: Disparar animação das abas
+    screen.classList.add('envelope-open');
     
-    // Step 2: After flap opens, start full reveal
+    // Passo 2: Aguardar animação (1.8s) e revelar convite
     setTimeout(() => {
-        openInvitation();
-    }, 1200);
-}
-
-function openInvitation() {
-    if (isOpen && document.getElementById('envelope-screen').classList.contains('hidden')) return;
-    
-    isOpen = true;
-    logDebug('Sequência final: Revelando conteúdo principal');
-    
-    // Fade out the entire envelope screen
-    document.getElementById('envelope-screen').classList.add('hidden');
-    
-    // Show main content
-    const inv = document.getElementById('invitation-content');
-    inv.classList.add('visible');
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Trigger staggered reveal animations on main content
-    setTimeout(setupRevealObserver, 200);
-    
-    // Auto-play music if configured
-    const audio = document.getElementById('wedding-audio');
-    if (audio && audio.src) {
-        audio.play().then(() => {
-            isMusicPlaying = true;
-            document.getElementById('music-icon-play').style.display = 'none';
-            document.getElementById('music-icon-pause').style.display = '';
-        }).catch(e => console.warn('Autoplay bloqueado pelo browser:', e));
-    }
+        isOpen = true;
+        logDebug('Revelando conteúdo principal...');
+        
+        // Esconder tela do envelope
+        screen.classList.add('hidden');
+        
+        // Mostrar conteúdo principal
+        const inv = document.getElementById('invitation-content');
+        inv.classList.add('visible');
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Ativar observador de revelação
+        setTimeout(setupRevealObserver, 200);
+        
+        // Iniciar música
+        const audio = document.getElementById('wedding-audio');
+        if (audio && audio.src) {
+            audio.play().then(() => {
+                isMusicPlaying = true;
+                document.getElementById('music-icon-play').style.display = 'none';
+                document.getElementById('music-icon-pause').style.display = '';
+            }).catch(e => console.warn('Autoplay bloqueado pelo browser:', e));
+        }
+    }, 1800);
 }
 
 // ═══════════ REVEAL OBSERVER ═══════════
