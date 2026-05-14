@@ -494,7 +494,7 @@ function setupForms() {
                 data.couple_password = pwd;
                 data.status = 'active';
                 data.is_public = true;
-                data.guest_link = `${window.location.origin}/invitation/index.html?slug=${data.slug}`;
+                data.guest_link = `https://proposta-divinos.vercel.app/c/${data.slug}`;
                 const { error } = await sbClient.from('invitations').insert([data]);
                 if (error) throw error;
             }

@@ -925,10 +925,6 @@
         <div class="hero-gradient"></div>
         <div class="hero-text">
             <p class="reveal hero-eyebrow">Salve esta Data</p>
-            <div id="parents-section" class="reveal delay-100" style="display:none; text-align:center; font-size:clamp(0.8rem, 2vw, 1.1rem); color:#fff; font-weight:300; margin-bottom:1.5rem; line-height:1.6; text-shadow:0 2px 4px rgba(0,0,0,0.5);">
-                <div id="hero-bride-parents" style="margin-bottom:0.3rem;"></div>
-                <div id="hero-groom-parents"></div>
-            </div>
             <h1 class="reveal delay-200 hero-names font-serif" id="hero-couple-names">A & B</h1>
             <div class="reveal delay-400 hero-divider"></div>
             <p class="reveal delay-500 hero-date" id="hero-date"></p>
@@ -938,6 +934,24 @@
     <!-- LOVE MESSAGE -->
     <section id="love-section">
         <h2 class="reveal love-title font-serif">O Nosso Amor</h2>
+        
+        <!-- PARENTS SECTION -->
+        <div id="parents-section" class="reveal delay-100" style="display:none; text-align:center; margin:3rem auto 4rem auto; font-family:'Montserrat', sans-serif; max-width:800px; padding:0 2rem;">
+            <p style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.3em; color:var(--muted); margin-bottom:2rem; font-weight:700;">Com a bênção de Deus e de nossos pais</p>
+            
+            <div style="display:flex; justify-content:center; align-items:center; gap:2rem; flex-wrap:wrap; color:var(--text);">
+                <div style="text-align:right; flex:1; min-width:140px;">
+                    <div id="hero-bride-parents" style="font-size:0.95rem; line-height:1.8; color:#555;"></div>
+                </div>
+                
+                <div style="font-size:1.5rem; color:var(--gold); font-family:'Playfair Display', serif; padding:0 1rem;">&amp;</div>
+                
+                <div style="text-align:left; flex:1; min-width:140px;">
+                    <div id="hero-groom-parents" style="font-size:0.95rem; line-height:1.8; color:#555;"></div>
+                </div>
+            </div>
+        </div>
+
         <p class="reveal delay-200 love-text" id="love-message">
             "Há momentos que são mágicos, e o nosso encontro foi um deles. Queremos que você faça parte do capítulo mais importante da nossa história."
         </p>
@@ -1235,14 +1249,19 @@ function populateStaticData() {
             const parentsSection = document.getElementById('parents-section');
             if (parentsSection) {
                 parentsSection.style.display = 'block';
-                const eyebrow = document.querySelector('.hero-eyebrow');
-                if (eyebrow) eyebrow.innerHTML = 'Com a bênção de Deus e<br>de nossos pais';
+                
+                let bText = brideParents || '';
+                let gText = groomParents || '';
+                
+                // Formatar dois a dois separando no " e " ou " & "
+                bText = bText.replace(/ e /gi, '<br>').replace(/ & /g, '<br>');
+                gText = gText.replace(/ e /gi, '<br>').replace(/ & /g, '<br>');
                 
                 const bParentsEl = document.getElementById('hero-bride-parents');
-                if (bParentsEl && brideParents) bParentsEl.textContent = brideParents;
+                if (bParentsEl && brideParents) bParentsEl.innerHTML = bText;
                 
                 const gParentsEl = document.getElementById('hero-groom-parents');
-                if (gParentsEl && groomParents) gParentsEl.textContent = groomParents;
+                if (gParentsEl && groomParents) gParentsEl.innerHTML = gText;
             }
         }
 

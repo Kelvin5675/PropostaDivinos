@@ -65,6 +65,72 @@ const getPublicInvitation = async (req, res) => {
     }
 };
 
+// Gerador de página estática para Meta Tags (WhatsApp/Facebook Preview)
+const getInvitationMetaPage = async (req, res) => {
+    try {
+        const { slug } = req.params;
+        const { data: invitation, error } = await supabase
+            .from('invitations')
+            .select('title, customer_name, event_date, cover_photo_url')
+            .eq('slug', slug)
+            .single();
+        
+        if (error || !invitation) {
+            return res.status(404).send('Convite não encontrado.');
+        }
+
+        const title = invitation.title || invitation.customer_name || 'Convite de Casamento';
+        const cover = invitation.cover_photo_url || 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&q=80&w=2000';
+        
+        let desc = 'Convidamos-te para celebrar connosco este momento especial.';
+        if (invitation.event_date) {
+            const dObj = new Date(invitation.event_date);
+            if (!isNaN(dObj.getTime())) {
+                desc = `Celebre o amor connosco no dia ${dObj.toLocaleDateString('pt-PT')}.`;
+            }
+        }
+        
+        const targetUrl = `https://proposta-divinos.vercel.app/pages/convite?slug=${slug}`;
+
+        const html = `<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <title>${title}</title>
+    <meta name="description" content="${desc}">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${desc}">
+    <meta property="og:image" content="${cover}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://proposta-divinos.vercel.app/c/${slug}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="${cover}">
+    
+    <script>
+        window.location.replace("${targetUrl}");
+    </script>
+    <style>
+        body { background:#111; color:#fff; font-family:sans-serif; text-align:center; padding-top:20vh; margin:0; }
+        .spinner { width:40px; height:40px; border:3px solid rgba(255,255,255,0.3); border-radius:50%; border-top-color:#C5A059; animation:spin 1s ease-in-out infinite; margin:0 auto 1rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="spinner"></div>
+    <p>A redirecionar para o convite de ${title}...</p>
+    <a href="${targetUrl}" style="color:#C5A059; text-decoration:none; font-size:0.9rem; margin-top:2rem; display:inline-block;">Clique aqui se não for redirecionado</a>
+</body>
+</html>`;
+
+        res.send(html);
+    } catch (e) {
+        console.error('Erro Meta Page:', e);
+        res.status(500).send('Erro interno do servidor.');
+    }
+};
+
 // Confirmar presença (RSVP)
 const submitRsvp = async (req, res) => {
     try {
@@ -265,6 +331,7 @@ const getDashboardData = async (req, res) => {
 module.exports = {
     getPlans,
     getPublicInvitation,
+    getInvitationMetaPage,
     submitRsvp,
     createOrder,
     getOrders,
