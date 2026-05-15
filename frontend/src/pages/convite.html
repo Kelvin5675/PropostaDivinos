@@ -591,7 +591,7 @@
         }
 
         .invitation-formal-text {
-            margin-top: 3.5rem;
+            margin-top: 1.5rem;
             font-size: 1.15rem;
             line-height: 1.8;
             color: var(--text);
@@ -599,6 +599,16 @@
             margin-left: auto;
             margin-right: auto;
             font-style: italic;
+            text-align: center;
+        }
+
+        .invitation-couple-names {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-style: italic;
+            color: var(--gold);
+            margin: 2rem auto;
+            line-height: 1.1;
             text-align: center;
         }
 
@@ -1438,6 +1448,8 @@
                     </div>
                 </div>
 
+                <h1 id="invitation-couple-names" class="invitation-couple-names reveal delay-400"></h1>
+
                 <div class="invitation-formal-text font-serif reveal delay-400">
                     Tem a honra de convidar o senhor(a)<br>
                     a testemunhar o seu elance Matrimonial
@@ -1755,9 +1767,17 @@
                     if (sealInitials) sealInitials.textContent = initials;
                 }
 
-                // Hero
+                // Nomes (Moved from Hero to Invitation Content per user request)
                 const heroNames = document.getElementById('hero-couple-names');
-                if (heroNames) heroNames.textContent = coupleName;
+                if (heroNames) {
+                    heroNames.textContent = coupleName;
+                    heroNames.style.display = 'none'; // Hide on cover
+                    const heroDivider = document.querySelector('.hero-divider');
+                    if (heroDivider) heroDivider.style.display = 'none';
+                }
+
+                const invCoupleNames = document.getElementById('invitation-couple-names');
+                if (invCoupleNames) invCoupleNames.textContent = coupleName;
 
                 const footerNames = document.getElementById('footer-couple-names');
                 if (footerNames) footerNames.textContent = coupleName;
