@@ -590,6 +590,26 @@
             }
         }
 
+        .invitation-formal-text {
+            margin-top: 3.5rem;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--text);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            font-style: italic;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .invitation-formal-text {
+                font-size: 1rem;
+                margin-top: 2.5rem;
+                padding: 0 1rem;
+            }
+        }
+
         /* ── GALLERY CAROUSEL ── */
         #gallery-section {
             padding: 5rem 0;
@@ -1390,7 +1410,7 @@
 
         <!-- LOVE MESSAGE -->
         <section id="love-section">
-            <h2 class="reveal love-title font-serif">O Nosso Amor</h2>
+            <h2 class="reveal love-title font-serif"><!--O Nosso Amor--></h2>
 
             <p class="reveal delay-200 love-text" id="love-message" style="margin-bottom:4rem;">
                 "Há momentos que são mágicos, e o nosso encontro foi um deles. Queremos que você faça parte do capítulo
@@ -1416,6 +1436,11 @@
                     <div style="text-align:left; flex:1;">
                         <div id="hero-groom-parents" style="font-size:0.95rem; line-height:1.8; color:#555;"></div>
                     </div>
+                </div>
+
+                <div class="invitation-formal-text font-serif reveal delay-400">
+                    Tem a honra de convidar o senhor(a)<br>
+                    a testemunhar o seu elance Matrimonial
                 </div>
             </div>
         </section>
@@ -1528,9 +1553,8 @@
                 <!-- Form -->
                 <form id="rsvp-form">
                     <div class="form-group">
-                        <label class="form-label">Seu Nome Completo</label>
-                        <input type="text" class="form-input" id="rsvp-name" placeholder="Ex: Família Oliveira"
-                            required>
+                        <label class="form-label">Seu Nome</label>
+                        <input type="text" class="form-input" id="rsvp-name" placeholder="Seu Nome" required>
                     </div>
 
                     <div class="rsvp-radios">
@@ -1598,7 +1622,7 @@
         <footer>
             <h2 class="footer-names font-serif" id="footer-couple-names">A & B</h2>
             <p class="footer-sub">Celebrando o Amor Infinito</p>
-            <p class="footer-copy">© 2025 • Divinos Graffic • Todos os direitos reservados</p>
+            <p class="footer-copy">© 2026 • Divinos Graffic • Todos os direitos reservados</p>
         </footer>
 
     </div><!-- /#invitation-content -->
