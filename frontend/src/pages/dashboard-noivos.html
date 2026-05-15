@@ -62,11 +62,12 @@
             background: var(--white);
             border: 1px solid var(--border);
             border-radius: 40px;
-            padding: 3.5rem 3rem;
-            width: 100%; max-width: 440px;
+            padding: 3.5rem 2.5rem;
+            width: 90%; max-width: 440px;
             text-align: center;
             box-shadow: var(--shadow-hover);
             animation: fadeIn .8s ease forwards;
+            margin: 1rem;
         }
           .animate-fade-in-up { animation: fadeInUp 1.2s cubic-bezier(.2,.8,.2,1) forwards; }
 
@@ -86,6 +87,11 @@
             font-size: 2.2rem;
             color: var(--gold);
             margin-bottom: .5rem;
+        }
+
+        @media (max-width: 400px) {
+            .login-logo { font-size: 1.8rem; }
+            .login-card { padding: 2.5rem 1.5rem; }
         }
 
         .login-subtitle {
@@ -249,7 +255,8 @@
             display: none;
             background: var(--white);
             border-bottom: 1px solid var(--border);
-            padding: 1rem 1.5rem;
+            padding: 0 1.5rem;
+            height: 60px;
             align-items: center;
             justify-content: space-between;
             position: sticky; top: 0; z-index: 100;
@@ -257,7 +264,7 @@
 
         @media (max-width: 900px) {
             .mobile-topbar { display: flex; }
-            #main { padding: 1.5rem 1rem; }
+            #main { padding: 1.5rem 1rem; padding-top: 1rem; }
         }
 
         .mobile-brand { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold); font-style: italic; }
@@ -265,12 +272,18 @@
         /* ── MOBILE NAV ── */
         .mobile-nav {
             display: none;
-            gap: .25rem;
+            gap: .5rem;
             padding: .75rem 1rem;
             overflow-x: auto;
             border-bottom: 1px solid var(--border);
             background: var(--white);
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            position: sticky;
+            top: 60px;
+            z-index: 99;
         }
+        .mobile-nav::-webkit-scrollbar { display: none; }
 
         @media (max-width: 900px) { .mobile-nav { display: flex; } }
 
@@ -419,6 +432,17 @@
             border-bottom: 1px solid var(--border);
         }
 
+        @media (max-width: 768px) {
+            .table-wrap { padding: 0 1rem 1rem; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: #fff; }
+            td { border: none; border-bottom: 1px solid #eee; position: relative; padding-left: 50% !important; text-align: right; }
+            td:before { position: absolute; left: 1rem; width: 45%; padding-right: 10px; white-space: nowrap; font-weight: 700; text-align: left; font-size: 0.65rem; text-transform: uppercase; color: var(--muted); content: attr(data-label); }
+            td:last-child { border-bottom: none; }
+            tbody td:first-child, tbody td:last-child { border-radius: 0; }
+        }
+
         tbody td:first-child { border-left: 1px solid var(--border); border-radius: 14px 0 0 14px; }
         tbody td:last-child  { border-right: 1px solid var(--border); border-radius: 0 14px 14px 0; }
         tbody tr:hover td { background: var(--gold-bg); }
@@ -535,6 +559,10 @@
             align-items: center;
         }
 
+        @media (max-width: 600px) {
+            .link-box { flex-direction: column; align-items: stretch; }
+        }
+
         .link-box input {
             flex: 1;
             padding: .85rem 1.25rem;
@@ -604,9 +632,15 @@
         #toast.show { transform: translateY(0); opacity: 1; }
 
         @media (max-width: 600px) {
+            .page-title { font-size: 1.8rem; }
             .form-row { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .stat-value { font-size: 2.5rem; }
+            .stats-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .stat-card { padding: 1.5rem; border-radius: var(--radius-sm); }
+            .stat-value { font-size: 2.8rem; }
+            .mobile-topbar { padding: 0.75rem 1rem; }
+            .mobile-brand { font-size: 1.1rem; }
+            .mobile-topbar span { font-size: 0.75rem !important; }
+            .mobile-topbar .action-btn { padding: 4px 10px; font-size: 0.65rem; }
         }
         .flying-heart {
             position: absolute;
@@ -1099,12 +1133,12 @@ async function loadRSVP() {
         if (!rsvps?.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><i class="fas fa-inbox"></i> Nenhuma confirmação ainda.</div></td></tr>'; return; }
         tbody.innerHTML = rsvps.map(r => `
             <tr>
-                <td><strong>${r.guest_name || '—'}</strong></td>
-                <td>${r.phone || '—'}</td>
-                <td>${r.guests_count || 1}</td>
-                <td><span class="badge ${(r.status==='confirmed'||r.is_attending) ? 'badge-success' : 'badge-danger'}">${(r.status==='confirmed'||r.is_attending) ? '✓ Confirmado' : '✗ Recusado'}</span></td>
-                <td>${new Date(r.created_at).toLocaleDateString('pt-PT')}</td>
-                <td><button class="action-btn danger" onclick="removeRSVP('${r.id}')"><i class="fas fa-trash"></i></button></td>
+                <td data-label="Convidado"><strong>${r.guest_name || '—'}</strong></td>
+                <td data-label="Telefone">${r.phone || '—'}</td>
+                <td data-label="Acomp.">${r.guests_count || 1}</td>
+                <td data-label="Estado"><span class="badge ${(r.status==='confirmed'||r.is_attending) ? 'badge-success' : 'badge-danger'}">${(r.status==='confirmed'||r.is_attending) ? '✓ Confirmado' : '✗ Recusado'}</span></td>
+                <td data-label="Data">${new Date(r.created_at).toLocaleDateString('pt-PT')}</td>
+                <td data-label="Ações"><button class="action-btn danger" onclick="removeRSVP('${r.id}')"><i class="fas fa-trash"></i></button></td>
             </tr>
         `).join('');
     } catch(e) { console.error(e); }
@@ -1154,10 +1188,10 @@ async function loadGifts() {
         if (!gifts?.length) { tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><i class="fas fa-gift"></i> Nenhum presente ainda.</div></td></tr>'; return; }
         tbody.innerHTML = gifts.map(g => `
             <tr>
-                <td>${g.gifted_by || '—'}</td>
-                <td>${g.gift_name || '—'}</td>
-                <td>${g.value ? Number(g.value).toLocaleString('pt') : '—'}</td>
-                <td>${new Date(g.created_at).toLocaleDateString('pt-PT')}</td>
+                <td data-label="Convidado">${g.gifted_by || '—'}</td>
+                <td data-label="Presente">${g.gift_name || '—'}</td>
+                <td data-label="Valor (MT)">${g.value ? Number(g.value).toLocaleString('pt') : '—'}</td>
+                <td data-label="Data">${new Date(g.created_at).toLocaleDateString('pt-PT')}</td>
             </tr>
         `).join('');
     } catch(e) { console.error(e); }
